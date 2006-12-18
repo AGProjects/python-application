@@ -1,0 +1,24 @@
+Source: python-application
+Section: python
+Priority: optional
+Maintainer: Dan Pascu <dan@ag-projects.com>
+Build-Depends: cdbs (>= 0.4.47), debhelper (>= 5.0.42), python-all-dev (>= 2.4.4-1), python-central (>= 0.5.6)
+XS-Python-Version: all
+Standards-Version: 3.7.2
+
+Package: python-application
+Architecture: all
+Depends: ${python:Depends}, python-twisted-core
+XB-Python-Version: ${python:Versions}
+Description: Basic buliding blocks for python applications
+ This module provides some basic components that can be used to simplify
+ building python applications.
+ .
+ The components included by this package incapsulate the functionality to
+ handle the following tasks:
+ .
+  - UNIX process management (forking, signal handling, pid file creation)
+  - An extensible logging facility (stdout/stderr and/or syslog).
+  - An easy way to describe and load a standard .ini configuration file.
+  - Debugging of memory issues and execution timing. 
+

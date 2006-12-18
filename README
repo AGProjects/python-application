@@ -1,0 +1,17 @@
+
+This package is a collection of modules that are useful when building python
+applications. Their purpose is to eliminate the need to divert resources into
+implementing the small tasks that every application needs to do in order to
+run succesfully and focus on the application logic itself.
+
+The modules that the application package provides are:
+
+1. process       - UNIX process and signal management
+2. configuration - a consistent and simple interface to handle configuration 
+                   files that use the window .ini format.
+3. log           - a system logger that can log to stdout/stderr and/or syslog 
+                   and is easy to extend.
+4. debug         - for debugging memory leaks and for timing parts of the
+                   application under runtime conditions.
+5. util          - misclaneous useful variables, functions and classes
+
