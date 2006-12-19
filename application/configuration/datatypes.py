@@ -5,8 +5,7 @@
 
 
 __all__ = ['Boolean', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
-           'NetworkRange', 'NetworkRangeList', 'ControlSocket',
-           'NetworkAddress', 'EndpointAddress']
+           'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
 
 import socket
 import re
@@ -16,7 +15,7 @@ from application import log
 
 
 class Boolean(int):
-    """A boolean value that handles multiple boolean input keywords"""
+    """A boolean value that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
     __states = {'1': True, 'yes': True, 'true': True, 'on': True, 1: True, True: True,
                 '0': False, 'no': False, 'false': False, 'off': False, 0: False, False: False}
     __objects = {} ## We want True and False to be singletons. Store them here.
@@ -41,14 +40,15 @@ class Boolean(int):
 
 
 class StringList(list):
-    """A list of strings"""
+    """A list of strings separated by commas"""
     def __new__(typ, value):
         if value.lower() in ('none', ''):
             return []
         return re.split(r'\s*,\s*', value)
 
+
 class IPAddress(str):
-    """An IP address"""
+    """An IP address in quad dotted number notation"""
     def __new__(typ, value):
         try:
             socket.inet_aton(value)
@@ -56,8 +56,9 @@ class IPAddress(str):
             raise ValueError("invalid IP address: %r" % value)
         return str(value)
 
+
 class Hostname(str):
-    """A Hostname or an IP address. The keyword `Any' is accepted in place of '0.0.0.0' """
+    """A Hostname or an IP address. The keyword `any' stands for '0.0.0.0'"""
     def __new__(typ, value):
         if value.lower() == 'any':
             return '0.0.0.0'
@@ -67,8 +68,9 @@ class Hostname(str):
             raise ValueError("invalid hostname or IP address: %r" % value)
         return str(value)
 
+
 class HostnameList(list):
-    """A list of hostnames"""
+    """A list of hostnames separated by commas"""
     def __new__(typ, description):
         if description.lower()=='none':
             return []
@@ -83,9 +85,11 @@ class HostnameList(list):
                 hosts.append(host)
         return hosts
 
+
 class NetworkRange(tuple):
     """
-    Describes a network address range in the form of: (base_address, network_mask)
+    Describes a network address range in the form of a base_address and a
+    network_mask which together define the network range in question.
 
     Input should be a string in the form of:
         - network/mask
@@ -93,9 +97,16 @@ class NetworkRange(tuple):
         - hostname
     in the latter two cases a mask of 32 is assumed.
     Except the hostname case, where a DNS name is present, in the other cases
-    the address should be in quad dotted number notation.
+    the address should be in quad dotted number notation. The special address
+    0.0.0.0 can also be represented in the short format as 0.
     Mask is number between 0 and 32 (bits used by the network part of address)
-    On error ValueError is raised.
+    In addition to these, there are 2 special keywords that will be accepted
+    as input: none which is equivalent to 0.0.0.0/32 (or its short form 0/32)
+    and any which is equivalent to 0.0.0.0/0 (or its short form 0/0)
+
+    Output is a tuple with (base_address, network_mask)
+
+    On error ValueError is raised, or NameError for invalid hostnames.
     """
     def __new__(typ, description):
         if not description or description.lower()=='none':
@@ -119,13 +130,12 @@ class NetworkRange(tuple):
         except:
             raise ValueError, "invalid IP address: '%s'" % net
         mask = (0xFFFFFFFFL << 32-netbits) & 0xFFFFFFFFL
-        #mask = (-1L << 32-netbits) & 0xFFFFFFFFL
-        #mask = ((1L << netbits) - 1) << 32-netbits
         netbase = struct.unpack('!L', netaddr)[0] & mask
         return (netbase, mask)
 
+
 class NetworkRangeList(list):
-    """A list of NetworkRange objects"""
+    """A list of NetworkRange objects separated by commas"""
     def __new__(typ, description):
         if description.lower()=='none':
             return None
@@ -142,19 +152,24 @@ class NetworkRangeList(list):
                 ranges.append(range)
         return ranges or None
 
-class ControlSocket(str):
-    """A UNIX filesystem socket or None"""
-    def __new__(typ, value):
-        if value.lower() == 'none':
-            return None
-        return str(value)
 
 class NetworkAddress(tuple):
-    """A TCP/IP host[:port] network address. 
-    Host may be a hostname, an IP address or the keyword `any' meaning `0.0.0.0'.
-    If port is missing, NGNPro's default port (9200) will be used.
-    Using the keyword `default' as the value, will use `0.0.0.0:9200' as the address."""
-    _defaultPort = 9200
+    """
+    A TCP/IP host[:port] network address.
+    Host may be a hostname, an IP address or the keyword `any' which stands
+    for 0.0.0.0. If port is missing, 0 will be used.
+    The keyword `default' stands for `0.0.0.0:0' (0.0.0.0:default_port).
+
+    Because of the dafault port being 0, this class is not very useful to be
+    used directly. It is instead meant to be easily subclassed to get more
+    specific types of network addresses. For example to define a SIP proxy
+    address:
+
+        class SIPProxyAddress(NetworkAddress):
+            _defaultPort = 5060
+
+    """
+    _defaultPort = 0
     def __new__(typ, value):
         if value.lower() == 'none': return None
         if value.lower() == 'default': return ('0.0.0.0', typ._defaultPort)
@@ -171,8 +186,20 @@ class NetworkAddress(tuple):
             raise ValueError("invalid network address: %r" % value)
         return (address, port)
 
+
 class EndpointAddress(NetworkAddress):
-    """A network endpoint. This is a NetworkAddress that cannot be None or have an undefined address/port."""
+    """
+    A network endpoint. This is a NetworkAddress that cannot be None or have
+    an undefined address/port.
+
+    This class is meant to be subclassed to get more specific network enpoint
+    descriptions. For example for SIP endpoint:
+
+        class SIPEndpointAddress(EndpointAddress):
+            _defaultPort = 5060
+            _name = 'SIP end point address'
+
+    """
     _defaultPort = 0
     _name = 'end point address'
     def __new__(typ, value):
@@ -182,4 +209,5 @@ class EndpointAddress(NetworkAddress):
         elif address[0]=='0.0.0.0' or address[1]==0:
             raise ValueError("invalid %s: %s:%s" % (typ._name, address[0], address[1]))
         return address
+
 
