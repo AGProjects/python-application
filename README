@@ -6,12 +6,9 @@ run succesfully and focus on the application logic itself.
 
 The modules that the application package provides are:
 
-1. process       - UNIX process and signal management
-2. configuration - a consistent and simple interface to handle configuration 
-                   files that use the window .ini format.
-3. log           - a system logger that can log to stdout/stderr and/or syslog 
-                   and is easy to extend.
-4. debug         - for debugging memory leaks and for timing parts of the
-                   application under runtime conditions.
-5. util          - misclaneous useful variables, functions and classes
+1. process       - UNIX process and signal management.
+2. configuration - a simple interface to handle configuration files.
+3. log           - an extensible system logger for console and syslog.
+4. debug         - memory troubleshooting and execution timing.
+5. util          - misclaneous useful variables, functions and classes.
 
