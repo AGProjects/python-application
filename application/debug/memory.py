@@ -31,7 +31,7 @@ def memory_dump():
         s = str(x)
         if len(s) > 80:
             s = s[:77] + '...'
-        print type(x), "\n ", s
+        print "%s\n  %s" % (type(x), s)
 
 gc.enable()
 gc.set_debug(gc.DEBUG_LEAK)
