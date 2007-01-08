@@ -34,5 +34,6 @@ def memory_dump():
         print "%s\n  %s" % (type(x), s)
 
 gc.enable()
+gc.collect() ## Ignore collectable garbage up to this point
 gc.set_debug(gc.DEBUG_LEAK)
 
