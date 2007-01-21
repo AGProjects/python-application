@@ -12,10 +12,11 @@ run succesfully and focus on the application logic itself.
 The modules that the application package provides are:
 
 1. process       - UNIX process and signal management.
-2. configuration - a simple interface to handle configuration files.
-3. log           - an extensible system logger for console and syslog.
-4. debug         - memory troubleshooting and execution timing.
-5. util          - misclaneous useful variables, functions and classes.
+2. python        - python utility classes and functions.
+3. configuration - a simple interface to handle configuration files.
+4. log           - an extensible system logger for console and syslog.
+5. debug         - memory troubleshooting and execution timing.
+6. util          - miscelaneous application related utilities.
 """
 
 setup(name         = "python-application",
@@ -36,4 +37,4 @@ setup(name         = "python-application",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules"
       ],
-      packages     = ['application', 'application.configuration', 'application.debug'])
+      packages     = ['application', 'application.configuration', 'application.debug', 'application.python'])
