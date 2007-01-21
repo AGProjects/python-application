@@ -20,5 +20,6 @@ Description: Basic buliding blocks for python applications
   - UNIX process management (forking, signal handling, pid file creation)
   - A very simple to use interface to handle configuration files.
   - An extensible system logger for console and/or syslog.
+  - Miscelaneous utilities and helpers.
   - Memory troubleshooting and execution timing.
 
