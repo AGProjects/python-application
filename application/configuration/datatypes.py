@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Dan Pascu <dan@ag-projects.com>
+# Copyright (C) 2005-2007 Dan Pascu <dan@ag-projects.com>
 #
 
 """Provide basic data types to interpret entries in the configuration file"""

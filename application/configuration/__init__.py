@@ -1,4 +1,4 @@
-# Copyright (C) 2004-2006 Dan Pascu <dan@ag-projetcs.com>
+# Copyright (C) 2004-2007 Dan Pascu <dan@ag-projects.com>
 #
 
 """Processing the application configuration file"""

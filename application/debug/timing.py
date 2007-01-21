@@ -1,4 +1,4 @@
-# Copyright (C) 2006 Dan Pascu <dan@ag-projects.com>
+# Copyright (C) 2006-2007 Dan Pascu <dan@ag-projects.com>
 #
 
 """Timing code execution for benchmarking and profiling purposes.
