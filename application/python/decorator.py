@@ -35,7 +35,7 @@ from application.python.decorator import decorator, preserve_signature
 def print_args(func):
     @preserve_signature(func)
     def wrapper(*args, **kwargs):
-        print args, kwargs
+        print "arguments:", args, kwargs
         return func(*args, **kwargs)
     return wrapper
 
