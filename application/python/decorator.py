@@ -26,3 +26,21 @@ def preserve_signature(func):
         return new_wrapper
     return fix_signature
 
+
+__usage__ = """
+from application.python.decorator import decorator, preserve_signature
+
+# indicate that the next function will be used as a decorator (optional)
+@decorator
+def print_args(func):
+    @preserve_signature(func)
+    def wrapper(*args, **kwargs):
+        print args, kwargs
+        return func(*args, **kwargs)
+    return wrapper
+
+@print_args
+def foo(x, y, z=7):
+    return x + 3*y + z*z
+
+"""
