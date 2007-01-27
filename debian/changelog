@@ -1,3 +1,9 @@
+python-application (1.0.4) unstable; urgency=low
+
+  * Added application.python.queue module.
+
+ -- Dan Pascu <dan@ag-projects.com>  Sat, 27 Jan 2007 05:29:17 +0200
+
 python-application (1.0.3) unstable; urgency=low
 
   * Added usage example for the decorator module.
