@@ -42,15 +42,15 @@ class EventQueue(Thread):
             self._exit.set()
         self.queue.put(StopProcessing)
     def put(self, event):
-        """Add an event to the queue to be processed"""
+        """Add an event on the queue"""
         self.queue.put(event)
     def load(self, events):
-        """Add multiple events to the queue at once"""
+        """Add multiple events on the queue"""
         [self.queue.put(event) for event in events]
     def get_unhandled(self):
-        """Get unhandled events, after the queue is stopped (events are removed from queue)"""
+        """Get unhandled events after the queue is stopped (events are removed from queue)"""
         if self.isAlive():
-            raise RuntimeError("Queue is still running. Stop it first.")
+            raise RuntimeError("Queue is still running")
         unhandled = []
         try:
             while True:
@@ -97,7 +97,7 @@ class CumulativeEventQueue(EventQueue):
         """Trigger accumulated event processing. The processing is done on the queue thread"""
         self.put(ProcessEvents)
     def get_unhandled(self):
-        """Get unhandled events, after the queue is stopped (events are removed from queue)"""
+        """Get unhandled events after the queue is stopped (events are removed from queue)"""
         unhandled = self._waiting + EventQueue.get_unhandled(self)
         self._waiting = []
         return [e for e in unhandled if e is not ProcessEvents]
