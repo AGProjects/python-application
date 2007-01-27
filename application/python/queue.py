@@ -31,7 +31,11 @@ class EventQueue(Thread):
             event = self.queue.get()
             if event is StopProcessing:
                 break
-            self.handle(event)
+            try:
+                self.handle(event)
+            except:
+                log.error("exception happened during event handling")
+                log.err()
     def stop(self, force_exit=False):
         """Terminate the event processing loop/thread (force_exit=True skips processing events already on queue)"""
         if force_exit:
@@ -74,11 +78,19 @@ class CumulativeEventQueue(EventQueue):
                 break
             elif event is ProcessEvents:
                 if self._waiting:
-                    self.handle(self._waiting)
+                    try:
+                        self.handle(self._waiting)
+                    except:
+                        log.error("exception happened during event handling")
+                        log.err()
                     self._waiting = []
             else:
                 if getattr(event, 'high_priority', False):
-                    self.handle([event])
+                    try:
+                        self.handle([event])
+                    except:
+                        log.error("exception happened during high priority event handling")
+                        log.err()
                 else:
                     self._waiting.append(event)
     def process(self):
