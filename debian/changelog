@@ -1,3 +1,15 @@
+python-application (1.0.5) unstable; urgency=low
+
+  * Added methods for controlling the event processing workflow
+     - pause/unpause/resume - to control event processing
+     - accept_events/ingore_events - to control event acceptance
+     - empty - to purge events already on the queue
+  * Allow unhandled events in a CumulativeEventQueue to be preserved.
+  * Capture unhandled exceptions from a queue's event handler.
+  * Fixed some docstrings and error messages in the queue module.
+
+ -- Dan Pascu <dan@ag-projects.com>  Sun, 28 Jan 2007 06:13:52 +0200
+
 python-application (1.0.4) unstable; urgency=low
 
   * Added application.python.queue module.
