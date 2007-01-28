@@ -78,12 +78,17 @@ class CumulativeEventQueue(EventQueue):
                 break
             elif event is ProcessEvents:
                 if self._waiting:
+                    preserved = []
                     try:
-                        self.handle(self._waiting)
+                        unhandled = self.handle(self._waiting)
+                        if not isinstance(unhandled, (list, type(None))):
+                            raise ValueError("%s handler must return a list of unhandled events or None" % self.__class__.__name__)
+                        if unhandled is not None:
+                            preserved = unhandled ## preserve the unhandled events that the handler returned
                     except:
                         log.error("exception happened during event handling")
                         log.err()
-                    self._waiting = []
+                    self._waiting = preserved
             else:
                 if getattr(event, 'high_priority', False):
                     try:
