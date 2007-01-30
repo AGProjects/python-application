@@ -5,8 +5,10 @@
 
 __all__ = ['EventQueue', 'CumulativeEventQueue']
 
-from threading import Thread, Event, Lock
 import Queue
+from threading import Thread, Event, Lock
+
+from application import log
 
 # Special events that control the queue operation (for internal use)
 class StopProcessing: pass
