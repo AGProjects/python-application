@@ -10,7 +10,7 @@ Package: python-application
 Architecture: all
 Depends: ${python:Depends}, python-twisted-core
 XB-Python-Version: ${python:Versions}
-Description: Basic buliding blocks for python applications
+Description: Basic building blocks for python applications
  This module provides some basic components that can be used to simplify
  building python applications.
  .
