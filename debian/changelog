@@ -1,3 +1,9 @@
+python-application (1.0.7) unstable; urgency=low
+
+  * Increased version to build against python2.5 as well.
+
+ -- Dan Pascu <dan@ag-projects.com>  Thu, 10 May 2007 20:32:20 +0300
+
 python-application (1.0.6) unstable; urgency=low
 
   * Added missing import in the queue module.
