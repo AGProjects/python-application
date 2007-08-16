@@ -6,6 +6,7 @@
 
 __all__ = ['Singleton', 'Null']
 
+
 class Singleton(type):
     """Metaclass for making singletons"""
     def __init__(cls, name, bases, dic):
@@ -18,7 +19,7 @@ class Singleton(type):
 
 
 class Null(object):
-    """Instances of this class always and reliably "do nothing" :P"""
+    """Instances of this class always and reliably "do nothing"."""
     def __init__(self, *args, **kwargs): pass
     def __call__(self, *args, **kwargs): return self
     def __repr__(self): return self.__class__.__name__
