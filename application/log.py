@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2007 Dan Pascu <dan@ag-projects.com>
+# Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
 """Handling the application logging to stdout/stderr and syslog"""

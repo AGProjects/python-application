@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Dan Pascu <dan@ag-projects.com>.
+# Copyright (C) 2007 Dan Pascu. See LICENSE for details.
 #
 
 """Helper functions for writing well behaved decorators."""
