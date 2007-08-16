@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Provide basic data types to interpret entries in the configuration file"""
+"""Provide basic data types to handle entries from the configuration file"""
 
 
 __all__ = ['Boolean', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
@@ -160,10 +160,9 @@ class NetworkAddress(tuple):
     for 0.0.0.0. If port is missing, 0 will be used.
     The keyword `default' stands for `0.0.0.0:0' (0.0.0.0:default_port).
 
-    Because of the dafault port being 0, this class is not very useful to be
-    used directly. It is instead meant to be easily subclassed to get more
-    specific types of network addresses. For example to define a SIP proxy
-    address:
+    Because the default port is 0, this class is not very useful to be used
+    directly. Instead, it is meant to be subclassed to get more specific
+    types of network addresses. For example to define a SIP proxy address:
 
         class SIPProxyAddress(NetworkAddress):
             _defaultPort = 5060
