@@ -1,0 +1,54 @@
+Changes in version 1.0.8
+------------------------
+
+  * Added LICENSE and ChangeLog.
+  * Rephrased some docstrings and descriptions.
+
+Changes in version 1.0.7
+------------------------
+
+  * In setup.py take the long description from README.
+
+Changes in version 1.0.6
+------------------------
+
+  * Added missing import in the queue module.
+
+Changes in version 1.0.5
+------------------------
+
+  * Added methods for controlling the event processing workflow
+     - pause/unpause/resume - to control event processing
+     - accept_events/ingore_events - to control event acceptance
+     - empty - to purge events already on the queue
+  * Allow unhandled events in a CumulativeEventQueue to be preserved.
+  * Capture unhandled exceptions from a queue's event handler.
+  * Fixed some docstrings and error messages in the queue module.
+
+Changes in version 1.0.4
+------------------------
+
+  * Added application.python.queue module.
+
+Changes in version 1.0.3
+------------------------
+
+  * Added usage example for the decorator module.
+
+Changes in version 1.0.2
+------------------------
+
+  * Added application.python submodule. It contains python related utilities
+    and helpers (currently it contains the decorator and util modules).
+  * Added decorator support in application.python.decorator.
+  * Moved the Singleton and Null classes from application.util to
+    application.python.util.
+  * Updated years in copyright info.
+
+Changes in version 1.0.1
+------------------------
+
+  * Fixed issue with printing the memory dump in multithreaded environments.
+  * Ignore one time collectable garbage generated before the memory debug
+    module is imported.
+
