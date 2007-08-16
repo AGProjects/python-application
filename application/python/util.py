@@ -3,9 +3,7 @@
 
 """Miscelaneous utility functions and classes"""
 
-
 __all__ = ['Singleton', 'Null']
-
 
 class Singleton(type):
     """Metaclass for making singletons"""
@@ -16,7 +14,6 @@ class Singleton(type):
         if cls.instance is None:
             cls.instance = super(Singleton, cls).__call__(*args, **kw)
         return cls.instance
-
 
 class Null(object):
     """Instances of this class always and reliably "do nothing"."""
@@ -30,5 +27,4 @@ class Null(object):
     def __setattr__(self, name, value): return self
     def __delattr__(self, name): return self
     __str__ = __repr__
-
 
