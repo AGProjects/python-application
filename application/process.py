@@ -11,6 +11,7 @@ import signal
 import atexit
 
 from application import log
+from application.python.util import Singleton
 
 try:
     set
@@ -22,6 +23,8 @@ class ProcessError(Exception): pass
 
 
 class Process(object):
+    __metaclass__ = Singleton
+
     def __init__(self):
         self._daemon = False
         self._pidfile = None
@@ -214,6 +217,9 @@ class Process(object):
 
 class Signals(object):
     """Interface to the system signals"""
+
+    __metaclass__ = Singleton
+    
     def __init__(self):
         self._handlers = {}
         if not hasattr(signal, '_original_signal'):
@@ -255,8 +261,5 @@ class Signals(object):
             signal.signal = signal._original_signal
 
 
-try:
-    process
-except NameError:
-    process = Process()
+process = Process()
 
