@@ -3,4 +3,3 @@
 
 """Utilities for application debugging and profiling"""
 
-import timing
