@@ -22,6 +22,8 @@ class ProcessError(Exception): pass
 
 
 class Process(object):
+    """Control how the current process runs and interacts with the operating system"""
+
     __metaclass__ = Singleton
 
     def __init__(self):
