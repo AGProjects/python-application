@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Handling the application logging to stdout/stderr and syslog"""
+"""Application logging system for stdout/stderr and syslog"""
 
 __all__ = ['msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'startSyslog']
 

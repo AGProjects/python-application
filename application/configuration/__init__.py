@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Processing the application configuration file"""
+"""Application configuration file handling"""
 
 __all__ = ['ConfigSection', 'readSettings', 'getOption', 'getSection', 'dumpSettings', 'datatypes']
 

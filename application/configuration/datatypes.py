@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Provide basic data types to handle entries from the configuration file"""
+"""Basic data types to describe the type of the entries in the configuration file"""
 
 
 __all__ = ['Boolean', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
