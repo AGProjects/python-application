@@ -24,6 +24,7 @@ proj.file-list = [loc('.boring'),
                   loc('debian/copyright'),
                   loc('debian/pycompat'),
                   loc('debian/rules'),
+                  loc('LICENSE'),
                   loc('MANIFEST.in'),
                   loc('README'),
                   loc('setup.py')]
