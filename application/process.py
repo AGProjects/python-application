@@ -3,7 +3,6 @@
 
 """UNIX process and signal management"""
 
-
 import sys
 import os
 import errno
@@ -31,9 +30,7 @@ class Process(object):
         self.signals = Signals()
         self._runtime_directory = '/var/run'
         self._system_config_directory = '/etc'
-        # TODO: decide on the best way to get the executing script path  -Mircea
         self._local_config_directory = os.path.realpath(os.path.dirname(sys.argv[0]))
-        #self._local_config_directory = os.path.realpath((os.path.dirname(__file__) or '.') + '/..')
 
     def _get_config_directory(self):
         return self._system_config_directory
