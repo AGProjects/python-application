@@ -64,7 +64,7 @@ def readSettings(section, object):
                 setattr(object, prop, value)
 
 
-def getOption(section, option, default='', otype=str):
+def getOption(section, option, default='', type=str):
     if Configuration is None:
         _read_configuration()
     try:
@@ -73,10 +73,10 @@ def getOption(section, option, default='', otype=str):
         return default
     else:
         try:
-            if otype is bool:
+            if type is bool:
                 return bool(datatypes.Boolean(value))
             else:
-                return otype(value)
+                return type(value)
         except Exception, why:
             msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, option, value, why)
             log.warn(msg, **logContext)
