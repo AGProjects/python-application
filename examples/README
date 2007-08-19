@@ -1,0 +1,22 @@
+
+This directory holds some examples of using python-application. 
+
+1. process.py - example of using the process module to control how the
+                application runs (foreground or background) and how it
+                handles operating system signals. This example also shows
+                how to set other process attributes (like the runtime
+                directory) and how to use the log module for logging.
+
+2. config.py  - Example of how to handle the application configuration file.
+
+3. debug.py   - Example of using the debugging facilities. Timing code
+                execution and finding memory leaks are shown here.
+
+4. singleton.py - Example that shows how to use the Singleton metaclass
+                  to create singletons.
+
+To run the examples without installing python-application, run the
+following command prior to trying the examples:
+
+export PYTHONPATH=/path/to/python-application
+
