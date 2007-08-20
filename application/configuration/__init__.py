@@ -3,7 +3,7 @@
 
 """Application configuration file handling"""
 
-__all__ = ['ConfigSection', 'readSettings', 'getOption', 'getSection', 'dumpSettings', 'datatypes']
+__all__ = ['ConfigSection', 'read_settings', 'get_option', 'get_section', 'dump_settings', 'datatypes']
 
 import os
 try:    from ConfigParser import SafeConfigParser as ConfigParser
@@ -37,7 +37,7 @@ def _read_configuration():
     Configuration.read(files)
 
 
-def readSettings(section, object):
+def read_settings(section, object):
     """Update the object's attributes with values read from the given section in the config"""
     if Configuration is None:
         _read_configuration()
@@ -64,7 +64,7 @@ def readSettings(section, object):
                 setattr(object, prop, value)
 
 
-def getOption(section, option, default='', type=str):
+def get_option(section, option, default='', type=str):
     if Configuration is None:
         _read_configuration()
     try:
@@ -83,7 +83,7 @@ def getOption(section, option, default='', type=str):
             return default
 
 
-def getSection(section):
+def get_section(section):
     """Return a list of tuples with name, value pairs from the section"""
     if Configuration is None:
         _read_configuration()
@@ -93,7 +93,7 @@ def getSection(section):
         return None
 
 
-def dumpSettings(object):
+def dump_settings(object):
     print '%s:' % object.__name__
     for x in dir(object):
         if x[0] == '_': continue
