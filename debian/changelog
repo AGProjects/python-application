@@ -6,11 +6,13 @@ python-application (1.0.8) unstable; urgency=low
   * Added some docstrings and rephrased others.
   * Updated util module description.
   * Removed some obsolete commented code.
-  * Renamed otype to type in getOption.
-  * Added examples.
+  * Added some usage examples.
   * Do not compress .py and .ini example files.
+  * Renamed mixed case functions in the configuration module to use
+    names with underscores for consistency.
+  * Renamed argument otype to type in the get_option function.
 
- -- Dan Pascu <dan@ag-projects.com>  Mon, 20 Aug 2007 14:11:03 +0300
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 20 Aug 2007 16:34:41 +0300
 
 python-application (1.0.7) unstable; urgency=low
 
