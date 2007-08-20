@@ -14,6 +14,9 @@ Changes in version 1.0.8
   * Renamed mixed case functions in the configuration module to use
     names with underscores for consistency.
   * Renamed argument otype to type in the get_option function.
+  * Renamed thisHostIP to host_ip.
+  * Added backward compat functions to smooth transition to the new
+    function names. They will give a deprecation warning if used.
 
 Changes in version 1.0.7
 ------------------------
