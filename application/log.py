@@ -81,10 +81,10 @@ class SyslogObserver:
         while lines[-1:] == ['']:
             lines.pop()
 
-        firstLine = 1
+        firstLine = True
         for line in lines:
             if firstLine:
-                firstLine=0
+                firstLine = False
             else:
                 line = '    %s' % line
             syslog.syslog('[%s] %s%s' % (eventDict['system'], prefix, line))
