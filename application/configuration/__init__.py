@@ -100,3 +100,24 @@ def dump_settings(object):
         print '  %s: %s' % (x, eval('object.%s' % x))
     print ''
 
+
+# Backward compatibility functions. Do not use! They will be removed soon.
+#
+import warnings
+
+def readSettings(section, object):
+    warnings.warn("readSettings was replaced by read_settings", DeprecationWarning, stacklevel=2)
+    return read_settings(section, object)
+
+def getOption(section, option, default='', type=str):
+    warnings.warn("getOption was replaced by get_option", DeprecationWarning, stacklevel=2)
+    return get_option(section, option, default, type)
+
+def getSection(section):
+    warnings.warn("getSection was replaced by get_section", DeprecationWarning, stacklevel=2)
+    return get_section(section)
+
+def dumpSettings(object):
+    warnings.warn("dumpSettings was replaced by dump_settings", DeprecationWarning, stacklevel=2)
+    dump_settings(object)
+
