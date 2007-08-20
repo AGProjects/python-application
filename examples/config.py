@@ -101,6 +101,6 @@ dump_settings(StorageConfig)
 ip = NetworkConfig.ip
 
 # Or we can get individual options from a given section
-dburi = get_option('Storage', 'dburi', default='undefined')
+dburi = get_option('Storage', 'dburi', default='undefined', type=str)
 print "\nGot dburi from Storage as `%s'\n" % dburi
 
