@@ -3,13 +3,13 @@
 
 """Miscelaneous utilities"""
 
-__all__ = ['thisHostIP', 'unlink']
+__all__ = ['host_ip', 'unlink']
 
 ## System variables
 
 import socket
-try:    thisHostIP = socket.gethostbyname(socket.getfqdn())
-except: thisHostIP = None
+try:    host_ip = socket.gethostbyname(socket.getfqdn())
+except: host_ip = None
 del socket
 
 ## Functions

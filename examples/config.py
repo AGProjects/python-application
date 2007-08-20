@@ -4,7 +4,7 @@
 
 from application.configuration import *
 from application.process import process
-from application.util import thisHostIP
+from application.util import host_ip
 
 # Define a specific data type we will later use with the configuration
 class Priority(int):
@@ -39,7 +39,7 @@ class NetworkConfig(ConfigSection):
         'allow': datatypes.NetworkRangeList
     }
     name = 'undefined'
-    ip = thisHostIP
+    ip = host_ip
     port = 8000
     priority = Priority('Normal')
     domains = []
