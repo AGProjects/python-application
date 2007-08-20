@@ -1,3 +1,17 @@
+python-application (1.0.8) unstable; urgency=low
+
+  * Do not automatically import the timing module when the debug
+    module is imported.
+  * Made Process and Signals singletons.
+  * Added some docstrings and rephrased others.
+  * Updated util module description.
+  * Removed some obsolete commented code.
+  * Renamed otype to type in getOption.
+  * Added examples.
+  * Do not compress .py and .ini example files.
+
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 20 Aug 2007 14:11:03 +0300
+
 python-application (1.0.7) unstable; urgency=low
 
   * Increased version to build against python2.5 as well.
