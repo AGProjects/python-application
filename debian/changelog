@@ -12,10 +12,15 @@ python-application (1.0.8) unstable; urgency=low
     names with underscores for consistency.
   * Renamed argument otype to type in the get_option function.
   * Renamed thisHostIP to host_ip.
-  * Added backward compat functions to smooth transition to the new
-    function names. They will give a deprecation warning if used.
+  * Generalized configuration handling by adding the ConfigFile class.
+    With this multiple distinct configuration files can be handled at the
+    same time and it makes it easier to specify the configuration file name
+    from the application than the less flexible module file name attribute.
+  * Removed configuration module functions which were made obsolete by the
+    addition of ConfigFile.
+  * Replaced _dataTypes attribute on ConfigSection with _datatypes.
 
- -- Dan Pascu <dan@ag-projects.com>  Mon, 20 Aug 2007 22:09:15 +0300
+ -- Dan Pascu <dan@ag-projects.com>  Fri, 24 Aug 2007 14:57:05 +0300
 
 python-application (1.0.7) unstable; urgency=low
 
