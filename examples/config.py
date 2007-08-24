@@ -35,7 +35,7 @@ class NetworkConfig(ConfigSection):
     _dataTypes = {
         'ip': datatypes.IPAddress,
         'priority': Priority,
-        'domains': datatypes.HostnameList,
+        'domains': datatypes.StringList,
         'allow': datatypes.NetworkRangeList
     }
     name = 'undefined'
