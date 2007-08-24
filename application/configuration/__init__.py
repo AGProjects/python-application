@@ -3,7 +3,7 @@
 
 """Application configuration file handling"""
 
-__all__ = ['ConfigSection', 'ConfigFile', 'datatypes']
+__all__ = ['ConfigSection', 'ConfigFile', 'dump_settings', 'datatypes']
 
 import os
 try:    from ConfigParser import SafeConfigParser as ConfigParser
@@ -84,13 +84,13 @@ class ConfigFile(object):
             return self.parser.items(section)
         except NoSectionError:
             return None
-    
-    @staticmethod
-    def dump_settings(cls):
-        print '%s:' % cls.__name__
-        for x in dir(cls):
-            if x[0] == '_': continue
-            print '  %s: %s' % (x, eval('cls.%s' % x))
-        print ''
 
+
+def dump_settings(cls):
+    """Print a ConfigSection class attributes"""
+    print '%s:' % cls.__name__
+    for x in dir(cls):
+        if x[0] == '_': continue
+        print '  %s: %s' % (x, eval('cls.%s' % x))
+    print ''
 
