@@ -1,3 +1,2 @@
-recursive-include debian  changelog compat control copyright examples pycompat rules
 recursive-include examples README config.* process.py debug.py singleton.py
 include LICENSE ChangeLog MANIFEST.in
