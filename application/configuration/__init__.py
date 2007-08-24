@@ -26,7 +26,7 @@ Configuration = None
 
 
 class ConfigSection:
-    """Basic class that defines a section in the configuration file. Should be inherited."""
+    """Defines a section in the configuration file"""
     _dataTypes = {}
 
 
