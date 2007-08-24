@@ -17,7 +17,7 @@ from application.configuration import datatypes
 
 class ConfigSection:
     """Defines a section in the configuration file"""
-    _dataTypes = {}
+    _datatypes = {}
 
 
 class ConfigFile(object):
@@ -44,7 +44,7 @@ class ConfigFile(object):
         for prop in dir(cls):
             if prop[0]=='_':
                 continue
-            ptype = cls._dataTypes.get(prop, eval('cls.%s.__class__' % prop))
+            ptype = cls._datatypes.get(prop, eval('cls.%s.__class__' % prop))
             try:
                 val = self.parser.get(section, prop)
             except:

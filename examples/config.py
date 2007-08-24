@@ -24,7 +24,7 @@ class Priority(int):
 
 # Define a class that gives access (through its attributes) to the values
 # defined in a section (or possibly more) of the configuration file.
-# The data type for the attributes is taken from the _dataTypes mapping
+# The data type for the attributes is taken from the _datatypes mapping
 # if defined, else it is taken from the type of the default value assigned
 # to the attribute. The python bool type is automatically mapped to
 # datatypes.Boolean which recognizes multiple logic values like: yes/no,
@@ -32,7 +32,7 @@ class Priority(int):
 # for a boolean value, only to assign a True/False value to its attribute.
 
 class NetworkConfig(ConfigSection):
-    _dataTypes = {
+    _datatypes = {
         'ip': datatypes.IPAddress,
         'priority': Priority,
         'domains': datatypes.StringList,
