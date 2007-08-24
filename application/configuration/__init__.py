@@ -94,26 +94,3 @@ class ConfigFile(object):
         print ''
 
 
-# Backward compatibility functions. Do not use! They will be removed soon.
-#
-import warnings
-
-## The default configuration name used before ConfigFile was introduced
-name = 'config.ini'
-
-def readSettings(section, cls):
-    warnings.warn("readSettings was replaced by read_settings", DeprecationWarning, stacklevel=2)
-    return ConfigFile(name).read_settings(section, cls)
-
-def getOption(section, option, default='', type=str):
-    warnings.warn("getOption was replaced by get_option", DeprecationWarning, stacklevel=2)
-    return ConfigFile(name).get_option(section, option, default, type)
-
-def getSection(section):
-    warnings.warn("getSection was replaced by get_section", DeprecationWarning, stacklevel=2)
-    return ConfigFile(name).get_section(section)
-
-def dumpSettings(cls):
-    warnings.warn("dumpSettings was replaced by dump_settings", DeprecationWarning, stacklevel=2)
-    ConfigFile.dump_settings(cls)
-
