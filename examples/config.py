@@ -55,17 +55,7 @@ print "\nSettings before reading the configuration file (default hardcoded value
 dump_settings(NetworkConfig)
 dump_settings(StorageConfig)
 
-# Read the settings from the configuration file into the attributes of our
-# configuration classes defined above. The functions below will search in
-# the configuration file in the specified section for settings that have
-# names that match the names of the class attributes. If they are found,
-# their values will be interpreted using the specified data types and if
-# the values are valid they will be used to overwrite the default values
-# of the corresponding attributes which were defined above.
-# If an attribute doesn't have a corresponding value in the configuration
-# file it will keep its default value defined above. The settings in the
-# configuration file that do not have a corresponding attribute in the
-# configuration class we load will be ignored.
+# Create a ConfigFile instance that handles our configuration
 #
 # The configuration files are read from two directories:
 #  1. The directory where the application resides.
@@ -79,18 +69,23 @@ dump_settings(StorageConfig)
 # process.config_directory. In this example though, we do not use the system
 # config directory, instead the configuration file is in the same directory
 # as the example itself.
-# The configuration file is named by default config.ini, but can be changed
-# by modifying the name attribute of the configuration module before calling
-# any function that would read a setting from the configuration file.
-# For example if we want to read the configuration from a file named
-# myapp.ini, we can do it like this (before calling read_settings):
 #
-#   from application import configuration
-#   configuration.name = 'myapp.ini'
-#
+configuration = ConfigFile('config.ini')
 
-read_settings('Network', NetworkConfig)
-read_settings('Storage', StorageConfig)
+# Read the settings from the configuration file into the attributes of our
+# configuration classes defined above. The functions below will search in
+# the configuration file in the specified section for settings that have
+# names that match the names of the class attributes. If they are found,
+# their values will be interpreted using the specified data types and if
+# the values are valid they will be used to overwrite the default values
+# of the corresponding attributes which were defined above.
+# If an attribute doesn't have a corresponding value in the configuration
+# file it will keep its default value defined above. The settings in the
+# configuration file that do not have a corresponding attribute in the
+# configuration class we load will be ignored.
+#
+configuration.read_settings('Network', NetworkConfig)
+configuration.read_settings('Storage', StorageConfig)
 
 # Dump the values of the options after they were loaded from the config file
 print "\nSettings after reading the configuration file(s)\n"
@@ -101,6 +96,6 @@ dump_settings(StorageConfig)
 ip = NetworkConfig.ip
 
 # Or we can get individual options from a given section
-dburi = get_option('Storage', 'dburi', default='undefined', type=str)
+dburi = configuration.get_option('Storage', 'dburi', default='undefined', type=str)
 print "\nGot dburi from Storage as `%s'\n" % dburi
 
