@@ -3,7 +3,7 @@
 
 """Miscelaneous utilities"""
 
-__all__ = ['host_ip', 'unlink']
+__all__ = ['default_host_ip', 'unlink']
 
 ## System variables
 
@@ -15,12 +15,12 @@ try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(('1.2.3.4', 56))
-        host_ip = s.getsockname()[0]
+        default_host_ip = s.getsockname()[0]
     finally:
         s.close()
         del s
 except socket.error:
-    host_ip = None
+    default_host_ip = None
 del socket
 
 ## Functions
