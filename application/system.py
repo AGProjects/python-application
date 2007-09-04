@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Miscelaneous utilities"""
+"""Interaction with the underlying operating system"""
 
 __all__ = ['default_host_ip', 'unlink']
 

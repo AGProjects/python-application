@@ -4,7 +4,7 @@
 
 from application.configuration import *
 from application.process import process
-from application.util import default_host_ip
+from application.system import default_host_ip
 
 # Define a specific data type we will later use with the configuration
 class Priority(int):
