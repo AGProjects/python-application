@@ -1,3 +1,11 @@
+python-application (1.0.9) unstable; urgency=low
+
+  * Better method to determine the default host IP address.
+  * Renamed host_ip to default_host_ip for clarity.
+  * Renamed application/util.py to application/system.py
+
+ -- Dan Pascu <dan@ag-projects.com>  Tue, 04 Sep 2007 21:54:29 +0300
+
 python-application (1.0.8) unstable; urgency=low
 
   * Do not automatically import the timing module when the debug
