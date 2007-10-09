@@ -208,6 +208,8 @@ class Process(object):
 
     def runtime_file(self, name):
         """Return a runtime file name (prepends runtime_directory if defined and name is not absolute, else name)."""
+        if name is None:
+            return None
         if self.runtime_directory is not None:
             return os.path.realpath(os.path.join(self.runtime_directory, name))
         else:
