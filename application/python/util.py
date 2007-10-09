@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
 #
 
-"""Miscelaneous utility functions and classes"""
+"""Miscellaneous utility functions and classes"""
 
 __all__ = ['Singleton', 'Null']
 
