@@ -5,10 +5,12 @@
 
 __all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter']
 
+from collections import deque
 from zope.interface import Interface
 
 from application import log
 from application.python.util import Singleton
+from application.python.descriptor import ThreadLocal
 
 
 ## Special objects
@@ -78,6 +80,8 @@ class NotificationCenter(object):
 
     __metaclass__ = Singleton
 
+    queue = ThreadLocal(deque)
+
     def __init__(self, name='default'):
         """
         Create a NotificationCenter with the specified name. Subsequent calls
@@ -123,15 +127,22 @@ class NotificationCenter(object):
         """
         
         notification = Notification(name, sender, data)
-        observers = (self.observers.get((Any, Any), set()) |
-                     self.observers.get((Any, sender), set()) |
-                     self.observers.get((name, Any), set()) |
-                     self.observers.get((name, sender), set()))
-        for observer in observers:
-            try:
-                observer.handle_notification(notification)
-            except:
-                log.error("Exception occured in observer %r while handling notification %r" % (observer, notification.name))
-                log.err()
+        self.queue.append(notification)
+        if len(self.queue) > 1:
+            return
+
+        while self.queue:
+            notification = self.queue[0]
+            observers = (self.observers.get((Any, Any), set()) |
+                         self.observers.get((Any, notification.sender), set()) |
+                         self.observers.get((notification.name, Any), set()) |
+                         self.observers.get((notification.name, notification.sender), set()))
+            for observer in observers:
+                try:
+                    observer.handle_notification(notification)
+                except:
+                    log.error("Exception occured in observer %r while handling notification %r" % (observer, notification.name))
+                    log.err()
+            self.queue.popleft()
 
 
