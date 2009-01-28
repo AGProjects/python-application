@@ -48,7 +48,6 @@ class SimpleObserver(log.DefaultObserver):
     """
 
     def _emit(self, eventDict):
-        #sys.stdout.write(str(eventDict))
         if eventDict['isError']:
             if eventDict.has_key('failure'):
                 text = eventDict['failure'].getTraceback()
