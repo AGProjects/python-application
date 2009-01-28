@@ -17,21 +17,25 @@ info = msg
 def warn(message, **kwargs):
     context = kwargs.copy()
     context['prefix'] = 'warning: '
+    context['syslog_priority'] = syslog.LOG_WARNING
     msg(message, **context)
 
 def debug(message, **kwargs):
     context = kwargs.copy()
     context['debug'] = True
+    context['syslog_priority'] = syslog.LOG_DEBUG
     msg(message, **context)
 
 def error(message, **kwargs):
     context = kwargs.copy()
     context['prefix'] = 'error: '
+    context['syslog_priority'] = syslog.LOG_ERR
     msg(message, **context)
 
 def fatal(message, **kwargs):
     context = kwargs.copy()
     context['prefix'] = 'fatal error: '
+    context['syslog_priority'] = syslog.LOG_CRIT
     msg(message, **context)
 
 
@@ -75,8 +79,9 @@ class SyslogObserver:
         else:
             text = ' '.join([str(m) for m in edm])
         prefix = eventDict.get('prefix', '')
+        priority = eventDict.get('syslog_priority', syslog.LOG_INFO)
         for line in text.rstrip().split('\n'):
-            syslog.syslog('[%s] %s%s' % (eventDict['system'], prefix, line))
+            syslog.syslog(priority, '[%s] %s%s' % (eventDict['system'], prefix, line))
 
 
 def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
