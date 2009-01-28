@@ -40,9 +40,8 @@ def fatal(message, **kwargs):
 
 
 class SimpleObserver(log.DefaultObserver):
-    """Simple observer.
-
-    Will send all error messages to sys.stderr and other messages to sys.stdout
+    """
+    Send all error messages to sys.stderr and other messages to sys.stdout
     Will be removed when startLogging() is called for the first time.
     Used to overwrite the twisted DefaultObserver which only logs errors
     """
