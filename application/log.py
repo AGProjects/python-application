@@ -74,14 +74,8 @@ class SyslogObserver:
                 return
         else:
             text = ' '.join([str(m) for m in edm])
-
         prefix = eventDict.get('prefix', '')
-
-        lines = text.split('\n')
-        while lines[-1:] == ['']:
-            lines.pop()
-
-        for line in lines:
+        for line in text.rstrip().split('\n'):
             syslog.syslog('[%s] %s%s' % (eventDict['system'], prefix, line))
 
 
