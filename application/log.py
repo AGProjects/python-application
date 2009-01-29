@@ -135,6 +135,7 @@ else:
     def debug(message, **kw):
         context = kw.copy()
         context['debug'] = True
+        context['prefix'] = 'debug: '
         context['syslog_priority'] = syslog.LOG_DEBUG
         msg(message, **context)
     
