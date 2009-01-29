@@ -124,34 +124,36 @@ except ImportError:
 else:
     # Twisted is available. Use the twisted.log module to implement our functionality
     
-    msg = log.msg
-    err = log.err
+    info = msg = log.msg
     
-    info = msg
-    
-    def warn(message, **kwargs):
-        context = kwargs.copy()
+    def warn(message, **kw):
+        context = kw.copy()
         context['prefix'] = 'warning: '
         context['syslog_priority'] = syslog.LOG_WARNING
         msg(message, **context)
     
-    def debug(message, **kwargs):
-        context = kwargs.copy()
+    def debug(message, **kw):
+        context = kw.copy()
         context['debug'] = True
         context['syslog_priority'] = syslog.LOG_DEBUG
         msg(message, **context)
     
-    def error(message, **kwargs):
-        context = kwargs.copy()
+    def error(message, **kw):
+        context = kw.copy()
         context['prefix'] = 'error: '
         context['syslog_priority'] = syslog.LOG_ERR
         msg(message, **context)
     
-    def fatal(message, **kwargs):
-        context = kwargs.copy()
+    def fatal(message, **kw):
+        context = kw.copy()
         context['prefix'] = 'fatal error: '
         context['syslog_priority'] = syslog.LOG_CRIT
         msg(message, **context)
+    
+    def err(exception=None, **kw):
+        context = kw.copy()
+        context['syslog_priority'] = syslog.LOG_ERR
+        log.err(_stuff=exception, **context)
     
     class SimpleObserver(log.DefaultObserver):
         """
