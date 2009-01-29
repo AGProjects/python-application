@@ -163,17 +163,14 @@ else:
         Used to overwrite the twisted DefaultObserver which only logs errors
         """
         def _emit(self, record):
-            if record['isError']:
-                if record.has_key('failure'):
-                    text = record['failure'].getTraceback()
-                else:
-                    text = ' '.join([str(m) for m in record['message']]) + '\n'
-                sys.stderr.write(text)
-                sys.stderr.flush()
+            if record['isError'] and record.has_key('failure'):
+                text = record['failure'].getTraceback()
             else:
                 text = ' '.join([str(m) for m in record['message']]) + '\n'
-                sys.stdout.write(text)
-                sys.stdout.flush()
+                prefix = record.get('prefix', '')
+                text = '\n'.join(l.rstrip() and (prefix+l) or l for l in text.split('\n'))
+            sys.stderr.write(text)
+            sys.stderr.flush()
     
     class SyslogObserver:
         def __init__(self, prefix, facility=syslog.LOG_DAEMON):
