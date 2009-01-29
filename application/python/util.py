@@ -11,7 +11,14 @@ from application.python.decorator import preserve_signature
 class Singleton(type):
     """Metaclass for making singletons"""
     def __init__(cls, name, bases, dic):
-        @preserve_signature(cls.__init__)
+        from types import UnboundMethodType
+        if type(cls.__init__) is UnboundMethodType:
+            initializer = cls.__init__
+        elif type(cls.__new__) is UnboundMethodType:
+            initializer = cls.__new__
+        else:
+            def initializer(self, *args, **kw): pass
+        @preserve_signature(initializer)
         def instance_creator(cls, *args, **kwargs):
             key = (args, tuple(sorted(kwargs.iteritems())))
             try:
