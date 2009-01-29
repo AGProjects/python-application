@@ -11,21 +11,20 @@ from application.python.decorator import preserve_signature
 class Singleton(type):
     """Metaclass for making singletons"""
     def __init__(cls, name, bases, dic):
+        @preserve_signature(cls.__init__)
+        def instance_creator(cls, *args, **kwargs):
+            key = (args, tuple(sorted(kwargs.iteritems())))
+            try:
+                hash(key)
+            except TypeError:
+                raise TypeError("cannot have singletons for classes with unhashable arguments")
+            if key not in cls._instances:
+                cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
+            return cls._instances[key]
         super(Singleton, cls).__init__(name, bases, dic)
         cls._instances = {}
+        cls._instance_creator = instancemethod(instance_creator, cls, type(cls))
     def __call__(cls, *args, **kw):
-        if not hasattr(cls, '_instance_creator'):
-            @preserve_signature(cls.__init__)
-            def instance_creator(cls, *args, **kwargs):
-                key = (args, tuple(sorted(kwargs.iteritems())))
-                try:
-                    hash(key)
-                except TypeError:
-                    raise TypeError("cannot have singletons for classes with unhashable arguments")
-                if key not in cls._instances:
-                    cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
-                return cls._instances[key]
-            cls._instance_creator = instancemethod(instance_creator, cls, type(cls))
         return cls._instance_creator(*args, **kw)
 
 class Null(object):
