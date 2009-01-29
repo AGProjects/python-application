@@ -161,38 +161,38 @@ else:
         Will be removed when startLogging() is called for the first time.
         Used to overwrite the twisted DefaultObserver which only logs errors
         """
-        def _emit(self, eventDict):
-            if eventDict['isError']:
-                if eventDict.has_key('failure'):
-                    text = eventDict['failure'].getTraceback()
+        def _emit(self, record):
+            if record['isError']:
+                if record.has_key('failure'):
+                    text = record['failure'].getTraceback()
                 else:
-                    text = ' '.join([str(m) for m in eventDict['message']]) + '\n'
+                    text = ' '.join([str(m) for m in record['message']]) + '\n'
                 sys.stderr.write(text)
                 sys.stderr.flush()
             else:
-                text = ' '.join([str(m) for m in eventDict['message']]) + '\n'
+                text = ' '.join([str(m) for m in record['message']]) + '\n'
                 sys.stdout.write(text)
                 sys.stdout.flush()
     
     class SyslogObserver:
         def __init__(self, prefix, facility=syslog.LOG_DAEMON):
             syslog.openlog(prefix, syslog.LOG_PID, facility)
-        def emit(self, eventDict):
-            edm = eventDict['message']
+        def emit(self, record):
+            edm = record['message']
             if not edm:
-                if eventDict['isError'] and eventDict.has_key('failure'):
-                    text = eventDict['failure'].getTraceback()
-                elif eventDict.has_key('format'):
-                    text = eventDict['format'] % eventDict
+                if record['isError'] and record.has_key('failure'):
+                    text = record['failure'].getTraceback()
+                elif record.has_key('format'):
+                    text = record['format'] % record
                 else:
                     # we don't know how to log this
                     return
             else:
                 text = ' '.join([str(m) for m in edm])
-            prefix = eventDict.get('prefix', '')
-            priority = eventDict.get('syslog_priority', syslog.LOG_INFO)
+            prefix = record.get('prefix', '')
+            priority = record.get('syslog_priority', syslog.LOG_INFO)
             for line in text.rstrip().split('\n'):
-                syslog.syslog(priority, '[%s] %s%s' % (eventDict['system'], prefix, line))
+                syslog.syslog(priority, '[%s] %s%s' % (record['system'], prefix, line))
     
     def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
         obs = SyslogObserver(prefix, facility)
