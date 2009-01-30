@@ -3,16 +3,16 @@
 
 """Application logging system for stdout/stderr and syslog"""
 
-__all__ = ['msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'startSyslog']
+__all__ = ['level', 'msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'startSyslog']
 
 import sys
 import syslog
+import logging
 
 try:
     from twisted.python import log
 except ImportError:
     # Twisted is not available. Use the logging module to implement our functionality
-    import logging
     
     def info(message, **context):
         logging.info(message)
@@ -68,10 +68,10 @@ except ImportError:
         def format(self, record):
             if not record.msg:
                 message = ''
-            elif record.levelno == logging.INFO:
+            elif record.levelno == level.INFO:
                 message = record.getMessage()
             else:
-                prefix = record.levelname.lower() + ': '
+                prefix = NamedLevel(record.levelno).prefix
                 message = '\n'.join(l.rstrip() and (prefix+l) or l for l in record.getMessage().split('\n'))
             if record.exc_info:
                 # Cache the traceback text to avoid converting it multiple times
@@ -90,7 +90,7 @@ except ImportError:
     class SyslogHandler(logging.Handler):
         priority_map = {logging.DEBUG:    syslog.LOG_DEBUG,
                         logging.INFO:     syslog.LOG_INFO,
-                        logging.WARN:     syslog.LOG_WARNING,
+                        logging.WARNING:  syslog.LOG_WARNING,
                         logging.ERROR:    syslog.LOG_ERR,
                         logging.CRITICAL: syslog.LOG_CRIT}
         def __init__(self, prefix, facility=syslog.LOG_DAEMON):
@@ -103,6 +103,15 @@ except ImportError:
             priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
             for line in self.format(record).rstrip().split('\n'):
                 syslog.syslog(priority, line)
+
+    class CurrentLevelDescriptor(object):
+        def __init__(self, value):
+            self.value = value
+        def __get__(self, obj, objtype):
+            return self.value
+        def __set__(self, obj, value):
+            self.value = value
+            logging.getLogger().setLevel(value)
     
     def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
         logger = logging.getLogger()
@@ -118,7 +127,6 @@ except ImportError:
     handler = logging.StreamHandler()
     handler.setFormatter(SimpleFormatter())
     logger = logging.getLogger()
-    logger.setLevel(logging.NOTSET)
     logger.addHandler(handler)
 
 else:
@@ -126,34 +134,19 @@ else:
     
     info = msg = log.msg
     
-    def warn(message, **kw):
-        context = kw.copy()
-        context['prefix'] = 'warning: '
-        context['syslog_priority'] = syslog.LOG_WARNING
-        msg(message, **context)
+    def warn(message, **context):
+        msg(message, log_level=level.WARNING, **context)
     
-    def debug(message, **kw):
-        context = kw.copy()
-        context['debug'] = True
-        context['prefix'] = 'debug: '
-        context['syslog_priority'] = syslog.LOG_DEBUG
-        msg(message, **context)
+    def debug(message, **context):
+        msg(message, log_level=level.DEBUG, **context)
     
-    def error(message, **kw):
-        context = kw.copy()
-        context['prefix'] = 'error: '
-        context['syslog_priority'] = syslog.LOG_ERR
-        msg(message, **context)
+    def error(message, **context):
+        msg(message, log_level=level.ERROR, **context)
     
-    def fatal(message, **kw):
-        context = kw.copy()
-        context['prefix'] = 'fatal error: '
-        context['syslog_priority'] = syslog.LOG_CRIT
-        msg(message, **context)
+    def fatal(message, **context):
+        msg(message, log_level=level.CRITICAL, **context)
     
-    def err(exception=None, **kw):
-        context = kw.copy()
-        context['syslog_priority'] = syslog.LOG_ERR
+    def err(exception=None, **context):
         log.err(_stuff=exception, **context)
     
     class SimpleObserver(log.DefaultObserver):
@@ -163,23 +156,38 @@ else:
         Used to overwrite the twisted DefaultObserver which only logs errors
         """
         def _emit(self, record):
+            record_level = NamedLevel(record.get('log_level', record['isError'] and level.ERROR or level.INFO))
+            if record_level < level.current:
+                return
             if record['isError'] and record.has_key('failure'):
                 text = record['failure'].getTraceback()
             else:
                 text = ' '.join([str(m) for m in record['message']]) + '\n'
-                prefix = record.get('prefix', '')
+                prefix = record_level.prefix
                 text = '\n'.join(l.rstrip() and (prefix+l) or l for l in text.split('\n'))
             sys.stderr.write(text)
             sys.stderr.flush()
     
     class SyslogObserver:
+        priority_map = {logging.DEBUG:    syslog.LOG_DEBUG,
+                        logging.INFO:     syslog.LOG_INFO,
+                        logging.WARNING:  syslog.LOG_WARNING,
+                        logging.ERROR:    syslog.LOG_ERR,
+                        logging.CRITICAL: syslog.LOG_CRIT}
         def __init__(self, prefix, facility=syslog.LOG_DAEMON):
             syslog.openlog(prefix, syslog.LOG_PID, facility)
         def emit(self, record):
+            record_level = NamedLevel(record.get('log_level', record['isError'] and level.ERROR or level.INFO))
+            if record_level < level.current:
+                return
+            prefix = record_level.prefix
+            priority = self.priority_map.get(record_level, syslog.LOG_INFO)
+            
             edm = record['message']
             if not edm:
                 if record['isError'] and record.has_key('failure'):
                     text = record['failure'].getTraceback()
+                    prefix = ''
                 elif record.has_key('format'):
                     text = record['format'] % record
                 else:
@@ -187,10 +195,16 @@ else:
                     return
             else:
                 text = ' '.join([str(m) for m in edm])
-            prefix = record.get('prefix', '')
-            priority = record.get('syslog_priority', syslog.LOG_INFO)
             for line in text.rstrip().split('\n'):
                 syslog.syslog(priority, '[%s] %s%s' % (record['system'], prefix, line))
+
+    class CurrentLevelDescriptor(object):
+        def __init__(self, value):
+            self.value = value
+        def __get__(self, obj, objtype):
+            return self.value
+        def __set__(self, obj, value):
+            self.value = value
     
     def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
         obs = SyslogObserver(prefix, facility)
@@ -202,4 +216,35 @@ else:
         log.defaultObserver.stop()
         log.defaultObserver = SimpleObserver()
         log.defaultObserver.start()
+
+
+class NamedLevel(int):
+    _level_instances = {}
+    def __new__(cls, value, name=None, prefix=''):
+        if value in cls._level_instances:
+            return cls._level_instances[value]
+        instance = int.__new__(cls, value)
+        instance.name = name or ('LEVEL%02d' % value)
+        instance.prefix = prefix
+        cls._level_instances[value] = instance
+        return instance
+    def __repr__(self):
+        return self.name
+    __str__ = __repr__
+
+class LevelClass(object):
+    ALL      = logging.NOTSET
+    NONE     = sys.maxint
+    
+    DEBUG    = NamedLevel(logging.DEBUG,    name='DEBUG',    prefix='debug: ')
+    INFO     = NamedLevel(logging.INFO,     name='INFO',     prefix='')
+    WARNING  = NamedLevel(logging.WARNING,  name='WARNING',  prefix='warning: ')
+    ERROR    = NamedLevel(logging.ERROR,    name='ERROR',    prefix='error: ')
+    CRITICAL = NamedLevel(logging.CRITICAL, name='CRITICAL', prefix='fatal error: ')
+
+    current  = CurrentLevelDescriptor(INFO)
+
+level = LevelClass()
+del LevelClass, CurrentLevelDescriptor
+
 
