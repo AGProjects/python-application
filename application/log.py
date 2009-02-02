@@ -33,37 +33,6 @@ except ImportError:
     def err(exception=None, **context):
         logging.exception(None)
     
-    class LoggingFile(object):
-        closed = False
-        encoding = 'UTF-8'
-        mode = 'w'
-        name = '<logging file>'
-        newlines = None
-        softspace = 0
-        def close(self): pass
-        def flush(self): pass
-        def fileno(self): return -1
-        def isatty(self): return False
-        def next(self): raise IOError("cannot read from log")
-        def read(self): raise IOError("cannot read from log")
-        def readline(self): raise IOError("cannot read from log")
-        def readlines(self): raise IOError("cannot read from log")
-        def readinto(self, buf): raise IOError("cannot read from log")
-        def seek(self, offset, whence=0): raise IOError("cannot seek in log")
-        def tell(self): raise IOError("log does not have position")
-        def truncate(self, size=0): raise IOError("cannot truncate log")
-        def __init__(self, logger):
-            self.buf = ''
-            self.logger = logger
-        def write(self, data):
-            lines = (self.buf + data).split('\n')
-            self.buf = lines[-1]
-            for line in lines[:-1]:
-                self.logger(line)
-        def writelines(self, lines):
-            for line in lines:
-                self.logger(line)
-    
     class SimpleFormatter(logging.Formatter):
         def format(self, record):
             if not record.msg:
@@ -113,15 +82,16 @@ except ImportError:
             self.value = value
             logging.getLogger().setLevel(value)
     
-    def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
+    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=True, capture_stderr=True):
         logger = logging.getLogger()
         for handler in logger.handlers[:]:
             logger.removeHandler(handler)
         handler = SyslogHandler(prefix, facility)
         handler.setFormatter(SimpleFormatter())
         logger.addHandler(handler)
-        if setStdout:
+        if capture_stdout:
             sys.stdout = LoggingFile(info)
+        if capture_stderr:
             sys.stderr = LoggingFile(error)
     
     handler = logging.StreamHandler()
@@ -206,9 +176,13 @@ else:
         def __set__(self, obj, value):
             self.value = value
     
-    def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
+    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=True, capture_stderr=True):
         obs = SyslogObserver(prefix, facility)
-        log.startLoggingWithObserver(obs.emit, setStdout=setStdout)
+        log.startLoggingWithObserver(obs.emit, setStdout=False)
+        if capture_stdout:
+            sys.stdout = LoggingFile(info)
+        if capture_stderr:
+            sys.stderr = LoggingFile(error)
     
     # Overwrite the twisted DefaultObserver with our SimpleObserver
     #
@@ -217,6 +191,42 @@ else:
         log.defaultObserver = SimpleObserver()
         log.defaultObserver.start()
 
+
+def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
+    from warnings import warn
+    warn('startSyslog is being deprecated and will be removed in 1.2.0. Use the start_syslog function instead.', DeprecationWarning)
+    start_syslog(prefix, facility=facility, capture_stdout=setStdout, capture_stderr=setStdout)
+
+class LoggingFile(object):
+    closed = False
+    encoding = 'UTF-8'
+    mode = 'w'
+    name = '<logging file>'
+    newlines = None
+    softspace = 0
+    def close(self): pass
+    def flush(self): pass
+    def fileno(self): return -1
+    def isatty(self): return False
+    def next(self): raise IOError("cannot read from log")
+    def read(self): raise IOError("cannot read from log")
+    def readline(self): raise IOError("cannot read from log")
+    def readlines(self): raise IOError("cannot read from log")
+    def readinto(self, buf): raise IOError("cannot read from log")
+    def seek(self, offset, whence=0): raise IOError("cannot seek in log")
+    def tell(self): raise IOError("log does not have position")
+    def truncate(self, size=0): raise IOError("cannot truncate log")
+    def __init__(self, logger):
+        self.buf = ''
+        self.logger = logger
+    def write(self, data):
+        lines = (self.buf + data).split('\n')
+        self.buf = lines[-1]
+        for line in lines[:-1]:
+            self.logger(line)
+    def writelines(self, lines):
+        for line in lines:
+            self.logger(line)
 
 class NamedLevel(int):
     _level_instances = {}
