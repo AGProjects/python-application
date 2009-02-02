@@ -196,7 +196,7 @@ else:
             else:
                 text = ' '.join([str(m) for m in edm])
             for line in text.rstrip().split('\n'):
-                syslog.syslog(priority, '[%s] %s%s' % (record['system'], prefix, line))
+                syslog.syslog(priority, prefix+line)
 
     class CurrentLevelDescriptor(object):
         def __init__(self, value):
