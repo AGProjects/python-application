@@ -3,7 +3,7 @@
 
 """Application logging system for stdout/stderr and syslog"""
 
-__all__ = ['level', 'msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'startSyslog']
+__all__ = ['level', 'msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'start_syslog', 'startSyslog']
 
 import sys
 import syslog
