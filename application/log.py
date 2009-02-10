@@ -9,6 +9,15 @@ import sys
 import syslog
 import logging
 
+
+class IfNotInteractive(object):
+    """True when running under a non-interactive interpreter and False otherwise"""
+    def __nonzero__(self):
+        return sys.argv[0] is not ''
+    def __repr__(self):
+        return self.__class__.__name__
+IfNotInteractive = IfNotInteractive()
+
 try:
     from twisted.python import log
 except ImportError:
@@ -82,7 +91,7 @@ except ImportError:
             self.value = value
             logging.getLogger().setLevel(value)
     
-    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=True, capture_stderr=True):
+    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
         logger = logging.getLogger()
         for handler in logger.handlers[:]:
             logger.removeHandler(handler)
@@ -176,7 +185,7 @@ else:
         def __set__(self, obj, value):
             self.value = value
     
-    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=True, capture_stderr=True):
+    def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
         obs = SyslogObserver(prefix, facility)
         log.startLoggingWithObserver(obs.emit, setStdout=False)
         if capture_stdout:
@@ -192,7 +201,7 @@ else:
         log.defaultObserver.start()
 
 
-def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=True):
+def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=IfNotInteractive):
     from warnings import warn
     warn('startSyslog is being deprecated and will be removed in 1.2.0. Use the start_syslog function instead.', DeprecationWarning)
     start_syslog(prefix, facility=facility, capture_stdout=setStdout, capture_stderr=setStdout)
@@ -255,6 +264,6 @@ class LevelClass(object):
     current  = CurrentLevelDescriptor(INFO)
 
 level = LevelClass()
-del LevelClass, CurrentLevelDescriptor
+del LevelClass, CurrentLevelDescriptor, IfNotInteractive
 
 
