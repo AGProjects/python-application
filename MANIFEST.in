@@ -1,2 +1,2 @@
-recursive-include examples README config.* process.py debug.py singleton.py
+recursive-include examples README *.ini *.py
 include LICENSE ChangeLog NEWS MANIFEST.in
