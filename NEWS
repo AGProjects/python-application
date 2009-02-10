@@ -1,0 +1,98 @@
+New in version 1.1.0
+--------------------
+
+
+1. Singleton improvements
+
+The Singleton metaclass got enhanced to properly handle classes that take
+arguments in the __init__ and/or __new__ methods. Previously, Singleton
+created one instance per class, thus conflicting with classes that took
+arguments in __init__ and/or __new__, because instantiating the class again
+with a different set of arguments would have returned the same instance that
+was created before with a different set of arguments. This behavior was not
+only confusing, but also wrong.
+
+The new implementation will create multiple singletons per class, each one
+corresponding to a unique combination of the arguments used to instantiate
+the class. As a result, one will get the same object only by calling the
+class with the same arguments.
+
+One restriction of this is that the __init__ and/or __new__ arguments of the
+class that uses Singleton as a metaclass can only have immutable values, so
+that their unique combination can be used to lookup the proper instance in a
+dictionary.
+
+To determine the arguments, the Singleton metaclass will always prefer the
+__init__ signature over the __new__ signature if both are defined. When
+subclassing always keep this in mind, especially for cases where __init__
+is defined only in the parent class, while __new__ is defined in the current
+class. In this case, __init__ will still be preferred even though is defined
+in a parent class.
+
+For classes that had no arguments in __init__ and or __new__, there is no
+change in the behavior.
+
+
+2. Logging improvements
+
+The logging system was enhanced to also show the message type prefix (error,
+fatal, warning, debug) when outputting on the console as it does in syslog.
+
+The startSyslog() function was deprecated and replaced with start_syslog()
+for consistency with the naming convention in the other modules. 
+
+The logging system also received a major improvement by no longer depending
+on twisted for its log module. A new log backend using the python standard
+logging module was added that offers the same functionality in the absence
+of twisted. The change is transparent to the user who doesn't have to take
+any steps to update his code. The functionality offered by the two backends
+is identical, so the logging system works the same if twisted is present or
+not.
+
+While a strong dependency on twisted was removed by this, a weak dependency
+on it still remains, in the sense that if twisted is installed the twisted
+log backend will always be preferred over the logging backend. However,
+twisted is no longer mandatory for python-application to work.
+
+
+3. Notification system
+
+A new notification.py module was added to python-application, to implement a
+notification system that can be used to communicate between different
+components of an application.
+
+The notification system offers a notification center, that is used to post
+notifications and keep track of the registered notification observers.
+
+Observers can register to receive certain notifications posted by certain
+senders. In particular one observer can watch for all notifications or for
+all senders if desired.
+
+The notification system implements a producer/consumer pattern and can be
+used to better isolate different components of an application and make them
+less dependant of each other. This is done by creating an asynchronous
+communication channel between them via the notification center. One entity
+can post a notification that publishes some state or information, while not
+being interested who will receive this information. In the same manner, some
+observers may register to receive that information not necessarily being
+interested in who published it or being aware of each other.
+
+
+4. Miscellaneous improvements
+
+A new module was added in application.python.descriptor to hold various
+useful descriptor classes. It currently only has one descriptor named
+ThreadLocal that can be used to get object attributes that are of a
+given type and hold data that is thread specific. For example:
+
+from application.python.descriptor import ThreadLocal
+from collections import deque
+
+class MyClass(object):
+    queue = ThreadLocal(deque)
+
+Any instance of this class will have a queue attribute that is of type deque
+and its contents is different in each thread. Type can be any python type
+that is a mutable data container (it can be immutable too but it doesn't
+make much sense that way).
+
