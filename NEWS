@@ -39,7 +39,20 @@ The logging system was enhanced to also show the message type prefix (error,
 fatal, warning, debug) when outputting on the console as it does in syslog.
 
 The startSyslog() function was deprecated and replaced with start_syslog()
-for consistency with the naming convention in the other modules. 
+for consistency with the naming convention in the other modules.
+
+Another improvement of the logging system is the ability to set a log level
+that will be used to filter out all log messages that do not have at least
+that level. The default log level is INFO, meaning that any message except
+debug messages will be logged. The level can be changed at any time during
+runtime:
+
+from application import log
+log.level.current = log.level.ERROR # only log error and critical messages
+
+The available log levels are: ALL, DEBUG, INFO, WARNING, ERROR, CRITICAL
+and NONE. ALL and NONE are not effective log levels, but they can be used
+to output all or no log messages by assigning them to log.level.current.
 
 The logging system also received a major improvement by no longer depending
 on twisted for its log module. A new log backend using the python standard
