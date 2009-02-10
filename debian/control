@@ -11,9 +11,9 @@ Package: python-application
 Architecture: all
 Depends: ${python:Depends}, python-zopeinterface
 Suggests: python-twisted-core
-Description: Basic building blocks for python applications
+Description: Basic building blocks for Python applications
  This module provides some basic components that can be used to simplify
- building python applications.
+ building Python applications.
  .
  The components included by this package encapsulate the functionality to
  handle the following tasks:
