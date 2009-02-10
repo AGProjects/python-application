@@ -22,4 +22,5 @@ Description: Basic building blocks for python applications
   - An extensible system logger for console and/or syslog.
   - Miscellaneous utilities and helpers.
   - Memory troubleshooting and execution timing.
+  - Communicate inside the application using a notification system.
 
