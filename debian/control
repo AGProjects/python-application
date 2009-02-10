@@ -9,7 +9,8 @@ Homepage: http://cheeseshop.python.org/pypi/python-application
 
 Package: python-application
 Architecture: all
-Depends: ${python:Depends}, python-twisted-core
+Depends: ${python:Depends}, python-zopeinterface
+Suggests: python-twisted-core
 Description: Basic building blocks for python applications
  This module provides some basic components that can be used to simplify
  building python applications.
