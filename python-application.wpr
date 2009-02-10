@@ -1,37 +1,14 @@
 #!wing
-#!version=2.0
+#!version=3.0
 ##################################################################
 # Wing IDE project file                                          #
 ##################################################################
 [project attributes]
-proj.file-list = [loc('.boring'),
-                  loc('application/configuration/datatypes.py'),
-                  loc('application/configuration/__init__.py'),
-                  loc('application/debug/memory.py'),
-                  loc('application/debug/timing.py'),
-                  loc('application/debug/__init__.py'),
-                  loc('application/log.py'),
-                  loc('application/process.py'),
-                  loc('application/python/decorator.py'),
-                  loc('application/python/queue.py'),
-                  loc('application/python/util.py'),
-                  loc('application/python/__init__.py'),
-                  loc('application/system.py'),
-                  loc('application/__init__.py'),
-                  loc('debian/changelog'),
-                  loc('debian/compat'),
-                  loc('debian/control'),
-                  loc('debian/copyright'),
-                  loc('debian/pycompat'),
-                  loc('debian/rules'),
-                  loc('examples/config.ini'),
-                  loc('examples/config.py'),
-                  loc('examples/debug.py'),
-                  loc('examples/process.py'),
-                  loc('examples/README'),
-                  loc('examples/singleton.py'),
-                  loc('LICENSE'),
-                  loc('MANIFEST.in'),
-                  loc('README'),
-                  loc('setup.py')]
+proj.directory-list = [{'dirloc': loc('.'),
+                        'excludes': [u'_darcs',
+                                     u'dist'],
+                        'filter': 'All Source Files',
+                        'include_hidden': 1,
+                        'recursive': 1,
+                        'watch_for_changes': 1}]
 proj.file-type = 'shared'
