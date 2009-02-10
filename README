@@ -12,4 +12,5 @@ The modules that the application package provides are:
 4. log           - an extensible system logger for console and syslog.
 5. debug         - memory troubleshooting and execution timing.
 6. system        - interaction with the underlying operating system.
+7. notification  - an application wide notification system.
 
