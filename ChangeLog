@@ -1,3 +1,29 @@
+Changes in version 1.1.0
+------------------------
+
+  * Allow process.runtime_file(None) and return None for it
+  * Switched from python-central to python-support
+  * Enhanced the Singleton metaclass to properly handle classes that take
+    arguments in __init__ and/or __new__
+  * Extended singleton example with classes that take arguments to __init__
+  * Added descriptor that allows objects to have thread specific attributes
+  * Added a new module that implements a notification system
+  * Added example script for notification system
+  * Do not indent subsequent lines in a multi line log in syslog
+  * Simplified logging of multilines in syslog
+  * Specify the priority when logging to syslog, based on the message type
+  * Implemented fallback log capabilities via the logging module
+  * Added prefix to debug log records with twisted backend
+  * Add prefix to log lines when logging to console with twisted backend
+  * Added log level support to application.log module
+  * Removed system identifier when logging to syslog in twisted backend
+  * Added start_syslog function and deprecated startSyslog variant
+  * Updated README with information about the new notification module
+  * Added NEWS file to document user visible changes between versions
+  * Updated debian description to include the new notification system
+  * Updated debian dependencies
+  * Bumped debian standards version
+
 Changes in version 1.0.9
 ------------------------
 
