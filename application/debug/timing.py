@@ -11,7 +11,7 @@ count = 10000
 t = timer(count)
 for x in xrange(count):
     ...
-t.end(rate=True, msg="executing loop type 1")
+t.end(msg="executing loop type 1")
 
 """
 
@@ -21,7 +21,7 @@ class timer(object):
     def __init__(self, count):
         self.count = count
         self.start = time()
-    def end(self, duration=True, rate=False, msg=None):
+    def end(self, duration=True, rate=True, msg=None):
         _duration = time() - self.start
         _rate = self.count/_duration
         if duration:
