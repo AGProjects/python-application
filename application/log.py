@@ -202,9 +202,8 @@ else:
 
 
 def startSyslog(prefix='python-app', facility=syslog.LOG_DAEMON, setStdout=IfNotInteractive):
-    from warnings import warn
-    warn('startSyslog is being deprecated and will be removed in 1.2.0. Use the start_syslog function instead.', DeprecationWarning)
     start_syslog(prefix, facility=facility, capture_stdout=setStdout, capture_stderr=setStdout)
+    warn('startSyslog is being deprecated and will be removed in 1.2.0. Use the start_syslog function instead.')
 
 class LoggingFile(object):
     closed = False
