@@ -153,6 +153,23 @@ class NetworkRangeList(list):
         return ranges or None
 
 
+class DeprecationMeta(type):
+    """Added temporarily to help with attribute name transitions. Will be removed in 1.2.0"""
+    def __init__(cls, name, bases, dic):
+        from warnings import warn
+        super(DeprecationMeta, cls).__init__(name, bases, dic)
+        if '_defaultPort' in dic:
+            warn('_defaultPort is deprecated in favor of default_port and will be removed in 1.2.0.', DeprecationWarning)
+            cls.default_port = cls._defaultPort
+        elif 'default_port' in dic:
+            cls._defaultPort = cls.default_port
+        if '_name' in dic:
+            warn('_name is deprecated in favor of name and will be removed in 1.2.0.', DeprecationWarning)
+            cls.name = cls._name
+        elif 'name' in dic:
+            cls._name = cls.name
+
+
 class NetworkAddress(tuple):
     """
     A TCP/IP host[:port] network address.
@@ -165,20 +182,24 @@ class NetworkAddress(tuple):
     types of network addresses. For example to define a SIP proxy address:
 
         class SIPProxyAddress(NetworkAddress):
-            _defaultPort = 5060
+            default_port = 5060
 
     """
-    _defaultPort = 0
+
+    __metaclass__ = DeprecationMeta
+
+    default_port = 0
+
     def __new__(cls, value):
         if value.lower() == 'none': return None
-        if value.lower() == 'default': return ('0.0.0.0', cls._defaultPort)
+        if value.lower() == 'default': return ('0.0.0.0', cls.default_port)
         match = re.search(r'^(?P<address>.+?):(?P<port>\d+)$', value)
         if match:
             address = str(match.group('address'))
             port = int(match.group('port'))
         else:
             address = value
-            port = cls._defaultPort
+            port = cls.default_port
         try:
             address = Hostname(address)
         except ValueError:
@@ -195,18 +216,20 @@ class EndpointAddress(NetworkAddress):
     descriptions. For example for SIP endpoint:
 
         class SIPEndpointAddress(EndpointAddress):
-            _defaultPort = 5060
-            _name = 'SIP end point address'
+            default_port = 5060
+            name = 'SIP end point address'
 
     """
-    _defaultPort = 0
-    _name = 'end point address'
+
+    default_port = 0
+    name = 'end point address'
+
     def __new__(cls, value):
         address = NetworkAddress.__new__(cls, value)
         if address is None:
-            raise ValueError("invalid %s: %s" % (cls._name, value))
+            raise ValueError("invalid %s: %s" % (cls.name, value))
         elif address[0]=='0.0.0.0' or address[1]==0:
-            raise ValueError("invalid %s: %s:%s" % (cls._name, address[0], address[1]))
+            raise ValueError("invalid %s: %s:%s" % (cls.name, address[0], address[1]))
         return address
 
 
