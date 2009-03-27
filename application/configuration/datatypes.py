@@ -217,12 +217,12 @@ class EndpointAddress(NetworkAddress):
 
         class SIPEndpointAddress(EndpointAddress):
             default_port = 5060
-            name = 'SIP end point address'
+            name = 'SIP endpoint address'
 
     """
 
     default_port = 0
-    name = 'end point address'
+    name = 'endpoint address'
 
     def __new__(cls, value):
         address = NetworkAddress.__new__(cls, value)
