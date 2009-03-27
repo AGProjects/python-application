@@ -251,8 +251,8 @@ class NamedLevel(int):
     __str__ = __repr__
 
 class LevelClass(object):
-    ALL      = logging.NOTSET
-    NONE     = sys.maxint
+    ALL      = NamedLevel(logging.NOTSET,   name='ALL')
+    NONE     = NamedLevel(sys.maxint,       name='NONE')
     
     DEBUG    = NamedLevel(logging.DEBUG,    name='DEBUG',    prefix='debug: ')
     INFO     = NamedLevel(logging.INFO,     name='INFO',     prefix='')
