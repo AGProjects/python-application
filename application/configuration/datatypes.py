@@ -4,7 +4,7 @@
 """Basic data types to describe the type of the entries in the configuration file"""
 
 
-__all__ = ['Boolean', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
+__all__ = ['Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
            'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
 
 import socket
@@ -37,6 +37,21 @@ class Boolean(int):
         return Boolean.__objects[state]
     def __repr__(self): return (self and 'True') or 'False'
     __str__ = __repr__
+
+
+class LogLevel(int):
+    """A log level indicated by a non-negative integer or one of the named attributes of log.level"""
+    def __new__(cls, value):
+        def constrain(value, min_value, max_value):
+            return min(max(min_value, value), max_value)
+        log_level = value.upper()
+        names = [attr.name for attr in log.level.__class__.__dict__.itervalues() if type(attr) is log.NamedLevel]
+        if log_level in names:
+            return getattr(log.level, log_level)
+        try:
+            return log.NamedLevel(constrain(int(log_level), log.level.ALL, log.level.NONE))
+        except ValueError:
+            raise ValueError("invalid log level: %s" % value)
 
 
 class StringList(list):
