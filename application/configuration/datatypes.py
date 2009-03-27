@@ -19,7 +19,7 @@ class Boolean(int):
     __states = {'1': True, 'yes': True, 'true': True, 'on': True, 1: True, True: True,
                 '0': False, 'no': False, 'false': False, 'off': False, 0: False, False: False}
     __objects = {} ## We want True and False to be singletons. Store them here.
-    def __new__(typ, value):
+    def __new__(cls, value):
         try: 
             value + 0
         except:
@@ -33,7 +33,7 @@ class Boolean(int):
         except KeyError:
             raise ValueError, 'not a boolean: %s' % value
         if not state in Boolean.__objects:
-            Boolean.__objects[state] = int.__new__(typ, state)
+            Boolean.__objects[state] = int.__new__(cls, state)
         return Boolean.__objects[state]
     def __repr__(self): return (self and 'True') or 'False'
     __str__ = __repr__
@@ -41,7 +41,7 @@ class Boolean(int):
 
 class StringList(list):
     """A list of strings separated by commas"""
-    def __new__(typ, value):
+    def __new__(cls, value):
         if value.lower() in ('none', ''):
             return []
         return re.split(r'\s*,\s*', value)
@@ -49,7 +49,7 @@ class StringList(list):
 
 class IPAddress(str):
     """An IP address in quad dotted number notation"""
-    def __new__(typ, value):
+    def __new__(cls, value):
         try:
             socket.inet_aton(value)
         except socket.error:
@@ -59,7 +59,7 @@ class IPAddress(str):
 
 class Hostname(str):
     """A Hostname or an IP address. The keyword `any' stands for '0.0.0.0'"""
-    def __new__(typ, value):
+    def __new__(cls, value):
         if value.lower() == 'any':
             return '0.0.0.0'
         try:
@@ -71,7 +71,7 @@ class Hostname(str):
 
 class HostnameList(list):
     """A list of hostnames separated by commas"""
-    def __new__(typ, description):
+    def __new__(cls, description):
         if description.lower()=='none':
             return []
         lst = re.split(r'\s*,\s*', description)
@@ -108,7 +108,7 @@ class NetworkRange(tuple):
 
     On error ValueError is raised, or NameError for invalid hostnames.
     """
-    def __new__(typ, description):
+    def __new__(cls, description):
         if not description or description.lower()=='none':
             return (0L, 0xFFFFFFFFL)
         if description.lower()=='any':
@@ -136,7 +136,7 @@ class NetworkRange(tuple):
 
 class NetworkRangeList(list):
     """A list of NetworkRange objects separated by commas"""
-    def __new__(typ, description):
+    def __new__(cls, description):
         if description.lower()=='none':
             return None
         lst = re.split(r'\s*,\s*', description)
@@ -169,16 +169,16 @@ class NetworkAddress(tuple):
 
     """
     _defaultPort = 0
-    def __new__(typ, value):
+    def __new__(cls, value):
         if value.lower() == 'none': return None
-        if value.lower() == 'default': return ('0.0.0.0', typ._defaultPort)
+        if value.lower() == 'default': return ('0.0.0.0', cls._defaultPort)
         match = re.search(r'^(?P<address>.+?):(?P<port>\d+)$', value)
         if match:
             address = str(match.group('address'))
             port = int(match.group('port'))
         else:
             address = value
-            port = typ._defaultPort
+            port = cls._defaultPort
         try:
             address = Hostname(address)
         except ValueError:
@@ -201,12 +201,12 @@ class EndpointAddress(NetworkAddress):
     """
     _defaultPort = 0
     _name = 'end point address'
-    def __new__(typ, value):
-        address = NetworkAddress.__new__(typ, value)
+    def __new__(cls, value):
+        address = NetworkAddress.__new__(cls, value)
         if address is None:
-            raise ValueError("invalid %s: %s" % (typ._name, value))
+            raise ValueError("invalid %s: %s" % (cls._name, value))
         elif address[0]=='0.0.0.0' or address[1]==0:
-            raise ValueError("invalid %s: %s:%s" % (typ._name, address[0], address[1]))
+            raise ValueError("invalid %s: %s:%s" % (cls._name, address[0], address[1]))
         return address
 
 
