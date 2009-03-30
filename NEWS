@@ -1,3 +1,20 @@
+New in version 1.1.1
+--------------------
+
+1. Configuration datatype changes
+
+The _defaultPort and _name attributes from the NetworkAddress and the
+EndpointAddress classes are being deprecated starting with this version,
+being replaced by default_port and respectively name. The deprecated
+attributes are still available, but give a deprecation warning and will
+be completely removed in version 1.2.0
+
+Added the LogLevel datatype that represents a log level and which can be
+used to map a log level name as read from a configuration file into a log
+level that can be assigned to log.level.current to change the application
+log level.
+
+
 New in version 1.1.0
 --------------------
 
