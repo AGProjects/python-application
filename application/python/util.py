@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2009 Dan Pascu. See LICENSE for details.
 #
 
 """Miscellaneous utility functions and classes"""
