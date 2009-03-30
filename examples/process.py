@@ -47,7 +47,7 @@ except ProcessError, e:
     sys.exit(1)
 
 # process was succesfully put in the background. Redirect logging to syslog
-log.startSyslog(name)
+log.start_syslog(name)
 
 # This log line will go to syslog
 log.msg('application started (running in the background)')
