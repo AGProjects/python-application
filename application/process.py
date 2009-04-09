@@ -35,9 +35,13 @@ class Process(object):
         self._local_config_directory = os.path.realpath(os.path.dirname(sys.argv[0]))
 
     def _get_config_directory(self):
+        from warnings import warn
+        warn('the config_directory property is deprecated in favor of system_config_directory and will be removed in 1.2.0.', DeprecationWarning)
         return self._system_config_directory
 
     def _set_config_directory(self, path):
+        from warnings import warn
+        warn('the config_directory property is deprecated in favor of system_config_directory and will be removed in 1.2.0.', DeprecationWarning)
         path = os.path.realpath(path)
         if not os.path.isdir(path):
             raise ProcessError("config directory %s does not exist" % path)
@@ -46,6 +50,14 @@ class Process(object):
         self._system_config_directory = path
 
     config_directory = property(_get_config_directory, _set_config_directory)
+
+    def _get_system_config_directory(self):
+        return self._system_config_directory
+
+    def _set_system_config_directory(self, path):
+        self._system_config_directory = os.path.realpath(path)
+
+    system_config_directory = property(_get_system_config_directory, _set_system_config_directory)
 
     def _get_runtime_directory(self):
         return self._runtime_directory
