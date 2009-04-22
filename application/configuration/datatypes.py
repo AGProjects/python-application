@@ -15,10 +15,9 @@ from application import log
 
 
 class Boolean(int):
-    """A boolean value that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
+    """A boolean validator that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
     __states = {'1': True, 'yes': True, 'true': True, 'on': True, 1: True, True: True,
                 '0': False, 'no': False, 'false': False, 'off': False, 0: False, False: False}
-    __objects = {} ## We want True and False to be singletons. Store them here.
     def __new__(cls, value):
         try: 
             value + 0
@@ -29,14 +28,9 @@ class Boolean(int):
         else:
             val = value # eventually we can accept any int value by using 'not not value'
         try:
-            state = Boolean.__states[val]
+            return Boolean.__states[val]
         except KeyError:
             raise ValueError, 'not a boolean: %s' % value
-        if not state in Boolean.__objects:
-            Boolean.__objects[state] = int.__new__(cls, state)
-        return Boolean.__objects[state]
-    def __repr__(self): return (self and 'True') or 'False'
-    __str__ = __repr__
 
 
 class LogLevel(int):

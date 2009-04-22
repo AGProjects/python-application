@@ -70,7 +70,7 @@ class ConfigFile(object):
         else:
             try:
                 if type is bool:
-                    return bool(datatypes.Boolean(value))
+                    return datatypes.Boolean(value)
                 else:
                     return type(value)
             except Exception, why:
