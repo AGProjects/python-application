@@ -3,21 +3,76 @@
 
 """Application configuration file handling"""
 
-__all__ = ['ConfigSection', 'ConfigFile', 'dump_settings', 'datatypes']
+__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes', 'dump_settings']
 
 import os
 try:    from ConfigParser import SafeConfigParser as ConfigParser
 except: from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
+from warnings import warn
 
 from application import log
 from application.process import process
 from application.configuration import datatypes
 
 
-class ConfigSection:
+class ConfigSetting(object):
+    def __init__(self, type, value=None):
+        self.type = type
+        self.value = value
+
+    def __get__(self, obj, objtype):
+        return self.value
+
+    def __set__(self, obj, value):
+        if value is not None and not isinstance(value, self.type):
+            value = self.type(value)
+        self.value = value
+
+
+class ConfigSectionMeta(type):
+    def __new__(clstype, clsname, bases, dct):
+        settings = {}
+        if '_datatypes' in dct:
+            warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
+            for setting_name, setting_type in dct['_datatypes'].iteritems():
+                settings[setting_name] = ConfigSetting(type=setting_type)
+        for attr, value in dct.iteritems():
+            if attr == '_datatypes' or attr.startswith('__'):
+                continue
+            if isinstance(value, ConfigSetting):
+                settings[attr] = value
+                continue
+            if attr in settings:
+                # already added descriptor from _datatypes declarations
+                data_type = settings[attr]
+            else:
+                if type(value) is bool:
+                    data_type = ConfigSetting(datatypes.Boolean)
+                else:
+                    data_type = ConfigSetting(type(value))
+                settings[attr] = data_type
+            data_type.value = value
+        for setting_name in set(settings)-set(dct):
+            log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
+            del settings[setting_name]
+        dct.update(settings)
+        dct['__settings__'] = settings
+        return type.__new__(clstype, clsname, bases, dct)
+
+    def __setattr__(cls, attr, value):
+        if attr in cls.__settings__:
+            cls.__settings__[attr].__set__(None, value)
+        else:
+            type.__setattr__(cls, attr, value)
+
+
+class ConfigSection(object):
     """Defines a section in the configuration file"""
-    _datatypes = {}
+    __metaclass__ = ConfigSectionMeta
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError("cannot instantiate ConfigSection class")
 
 
 class ConfigFile(object):
@@ -41,25 +96,17 @@ class ConfigFile(object):
             raise TypeError("cls must be a subclass of ConfigSection")
         if section not in self.parser.sections():
             return
-        for prop in dir(cls):
-            if prop[0]=='_':
-                continue
-            ptype = cls._datatypes.get(prop, eval('cls.%s.__class__' % prop))
+        for name in cls.__settings__:
             try:
-                val = self.parser.get(section, prop)
+                value = self.parser.get(section, name)
             except:
                 continue
             else:
                 try:
-                    if ptype is bool:
-                        value = bool(datatypes.Boolean(val))
-                    else:
-                        value = ptype(val)
+                    setattr(cls, name, value)
                 except Exception, why:
-                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, prop, val, why)
+                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
                     log.warn(msg, **ConfigFile.log_context)
-                else:
-                    setattr(cls, prop, value)
     
     def get_option(self, section, option, default='', type=str):
         """Get an option from a given section using type, or default if not found"""
@@ -89,8 +136,7 @@ class ConfigFile(object):
 def dump_settings(cls):
     """Print a ConfigSection class attributes"""
     print '%s:' % cls.__name__
-    for x in dir(cls):
-        if x[0] == '_': continue
-        print '  %s: %s' % (x, eval('cls.%s' % x))
+    for name in cls.__settings__:
+        print '  %s: %s' % (name, getattr(cls, name))
     print ''
 
