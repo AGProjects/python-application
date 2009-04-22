@@ -108,10 +108,10 @@ class ConfigFile(object):
                     msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
                     log.warn(msg, **ConfigFile.log_context)
     
-    def get_option(self, section, option, default='', type=str):
-        """Get an option from a given section using type, or default if not found"""
+    def get_setting(self, section, setting, type=str, default=''):
+        """Get a setting from a given section using type, or default if not found"""
         try:
-            value = self.parser.get(section, option)
+            value = self.parser.get(section, setting)
         except:
             return default
         else:
@@ -121,9 +121,14 @@ class ConfigFile(object):
                 else:
                     return type(value)
             except Exception, why:
-                msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, option, value, why)
+                msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, setting, value, why)
                 log.warn(msg, **ConfigFile.log_context)
                 return default
+    
+    def get_option(self, section, option, default='', type=str):
+        """Get an option from a given section using type, or default if not found"""
+        warn("get_option is deprecated in favor of get_setting and will be removed in 1.2.0.", DeprecationWarning)
+        return self.get_setting(section, option, type=type, default=default)
     
     def get_section(self, section):
         """Return a list of tuples with name, value pairs from the section or None if section doesn't exist"""
