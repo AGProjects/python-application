@@ -1,3 +1,44 @@
+New in version 1.1.2
+--------------------
+
+1. Configuration framework improvements
+
+The use of the _datatypes attribute of ConfigSection has been deprecated in
+favor of a descriptor based syntax. The newly added ConfigSetting descriptor
+is now used to declare the type and default value of a setting. The
+descriptor is only necessary if validators are used as types, otherwise the
+initial value can be directly assigned to the setting and a descriptor is
+automatically generated using its type and value. The deprecated _datatypes
+attribute can still be used until version 1.2.0 and descriptors will be
+automatically generated from its contents.
+
+The ConfigSection class now has two attributes, __configfile__ and
+__section__, which if set to non-None values are used to automatically load
+the settings from the specified filename and section. Settings in
+ConfigSection classes can still be loaded explicitly using the read_settings
+method of ConfigFile.
+
+The following example describes the new use of the ConfigSection class:
+
+class MyConfigSection(ConfigSection):
+    __configfile__ = 'config.ini'
+    __section__ = 'MySettings'
+    address = ConfigSetting(type=datatypes.IPAddress, value='0.0.0.0')
+    interval = 100
+
+The Boolean configuration datatype has become a validator and instantiating
+it will return a bool instance. With this change, all the configuration
+datatypes are now validators.
+
+The get_option method of ConfigFile has been deprecated in favor of the
+get_setting method whose name is consistent with the rest of the terminology
+used in the configuration package. The signatures of the two methods are
+similar, but not identical:
+
+def get_option(self, section, option, default='', type=str)
+def get_setting(self, section, setting, type=str, default='')
+
+
 New in version 1.1.1
 --------------------
 
