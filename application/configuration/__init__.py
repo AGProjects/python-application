@@ -31,6 +31,11 @@ class ConfigSetting(object):
 
 
 class ConfigSectionMeta(type):
+    def __init__(cls, clsname, bases, dct):
+        if None not in (cls.__configfile__, cls.__section__):
+            config_file = ConfigFile(cls.__configfile__)
+            config_file.read_settings(cls.__section__, cls)
+
     def __new__(clstype, clsname, bases, dct):
         settings = {}
         if '_datatypes' in dct:
@@ -70,6 +75,8 @@ class ConfigSectionMeta(type):
 class ConfigSection(object):
     """Defines a section in the configuration file"""
     __metaclass__ = ConfigSectionMeta
+    __configfile__ = None
+    __section__ = None
 
     def __new__(cls, *args, **kwargs):
         raise TypeError("cannot instantiate ConfigSection class")
