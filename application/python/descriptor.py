@@ -3,10 +3,11 @@
 
 """Miscellaneous utility descriptors"""
 
-__all__ = ['ThreadLocal']
+__all__ = ['ThreadLocal', 'WriteOnceAttribute']
 
 import weakref
 from threading import local
+
 
 class ThreadLocal(object):
     """Descriptor that allows objects to have thread specific attributes"""
@@ -39,4 +40,30 @@ class ThreadLocal(object):
         thread_dict[(obj_id, self_id)] = (value, ref)
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
+
+
+class WriteOnceAttribute(object):
+    """Descriptor that allows objects to have write once attributes.
+
+       It should be noted that the descriptor only enforces this when directly
+       accessing the object's attribute. It is still possible to modify/delete
+       such an attribute by messing around with the descriptor's internal data.
+    """
+    def __init__(self):
+        self.values = {}
+    def __get__(self, obj, type):
+        if obj is None:
+            return self
+        try:
+            return self.values[id(obj)][0]
+        except KeyError:
+            raise AttributeError("attribute is not set")
+    def __set__(self, obj, value):
+        obj_id = id(obj)
+        if obj_id in self.values:
+            raise AttributeError("attribute is read-only")
+        self.values[obj_id] = (value, weakref.ref(obj, lambda weak_ref: self.values.pop(obj_id)))
+    def __delete__(self, obj):
+        raise AttributeError("attribute cannot be deleted")
+
 

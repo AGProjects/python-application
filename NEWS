@@ -39,6 +39,19 @@ def get_option(self, section, option, default='', type=str)
 def get_setting(self, section, setting, type=str, default='')
 
 
+2. Descriptors
+
+Added a new descriptor that can be used to implement write once attributes,
+named WriteOnceAttribute. It should be noted that the descriptor can only
+enforce this while the object's attributes are accessed directly. It is
+still possible to modify/delete such an attribute by messing around with
+the descriptor's internal data. Thus the descriptor should not be used to
+guarantee such a behavior, because given Python's introspective abilities,
+it can be circumvented. Instead, the descriptor is meant to be used as an
+indication that the attribute should be writable only once and the code
+using it should play along and honor the limitation.
+
+
 New in version 1.1.1
 --------------------
 
@@ -58,7 +71,6 @@ log level.
 
 New in version 1.1.0
 --------------------
-
 
 1. Singleton improvements
 
