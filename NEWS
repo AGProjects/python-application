@@ -52,6 +52,17 @@ indication that the attribute should be writable only once and the code
 using it should play along and honor the limitation.
 
 
+Given a recent bug fix for a memory leak in the ThreadLocal descriptor, now
+both the ThreadLocal and the WriteOnceAttribute descriptors can only be used
+inside classes that allow weak referencing to their instances. Currently, in
+order to clean up internal data from objects that are no longer available,
+both descriptors use weak references with a callback to the objects for which
+they are an attribute, in order to be notified of the objects being released
+when no longer referenced. Due to this change, the following classes cannot
+use these descriptors anymore: subclasses of str, tuple and long as well as
+classes that define __slots__ and do not include __weakref__ in it.
+
+
 New in version 1.1.1
 --------------------
 
