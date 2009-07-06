@@ -63,6 +63,30 @@ use these descriptors anymore: subclasses of str, tuple and long as well as
 classes that define __slots__ and do not include __weakref__ in it.
 
 
+3. New version module
+
+Added a new module to handle version numbers for applications, modules and
+packages. The module offers a Version class that is a subclass of str and
+can represent a major.minor.micro[extraversion] version string that offers
+version wise comparison, rather than string wise, when comparing against
+another version instance. When compared against a string instance it will
+compare as a string.
+
+The class understands a number of standard conventions for the extraversion
+part, like alphaN, betaN, preN and rcN notations and is able to compare them
+correctly (alpha < beta < pre < rc). If the extraversion is missing or is a
+number it ranks higher than rcN. If the extraversion is not a number and it
+doesn't fit into these conventions is compared as a string and ranks higher
+than any of them. If the extraversion is a number or follows the alpha, beta,
+pre, rc convention and is prefixed by a dash or a dot, the dash/dot doesn't
+take part in the comparison.
+
+The Version class has a parse classmethod, that is able to take a version
+number expressed as a string and turn it into a Version instance that can be
+compared. This is useful when one needs to compare version numbers, but the
+package provides them as simple strings, not as comparable Version instances.
+
+
 New in version 1.1.1
 --------------------
 

@@ -13,4 +13,5 @@ The modules that the application package provides are:
 5. debug         - memory troubleshooting and execution timing.
 6. system        - interaction with the underlying operating system.
 7. notification  - an application wide notification system.
+8. version       - handle version numbers for applications and packages.
 
