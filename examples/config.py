@@ -24,26 +24,22 @@ class Priority(int):
 
 # Define a class that gives access (through its attributes) to the values
 # defined in a section (or possibly more) of the configuration file.
-# The data type for the attributes is taken from the _datatypes mapping
-# if defined, else it is taken from the type of the default value assigned
-# to the attribute. The python bool type is automatically mapped to
-# datatypes.Boolean which recognizes multiple logic values like: yes/no,
-# on/off, true/false, 1/0, so there is no need to define a type mapping
+# The data type for an attributes is taken from the type of the specified
+# default value, or it can be declared using a ConfigSetting descriptor in
+# case the type used to instantiate the attribute is just a validator.
+#
+# The python bool type is automatically mapped to the datatypes.Boolean
+# validator which recognizes multiple logic values like: yes/no, on/off,
+# true/false, 1/0, so there is no need to use a ConfigSetting descriptor
 # for a boolean value, only to assign a True/False value to its attribute.
 
 class NetworkConfig(ConfigSection):
-    _datatypes = {
-        'ip': datatypes.IPAddress,
-        'priority': Priority,
-        'domains': datatypes.StringList,
-        'allow': datatypes.NetworkRangeList
-    }
     name = 'undefined'
-    ip = default_host_ip
+    ip = ConfigSetting(type=datatypes.IPAddress, value=default_host_ip)
     port = 8000
-    priority = Priority('Normal')
-    domains = []
-    allow = []
+    priority = ConfigSetting(type=Priority, value=Priority('Normal'))
+    domains = ConfigSetting(type=datatypes.StringList, value=[])
+    allow = ConfigSetting(type=datatypes.NetworkRangeList, value=[])
     use_tls = False
 
 # And another class for another section
@@ -59,16 +55,17 @@ dump_settings(StorageConfig)
 #
 # The configuration files are read from two directories:
 #  1. The directory where the application resides.
-#  2. A system directory given by process.config_directory (/etc by default)
+#  2. A system directory given by process.system_config_directory (which
+#     defaults to /etc if not specified)
 #
 # The first directory is there to allow one to run an application that is
 # self contained inside a directory. This directory is automatically
 # determined from the application path and is not configurable.
 # The second directory is useful if the application is installed and running
 # from a standard path like /usr/bin. This directory is configurable using
-# process.config_directory. In this example though, we do not use the system
-# config directory, instead the configuration file is in the same directory
-# as the example itself.
+# process.system_config_directory. In this example though, we do not use the
+# system config directory, instead the configuration file is in the same
+# directory as the example itself.
 #
 configuration = ConfigFile('config.ini')
 
@@ -95,7 +92,21 @@ dump_settings(StorageConfig)
 # Configuration options can be accessed as class attributes
 ip = NetworkConfig.ip
 
-# Or we can get individual options from a given section
-dburi = configuration.get_option('Storage', 'dburi', default='undefined', type=str)
-print "\nGot dburi from Storage as `%s'\n" % dburi
+# Starting with version 1.1.2, there is a simpler way to have a section loaded
+# automatically, by defining the __configfile__ and __section__ attributes on
+# the class.
+
+# Here is an example of such a class that will be automatically loaded
+class AutoStorageConfig(ConfigSection):
+    __configfile__ = 'config.ini'
+    __section__ = 'Storage'
+    dburi = 'mysql://undefined@localhost/database'
+
+# Dump the values of the options after they were loaded from the config file
+print "\nSettings in the automatically loaded section\n"
+dump_settings(AutoStorageConfig)
+
+# Or we can get individual settings from a given section
+dburi = configuration.get_setting('Storage', 'dburi', type=str, default='undefined')
+print "\nGot dburi directly from Storage section as `%s'\n" % dburi
 
