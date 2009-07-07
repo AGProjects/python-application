@@ -1,3 +1,22 @@
+Changes in version 1.1.2
+------------------------
+
+  * Deprecated config_directory in favor of system_config_directory
+  * No longer raise an expection when setting the system config directory,
+    if the directory doesn't exist
+  * Changed datatypes.Boolean into a validator
+  * Added ConfigSetting descriptor that is meant to deprecate the use of the
+    _datatypes mapping when declaring setting types inside a ConfigSection
+  * Deprecated ConfigFile.get_option in favor ConfigFile.get_setting
+  * Added support for specifying a config file and section in ConfigSection
+  * Fixed memory leak caused by ThreadLocal not releasing some internal data
+  * Added WriteOnceAttribute descriptor
+  * Added note about restrictions that apply when using the new descriptors
+  * Added version module
+  * Bumped debian standards version to 3.8.2
+  * Fixed lintian warning about missing misc:Depends dependency
+  * Modified examples to honor the latest changes in the API
+
 Changes in version 1.1.1
 ------------------------
 
