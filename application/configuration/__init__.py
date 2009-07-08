@@ -6,6 +6,7 @@
 __all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes', 'dump_settings']
 
 import os
+import types
 try:    from ConfigParser import SafeConfigParser as ConfigParser
 except: from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
@@ -13,6 +14,7 @@ from warnings import warn
 
 from application import log
 from application.process import process
+from application.python.descriptor import isdescriptor
 from application.configuration import datatypes
 
 
@@ -43,10 +45,12 @@ class ConfigSectionMeta(type):
             for setting_name, setting_type in dct['_datatypes'].iteritems():
                 settings[setting_name] = ConfigSetting(type=setting_type)
         for attr, value in dct.iteritems():
-            if attr == '_datatypes' or attr.startswith('__'):
-                continue
             if isinstance(value, ConfigSetting):
                 settings[attr] = value
+                continue
+            elif attr == '_datatypes' or attr.startswith('__'):
+                continue
+            elif isdescriptor(value) or type(value) is types.BuiltinFunctionType:
                 continue
             if attr in settings:
                 # already added descriptor from _datatypes declarations
