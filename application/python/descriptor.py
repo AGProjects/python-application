@@ -3,7 +3,7 @@
 
 """Miscellaneous utility descriptors"""
 
-__all__ = ['ThreadLocal', 'WriteOnceAttribute']
+__all__ = ['ThreadLocal', 'WriteOnceAttribute', 'isdescriptor']
 
 import weakref
 from threading import local
@@ -65,5 +65,10 @@ class WriteOnceAttribute(object):
         self.values[obj_id] = (value, weakref.ref(obj, lambda weak_ref: self.values.pop(obj_id)))
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
+
+
+def isdescriptor(object):
+    """Test if `object' is a descriptor"""
+    return bool(set(('__get__', '__set__', '__delete__')).intersection(dir(object)))
 
 
