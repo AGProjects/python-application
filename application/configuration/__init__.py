@@ -10,6 +10,7 @@ import types
 try:    from ConfigParser import SafeConfigParser as ConfigParser
 except: from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
+from itertools import chain
 from warnings import warn
 
 from application import log
@@ -40,6 +41,10 @@ class ConfigSectionMeta(type):
 
     def __new__(clstype, clsname, bases, dct):
         settings = {}
+        for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
+            # a ConfigSetting will be created later if the attribute exists
+            if name not in dct and name not in settings:
+                settings[name] = ConfigSetting(type=setting.type, value=setting.value)
         if '_datatypes' in dct:
             warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
             for setting_name, setting_type in dct['_datatypes'].iteritems():
@@ -62,7 +67,7 @@ class ConfigSectionMeta(type):
                     data_type = ConfigSetting(type(value))
                 settings[attr] = data_type
             data_type.value = value
-        for setting_name in set(settings)-set(dct):
+        for setting_name in set(dct.get('_datatypes', ()))-set(dct):
             log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
             del settings[setting_name]
         dct.update(settings)
@@ -77,7 +82,13 @@ class ConfigSectionMeta(type):
 
 
 class ConfigSection(object):
-    """Defines a section in the configuration file"""
+    """
+    Defines a section in the configuration file
+
+    Settings defined in superclasses are not inherited, but cloned as if
+    defined in the subclass using ConfigSetting. All other attributes
+    are inherited as normal.
+    """
     __metaclass__ = ConfigSectionMeta
     __configfile__ = None
     __section__ = None
