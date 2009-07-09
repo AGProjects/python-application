@@ -41,8 +41,8 @@ class ConfigSectionMeta(type):
 
     def __new__(clstype, clsname, bases, dct):
         settings = {}
+        # copy all settings defined by parents unless also defined in the class being constructed
         for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
-            # a ConfigSetting will be created later if the attribute exists
             if name not in dct and name not in settings:
                 settings[name] = ConfigSetting(type=setting.type, value=setting.value)
         if '_datatypes' in dct:
