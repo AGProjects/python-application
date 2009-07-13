@@ -1,3 +1,11 @@
+python-application (1.1.3) unstable; urgency=low
+
+  * Added isdescriptor function to application.python.descriptor
+  * Fixed handling of special attributes in ConfigSection subclasses
+  * Fixed ConfigSection behaviour with multi-level inheritance
+
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 13 Jul 2009 08:58:55 +0300
+
 python-application (1.1.2) unstable; urgency=low
 
   * Deprecated config_directory in favor of system_config_directory
