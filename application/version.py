@@ -43,10 +43,10 @@ class Version(str):
         elif not isinstance(value, basestring):
             raise TypeError("value should be a string")
         import re
-        match = re.match(r'^(?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<extraversion>.*)$', value)
+        match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)
         if not match:
             raise ValueError("not a recognized version string")
-        return Version(**match.groupdict())
+        return Version(**match.groupdict(0))
 
     @property
     def major(self):
