@@ -69,8 +69,6 @@ class Version(str):
         if weight < 0:
             weight_map = {-10: 'rc', -20: 'pre', -30: 'beta', -40: 'alpha'}
             extraversion = "%s%d" % (weight_map[weight], extraversion)
-        else:
-            extraversion = self._version_info[4]
         return "%s(%r, %r, %r, %r)" % (self.__class__.__name__, major, minor, micro, extraversion)
 
     def __setattr__(self, name, value):
