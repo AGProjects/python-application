@@ -10,6 +10,10 @@ class Version(str):
     """A major.minor.micro[extraversion] version string that is comparable"""
 
     def __new__(cls, major, minor, micro, extraversion=None):
+        if major == minor == micro == extraversion == None:
+            instance = str.__new__(cls, "undefined")
+            instance._version_info = (None, None, None, None, None)
+            return instance
         try:
             major, minor, micro = int(major), int(minor), int(micro)
         except:
@@ -42,6 +46,8 @@ class Version(str):
             return value
         elif not isinstance(value, basestring):
             raise TypeError("value should be a string")
+        if value == 'undefined':
+            return Version(None, None, None)
         import re
         match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)
         if not match:
@@ -66,7 +72,7 @@ class Version(str):
 
     def __repr__(self):
         major, minor, micro, weight, extraversion = self._version_info
-        if weight < 0:
+        if weight is not None and weight < 0:
             weight_map = {-10: 'rc', -20: 'pre', -30: 'beta', -40: 'alpha'}
             extraversion = "%s%d" % (weight_map[weight], extraversion)
         return "%s(%r, %r, %r, %r)" % (self.__class__.__name__, major, minor, micro, extraversion)
