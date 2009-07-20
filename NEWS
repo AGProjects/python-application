@@ -1,3 +1,23 @@
+New in version 1.1.4
+--------------------
+
+1. Version enhancements
+
+Version can now handle version numbers which may not contain the micro or
+even the minor number. It also added the concept of an undefined version,
+that compares lower than any other version. The undefined version can be
+obtained either by parsing the 'undefined' string, or by creating an
+instance of Version with all arguments None.
+
+
+2. New dependency module
+
+Added a new module application.dependency that can define application
+dependencies on certain packages having minimum required versions and
+allow the application to check if they are satisfied at runtime.
+For usage examples please check examples/dependency.py
+
+
 New in version 1.1.3
 --------------------
 
