@@ -25,4 +25,5 @@ Description: Basic building blocks for Python applications
   - Memory troubleshooting and execution timing.
   - Communicate inside the application using a notification system.
   - Manage the version number for applications, modules and packages.
+  - Verify package dependencies at runtime.
 
