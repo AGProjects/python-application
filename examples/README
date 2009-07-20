@@ -15,6 +15,8 @@ This directory holds some examples of using python-application.
 4. singleton.py - Example that shows how to use the Singleton metaclass
                   to create singletons.
 
+5. notification.py - Example that shows how to use the notification system.
+
 To run the examples without installing python-application, run the
 following command prior to trying the examples:
 
