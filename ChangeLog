@@ -1,3 +1,11 @@
+Changes in version 1.1.4
+------------------------
+
+  * Allow version numbers without the micro or minor number
+  * Added concept of undefined version that compares lower than any other
+  * Added missing entry about notification.py example
+  * Added dependency module and example
+
 Changes in version 1.1.3
 ------------------------
 
