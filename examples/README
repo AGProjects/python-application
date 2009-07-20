@@ -1,7 +1,7 @@
 
 This directory holds some examples of using python-application. 
 
-1. process.py - example of using the process module to control how the
+1. process.py - Example of using the process module to control how the
                 application runs (foreground or background) and how it
                 handles operating system signals. This example also shows
                 how to set other process attributes (like the runtime
