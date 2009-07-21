@@ -74,6 +74,9 @@ class ConfigSectionMeta(type):
         dct['__settings__'] = settings
         return type.__new__(clstype, clsname, bases, dct)
 
+    def __iter__(cls):
+        return ((name, desc.__get__(None, cls)) for name, desc in cls.__settings__.iteritems())
+
     def __setattr__(cls, attr, value):
         if attr in cls.__settings__:
             cls.__settings__[attr].__set__(None, value)
