@@ -23,12 +23,13 @@ class ConfigSetting(object):
     def __init__(self, type, value=None):
         self.type = type
         self.value = value
+        self.type_is_class = isinstance(type, (types.ClassType, types.TypeType))
 
     def __get__(self, obj, objtype):
         return self.value
 
     def __set__(self, obj, value):
-        if value is not None and not isinstance(value, self.type):
+        if value is not None and not (self.type_is_class and isinstance(value, self.type)):
             value = self.type(value)
         self.value = value
 
