@@ -49,28 +49,27 @@ class ConfigSectionMeta(type):
         if '_datatypes' in dct:
             warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
             for setting_name, setting_type in dct['_datatypes'].iteritems():
-                settings[setting_name] = ConfigSetting(type=setting_type)
+                try:
+                    value = dct[setting_name]
+                except KeyError:
+                    log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
+                else:
+                    settings[setting_name] = ConfigSetting(type=setting_type, value=value)
         for attr, value in dct.iteritems():
             if isinstance(value, ConfigSetting):
                 settings[attr] = value
-                continue
             elif attr == '_datatypes' or attr.startswith('__'):
                 continue
             elif isdescriptor(value) or type(value) is types.BuiltinFunctionType:
                 continue
-            if attr in settings:
-                # already added descriptor from _datatypes declarations
-                data_type = settings[attr]
+            elif attr in settings:
+                pass # already added descriptor from _datatypes declarations
             else:
                 if type(value) is bool:
-                    data_type = ConfigSetting(datatypes.Boolean)
+                    data_type = datatypes.Boolean
                 else:
-                    data_type = ConfigSetting(type(value))
-                settings[attr] = data_type
-            data_type.value = value
-        for setting_name in set(dct.get('_datatypes', ()))-set(dct):
-            log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
-            del settings[setting_name]
+                    data_type = type(value)
+                settings[attr] = ConfigSetting(type=data_type, value=value)
         dct.update(settings)
         dct['__settings__'] = settings
         return type.__new__(clstype, clsname, bases, dct)
