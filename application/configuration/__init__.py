@@ -28,8 +28,8 @@ class ConfigSetting(object):
     def __get__(self, obj, objtype):
         return self.value
 
-    def __set__(self, obj, value):
-        if value is not None and not (self.type_is_class and isinstance(value, self.type)):
+    def __set__(self, obj, value, convert=True):
+        if convert and value is not None and not (self.type_is_class and isinstance(value, self.type)):
             value = self.type(value)
         self.value = value
 
