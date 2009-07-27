@@ -84,6 +84,12 @@ class ConfigSectionMeta(type):
         else:
             type.__setattr__(cls, attr, value)
 
+    def __delattr__(cls, attr):
+        if attr in cls.__settings__:
+            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, attr))
+        else:
+            type.__delattr__(cls, attr)
+
 
 class ConfigSection(object):
     """
