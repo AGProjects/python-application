@@ -31,7 +31,9 @@ class PackageDependency(object):
         else:
             module_name, version_attribute = version_attribute.rsplit('.', 1)
         try:
-            module = __import__(module_name, fromlist=module_name.rsplit('.', 1)[1:])
+            #Starting with python2.5 import can be expressed better like below. Replace it when we drop support for 2.4 -Dan
+            #module = __import__(module_name, fromlist=module_name.rsplit('.', 1)[1:], level=0)
+            module = __import__(module_name, {}, {}, module_name.rsplit('.', 1)[1:])
         except ImportError:
             version = None
         else:
