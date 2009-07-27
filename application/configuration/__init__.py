@@ -106,6 +106,29 @@ class ConfigSection(object):
     def __new__(cls, *args, **kwargs):
         raise TypeError("cannot instantiate ConfigSection class")
 
+    @classmethod
+    def __set__(cls, **kw):
+        """Set multiple settings at once"""
+        if not set(cls.__settings__).issuperset(kw):
+            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
+        saved_state = dict(cls)
+        try:
+            for name, value in kw.iteritems():
+                setattr(cls, name, value)
+        except:
+            for name, descriptor in cls.__settings__.iteritems():
+                descriptor.__set__(None, saved_state[name], convert=False)
+            raise
+
+    @classmethod
+    def __reset__(cls):
+        """Reset settings to the default values from the class definition"""
+        for name, descriptor in cls.__settings__.iteritems():
+            descriptor.__set__(None, cls.__defaults__[name], convert=False)
+
+    set   = __set__
+    reset = __reset__
+
 
 class ConfigFile(object):
     """Provide access to a configuration file"""
