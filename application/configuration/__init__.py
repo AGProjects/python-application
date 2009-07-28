@@ -185,12 +185,21 @@ class ConfigFile(object):
         warn("get_option is deprecated in favor of get_setting and will be removed in 1.2.0.", DeprecationWarning)
         return self.get_setting(section, option, type=type, default=default)
     
-    def get_section(self, section):
-        """Return a list of tuples with name, value pairs from the section or None if section doesn't exist"""
+    def get_section(self, section, filter=None, default=None):
+        """
+        Return a list of (name, value) pairs from a section. If filter is an
+        iterable, use it to filter the returned pairs by name. If section is
+        missing, return the value specified by the default argument.
+        """
         try:
-            return self.parser.items(section)
+            if filter is None:
+                items = self.parser.items(section)
+            else:
+                items = [(name, value) for name, value in self.parser.items(section) if name in filter]
         except NoSectionError:
-            return None
+            return default
+        else:
+            return items
 
 
 def dump_settings(cls):
