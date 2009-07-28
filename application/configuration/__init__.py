@@ -129,8 +129,32 @@ class ConfigSection(object):
         for name, descriptor in cls.__settings__.iteritems():
             descriptor.__set__(None, cls.__defaults__[name], convert=False)
 
+    @classmethod
+    def __read__(cls, cfgfile=None, section=None):
+        """Update settings by reading them from the given file and section"""
+        cfgfile = cfgfile or cls.__configfile__
+        section = section or cls.__section__
+        if None in (cfgfile, section):
+            raise ValueError("A config file and section are required for reading settings")
+        if isinstance(cfgfile, ConfigFile):
+            config_file = cfgfile
+        else:
+            config_file = ConfigFile(cfgfile)
+        if isinstance(section, basestring):
+            section_list = (section,)
+        else:
+            section_list = section
+        for section in section_list:
+            for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
+                try:
+                    setattr(cls, name, value)
+                except Exception, why:
+                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
+                    log.warn(msg, **config_file.log_context)
+
     set   = __set__
     reset = __reset__
+    read  = __read__
 
 
 class ConfigFile(object):
