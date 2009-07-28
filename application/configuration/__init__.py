@@ -122,10 +122,13 @@ class ConfigSetting(object):
 class ConfigSectionMeta(type):
     def __init__(cls, clsname, bases, dct):
         cls.__defaults__ = dict(cls)
-        if None not in (cls.__configfile__, cls.__section__):
+        if None not in (cls.__cfgfile__, cls.__section__):
             cls.__read__()
 
     def __new__(clstype, clsname, bases, dct):
+        if '__configfile__' in dct:
+            warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
+            dct.setdefault('__cfgfile__', dct.pop('__configfile__'))
         settings = {}
         # copy all settings defined by parents unless also defined in the class being constructed
         for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
@@ -174,6 +177,17 @@ class ConfigSectionMeta(type):
         else:
             type.__delattr__(cls, attr)
 
+    def _get__configfile__(cls):
+        warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
+        return cls.__cfgfile__
+
+    def _set__configfile__(cls, value):
+        warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
+        cls.__cfgfile__ = value
+
+    __configfile__ = property(_get__configfile__, _set__configfile__)
+    del _get__configfile__, _set__configfile__
+
 
 class ConfigSection(object):
     """
@@ -185,7 +199,7 @@ class ConfigSection(object):
     """
     __metaclass__ = ConfigSectionMeta
     __cfgtype__ = ConfigFile
-    __configfile__ = None
+    __cfgfile__ = None
     __section__ = None
 
     def __new__(cls, *args, **kwargs):
@@ -214,7 +228,7 @@ class ConfigSection(object):
     @classmethod
     def __read__(cls, cfgfile=None, section=None):
         """Update settings by reading them from the given file and section"""
-        cfgfile = cfgfile or cls.__configfile__
+        cfgfile = cfgfile or cls.__cfgfile__
         section = section or cls.__section__
         if None in (cfgfile, section):
             raise ValueError("A config file and section are required for reading settings")
