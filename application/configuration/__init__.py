@@ -48,6 +48,7 @@ class ConfigFile(object):
 
     def read_settings(self, section, cls):
         """Update cls's attributes with values read from the given section"""
+        warn("read_settings is deprecated in favor of using ConfigSection.read and will be removed in 1.2.0.", DeprecationWarning)
         if not issubclass(cls, ConfigSection):
             raise TypeError("cls must be a subclass of ConfigSection")
         if section not in self.parser.sections():
@@ -240,6 +241,7 @@ class ConfigSection(object):
 
 def dump_settings(cls):
     """Print a ConfigSection class attributes"""
+    warn("dump_settings is deprecated in favor of using ConfigSection.__debug__ and will be removed in 1.2.0.", DeprecationWarning)
     print '%s:' % cls.__name__
     for name in cls.__settings__:
         print '  %s: %s' % (name, getattr(cls, name))
