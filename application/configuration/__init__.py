@@ -164,7 +164,7 @@ class ConfigFile(object):
                     log.warn(msg, **ConfigFile.log_context)
     
     def get_setting(self, section, setting, type=str, default=''):
-        """Get a setting from a given section using type, or default if not found"""
+        """Get a setting from a given section using type, or default if missing"""
         try:
             value = self.parser.get(section, setting)
         except:
@@ -181,7 +181,7 @@ class ConfigFile(object):
                 return default
     
     def get_option(self, section, option, default='', type=str):
-        """Get an option from a given section using type, or default if not found"""
+        """Get an option from a given section using type, or default if missing"""
         warn("get_option is deprecated in favor of get_setting and will be removed in 1.2.0.", DeprecationWarning)
         return self.get_setting(section, option, type=type, default=default)
     
