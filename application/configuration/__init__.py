@@ -19,140 +19,6 @@ from application.python.descriptor import isdescriptor
 from application.configuration import datatypes
 
 
-class ConfigSetting(object):
-    def __init__(self, type, value=None):
-        self.type = type
-        self.value = value
-        self.type_is_class = isinstance(type, (types.ClassType, types.TypeType))
-
-    def __get__(self, obj, objtype):
-        return self.value
-
-    def __set__(self, obj, value, convert=True):
-        if convert and value is not None and not (self.type_is_class and isinstance(value, self.type)):
-            value = self.type(value)
-        self.value = value
-
-
-class ConfigSectionMeta(type):
-    def __init__(cls, clsname, bases, dct):
-        cls.__defaults__ = dict(cls)
-        if None not in (cls.__configfile__, cls.__section__):
-            cls.__read__()
-
-    def __new__(clstype, clsname, bases, dct):
-        settings = {}
-        # copy all settings defined by parents unless also defined in the class being constructed
-        for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
-            if name not in dct and name not in settings:
-                settings[name] = ConfigSetting(type=setting.type, value=setting.value)
-        if '_datatypes' in dct:
-            warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
-            for setting_name, setting_type in dct['_datatypes'].iteritems():
-                try:
-                    value = dct[setting_name]
-                except KeyError:
-                    log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
-                else:
-                    settings[setting_name] = ConfigSetting(type=setting_type, value=value)
-        for attr, value in dct.iteritems():
-            if isinstance(value, ConfigSetting):
-                settings[attr] = value
-            elif attr == '_datatypes' or attr.startswith('__'):
-                continue
-            elif isdescriptor(value) or type(value) is types.BuiltinFunctionType:
-                continue
-            elif attr in settings:
-                pass # already added descriptor from _datatypes declarations
-            else:
-                if type(value) is bool:
-                    data_type = datatypes.Boolean
-                else:
-                    data_type = type(value)
-                settings[attr] = ConfigSetting(type=data_type, value=value)
-        dct.update(settings)
-        dct['__settings__'] = settings
-        return type.__new__(clstype, clsname, bases, dct)
-
-    def __iter__(cls):
-        return ((name, desc.__get__(None, cls)) for name, desc in cls.__settings__.iteritems())
-
-    def __setattr__(cls, attr, value):
-        if attr in cls.__settings__:
-            cls.__settings__[attr].__set__(None, value)
-        else:
-            type.__setattr__(cls, attr, value)
-
-    def __delattr__(cls, attr):
-        if attr in cls.__settings__:
-            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, attr))
-        else:
-            type.__delattr__(cls, attr)
-
-
-class ConfigSection(object):
-    """
-    Defines a section in the configuration file
-
-    Settings defined in superclasses are not inherited, but cloned as if
-    defined in the subclass using ConfigSetting. All other attributes
-    are inherited as normal.
-    """
-    __metaclass__ = ConfigSectionMeta
-    __configfile__ = None
-    __section__ = None
-
-    def __new__(cls, *args, **kwargs):
-        raise TypeError("cannot instantiate ConfigSection class")
-
-    @classmethod
-    def __set__(cls, **kw):
-        """Set multiple settings at once"""
-        if not set(cls.__settings__).issuperset(kw):
-            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
-        saved_state = dict(cls)
-        try:
-            for name, value in kw.iteritems():
-                setattr(cls, name, value)
-        except:
-            for name, descriptor in cls.__settings__.iteritems():
-                descriptor.__set__(None, saved_state[name], convert=False)
-            raise
-
-    @classmethod
-    def __reset__(cls):
-        """Reset settings to the default values from the class definition"""
-        for name, descriptor in cls.__settings__.iteritems():
-            descriptor.__set__(None, cls.__defaults__[name], convert=False)
-
-    @classmethod
-    def __read__(cls, cfgfile=None, section=None):
-        """Update settings by reading them from the given file and section"""
-        cfgfile = cfgfile or cls.__configfile__
-        section = section or cls.__section__
-        if None in (cfgfile, section):
-            raise ValueError("A config file and section are required for reading settings")
-        if isinstance(cfgfile, ConfigFile):
-            config_file = cfgfile
-        else:
-            config_file = ConfigFile(cfgfile)
-        if isinstance(section, basestring):
-            section_list = (section,)
-        else:
-            section_list = section
-        for section in section_list:
-            for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
-                try:
-                    setattr(cls, name, value)
-                except Exception, why:
-                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
-                    log.warn(msg, **config_file.log_context)
-
-    set   = __set__
-    reset = __reset__
-    read  = __read__
-
-
 class ConfigFile(object):
     """Provide access to a configuration file"""
     
@@ -235,6 +101,141 @@ class ConfigFile(object):
             return default
         else:
             return items
+
+
+class ConfigSetting(object):
+    def __init__(self, type, value=None):
+        self.type = type
+        self.value = value
+        self.type_is_class = isinstance(type, (types.ClassType, types.TypeType))
+
+    def __get__(self, obj, objtype):
+        return self.value
+
+    def __set__(self, obj, value, convert=True):
+        if convert and value is not None and not (self.type_is_class and isinstance(value, self.type)):
+            value = self.type(value)
+        self.value = value
+
+
+class ConfigSectionMeta(type):
+    def __init__(cls, clsname, bases, dct):
+        cls.__defaults__ = dict(cls)
+        if None not in (cls.__configfile__, cls.__section__):
+            cls.__read__()
+
+    def __new__(clstype, clsname, bases, dct):
+        settings = {}
+        # copy all settings defined by parents unless also defined in the class being constructed
+        for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
+            if name not in dct and name not in settings:
+                settings[name] = ConfigSetting(type=setting.type, value=setting.value)
+        if '_datatypes' in dct:
+            warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
+            for setting_name, setting_type in dct['_datatypes'].iteritems():
+                try:
+                    value = dct[setting_name]
+                except KeyError:
+                    log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
+                else:
+                    settings[setting_name] = ConfigSetting(type=setting_type, value=value)
+        for attr, value in dct.iteritems():
+            if isinstance(value, ConfigSetting):
+                settings[attr] = value
+            elif attr == '_datatypes' or attr.startswith('__'):
+                continue
+            elif isdescriptor(value) or type(value) is types.BuiltinFunctionType:
+                continue
+            elif attr in settings:
+                pass # already added descriptor from _datatypes declarations
+            else:
+                if type(value) is bool:
+                    data_type = datatypes.Boolean
+                else:
+                    data_type = type(value)
+                settings[attr] = ConfigSetting(type=data_type, value=value)
+        dct.update(settings)
+        dct['__settings__'] = settings
+        return type.__new__(clstype, clsname, bases, dct)
+
+    def __iter__(cls):
+        return ((name, desc.__get__(None, cls)) for name, desc in cls.__settings__.iteritems())
+
+    def __setattr__(cls, attr, value):
+        if attr in cls.__settings__:
+            cls.__settings__[attr].__set__(None, value)
+        else:
+            type.__setattr__(cls, attr, value)
+
+    def __delattr__(cls, attr):
+        if attr in cls.__settings__:
+            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, attr))
+        else:
+            type.__delattr__(cls, attr)
+
+
+class ConfigSection(object):
+    """
+    Defines a section in the configuration file
+
+    Settings defined in superclasses are not inherited, but cloned as if
+    defined in the subclass using ConfigSetting. All other attributes
+    are inherited as normal.
+    """
+    __metaclass__ = ConfigSectionMeta
+    __cfgtype__ = ConfigFile
+    __configfile__ = None
+    __section__ = None
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError("cannot instantiate ConfigSection class")
+
+    @classmethod
+    def __set__(cls, **kw):
+        """Set multiple settings at once"""
+        if not set(cls.__settings__).issuperset(kw):
+            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
+        saved_state = dict(cls)
+        try:
+            for name, value in kw.iteritems():
+                setattr(cls, name, value)
+        except:
+            for name, descriptor in cls.__settings__.iteritems():
+                descriptor.__set__(None, saved_state[name], convert=False)
+            raise
+
+    @classmethod
+    def __reset__(cls):
+        """Reset settings to the default values from the class definition"""
+        for name, descriptor in cls.__settings__.iteritems():
+            descriptor.__set__(None, cls.__defaults__[name], convert=False)
+
+    @classmethod
+    def __read__(cls, cfgfile=None, section=None):
+        """Update settings by reading them from the given file and section"""
+        cfgfile = cfgfile or cls.__configfile__
+        section = section or cls.__section__
+        if None in (cfgfile, section):
+            raise ValueError("A config file and section are required for reading settings")
+        if isinstance(cfgfile, ConfigFile):
+            config_file = cfgfile
+        else:
+            config_file = cls.__cfgtype__(cfgfile)
+        if isinstance(section, basestring):
+            section_list = (section,)
+        else:
+            section_list = section
+        for section in section_list:
+            for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
+                try:
+                    setattr(cls, name, value)
+                except Exception, why:
+                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
+                    log.warn(msg, **config_file.log_context)
+
+    set   = __set__
+    reset = __reset__
+    read  = __read__
 
 
 def dump_settings(cls):
