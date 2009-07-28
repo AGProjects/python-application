@@ -162,16 +162,28 @@ class ConfigFile(object):
     
     instances = {}
     log_context = {'system': 'configuration'}
-    
+
     def __new__(cls, filename):
-        if not cls.instances.has_key(filename):
+        files = []
+        timestamp = 0
+        for path in process.get_config_directories():
+            file = os.path.realpath(os.path.join(path, filename))
+            if os.access(file, os.R_OK):
+                try:
+                    timestamp = max(timestamp, os.stat(file).st_mtime)
+                except (OSError, IOError):
+                    continue
+                files.append(file)
+
+        instance = cls.instances.get(filename, None)
+        if instance is None or instance.files != files or instance.timestamp < timestamp:
             instance = object.__new__(cls)
             instance.parser = ConfigParser()
-            files = [os.path.join(path, filename) for path in process.get_config_directories() if path is not None]
-            instance.parser.read(files)
+            instance.files = instance.parser.read(files)
+            instance.timestamp = timestamp
             cls.instances[filename] = instance
-        return cls.instances[filename]
-    
+        return instance
+
     def read_settings(self, section, cls):
         """Update cls's attributes with values read from the given section"""
         if not issubclass(cls, ConfigSection):
