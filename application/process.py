@@ -51,6 +51,14 @@ class Process(object):
 
     config_directory = property(_get_config_directory, _set_config_directory)
 
+    def _get_local_config_directory(self):
+        return self._local_config_directory
+
+    def _set_local_config_directory(self, path):
+        self._local_config_directory = os.path.realpath(path)
+
+    local_config_directory = property(_get_local_config_directory, _set_local_config_directory)
+
     def _get_system_config_directory(self):
         return self._system_config_directory
 
