@@ -38,6 +38,10 @@ class LogLevel(int):
     def __new__(cls, value):
         def constrain(value, min_value, max_value):
             return min(max(min_value, value), max_value)
+        if isinstance(value, (int, long)):
+            return log.NamedLevel(constrain(value, log.level.ALL, log.level.NONE))
+        elif not isinstance(value, basestring):
+            raise TypeError("value must be a string, int or long")
         log_level = value.upper()
         names = [attr.name for attr in log.level.__class__.__dict__.itervalues() if type(attr) is log.NamedLevel]
         if log_level in names:
@@ -51,9 +55,14 @@ class LogLevel(int):
 class StringList(list):
     """A list of strings separated by commas"""
     def __new__(cls, value):
-        if value.lower() in ('none', ''):
-            return []
-        return re.split(r'\s*,\s*', value)
+        if isinstance(value, (tuple, list)):
+            return [str(x) for x in value]
+        elif isinstance(value, basestring):
+            if value.lower() in ('none', ''):
+                return []
+            return re.split(r'\s*,\s*', value)
+        else:
+            raise TypeError("value must be a string, list or tuple")
 
 
 class IPAddress(str):
@@ -69,6 +78,8 @@ class IPAddress(str):
 class Hostname(str):
     """A Hostname or an IP address. The keyword `any' stands for '0.0.0.0'"""
     def __new__(cls, value):
+        if not isinstance(value, basestring):
+            raise TypeError("value must be a string")
         if value.lower() == 'any':
             return '0.0.0.0'
         try:
@@ -81,6 +92,10 @@ class Hostname(str):
 class HostnameList(list):
     """A list of hostnames separated by commas"""
     def __new__(cls, description):
+        if isinstance(description, (list, tuple)):
+            return [Hostname(x) for x in description]
+        elif not isinstance(description, basestring):
+            raise TypeError("value must be a string, list or tuple")
         if description.lower()=='none':
             return []
         lst = re.split(r'\s*,\s*', description)
@@ -118,6 +133,11 @@ class NetworkRange(tuple):
     On error ValueError is raised, or NameError for invalid hostnames.
     """
     def __new__(cls, description):
+        if (isinstance(description, tuple) and len(description)==2 and
+            isinstance(description[0], (int, long)) and isinstance(description[1], (int, long))):
+            return description
+        elif not isinstance(description, basestring):
+            raise TypeError("value must be a string, or a tuple with 2 integer elements")
         if not description or description.lower()=='none':
             return (0L, 0xFFFFFFFFL)
         if description.lower()=='any':
@@ -146,6 +166,12 @@ class NetworkRange(tuple):
 class NetworkRangeList(list):
     """A list of NetworkRange objects separated by commas"""
     def __new__(cls, description):
+        if description is None:
+            return description
+        elif isinstance(description, (list, tuple)):
+            return [NetworkRange(x) for x in description] or None
+        elif not isinstance(description, basestring):
+            raise TypeError("value must be a string, list, tuple or None")
         if description.lower()=='none':
             return None
         lst = re.split(r'\s*,\s*', description)
@@ -200,6 +226,12 @@ class NetworkAddress(tuple):
     default_port = 0
 
     def __new__(cls, value):
+        if value is None:
+            return value
+        elif isinstance(value, tuple) and len(value)==2 and isinstance(value[1], (int, long)):
+            return (Hostname(value[0]), value[1])
+        elif not isinstance(value, basestring):
+            raise TypeError("value must be a string, a (host, port) tuple or None")
         if value.lower() == 'none': return None
         if value.lower() == 'default': return ('0.0.0.0', cls.default_port)
         match = re.search(r'^(?P<address>.+?):(?P<port>\d+)$', value)
