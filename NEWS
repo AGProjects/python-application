@@ -1,3 +1,140 @@
+New in version 1.1.5
+--------------------
+
+The configuration framework has received a number of enhancements to make it
+easier to use.
+
+1. Made ConfigSection iterable as (name, value) pairs. With this it became
+   very easy to go through all the settings in a section with a simple
+   for loop or list comprehension: for name, value in MyConfig: ...
+   Saving the current state of a ConfigSection has also become as easy as
+   writing saved_state = dict(MyConfig)
+
+2. Allow any callable to used as a data type converter (or data validator).
+   This was a small regression from version 1.1.1, fixed in this version.
+
+3. The initial state of a ConfigSection, given by the factory default values
+   is saved as a dict in ConfigSection.__defaults__, right after the class is
+   created, before any of the settings is modified or read from a section.
+   With this it's possible to reset to the factory defaults at a later time,
+   or to inspect the factory defaults even after the settings were modified
+   when read from a configuration file.
+
+4. Added ConfigSection.reset() to allow a ConfigSection to revert itself to
+   the factory default values. The method is mirrored in __reset__, in case
+   the reset keyword is used by the section as a setting name and overwrites
+   the method.
+
+5. Added ConfigSection.set() which is used to modify multiple settings at a
+   time. It takes name=value keyword arguments and modifies the settings
+   which are referred by name. Using a keyword argument that doesn't map to
+   an existing setting name will result in an exception. The method is
+   mirrored in __set__, in case the set keyword is used as a setting name
+   in the section and overwrites the method.
+
+   Another use of this function is to restore a previously saved state, which
+   together with the ability to make a snapshot of the current state provide
+   the foundation for implementing a versioning system on top of the existing
+   configuration framework.
+
+     saved_state = dict(MyConfig) # save the current state
+     MyConfig.foo = 'bar'         # change it
+     MyConfig.bar = 'baz'
+     ...
+     MyConfig.reset()             # reset it to factory defaults
+     ...
+     MyConfig.set(saved_state)    # revert to the saved state
+
+6. Added ConfigFile.read() which is used to read the settings from a given
+   configuration file and section (or sections) into the class attributes
+   with the corresponding names. This replaces ConfigFile.read_settings
+   (which was obsoleted), providing a better interface which decouples
+   ConfigSection from ConfigFile.
+   
+   Together with the reset method, read allows a ConfigSection to reload
+   its settings when the configuration file changes. ConfigFile provides
+   an internal caching mechanism that returns the same instance as long
+   as it has not changed on disk, but it will automatically reload it if
+   it detects that it has changed since the last time it was requested.
+   Because of this caching mechanism, a ConfigSection only needs to call
+   its read method to have the content reloaded if it has changed, with
+   no need to perform any other action. By using the reset method it can
+   assure that it doesn't retain old values for settings that were removed
+   from the configuration file since it was last red. If the removed values
+   need to be preserved instead of being reset to factory defaults, then
+   the reset call can be skipped.
+   
+     MyConfig.reset() # revert to factory defaults
+     MyConfig.read()  # reload settings by reading them from the file
+   
+   The read method accepts optional cfgfile and section arguments that
+   override the __cfgfile__ and __section__ attributes. If the arguments
+   are not provided, the class attributes will used instead if defined.
+   If not the arguments nor the class attributes are specified it will
+   raise an exception as it cannot perform the requested action.
+
+7. Improved the ConfigFile caching mechanism to take into account the files
+   that were red and their timestamp, in order to reload the configuration
+   files when they change, instead of retaining them forever once read.
+   This allows ConfigSection.read() to work transparently when reloading a
+   configuration file that changed.
+
+8. The __configfile__ property on ConfigSection was deprecated in favor of
+   __cfgfile__
+
+9. Added ConfigSection.__cfgtype__ to specify the type to use to create
+   instances that handle a configuration file. It defaults to ConfigFile,
+   but it can be overwritten in case one wants to implement a different
+   backend than the one based on ConfigParser.
+
+10. A ConfigSection can now be printed and it will show all its settings
+    in a manner similar to the deprecated dump_settings. This is done by
+    implementing the __str__ method, which makes it easy to include the
+    string representation of a ConfigSection into a message using %s
+
+11. Added ConfigSection.__tracing__ that can hold one of log.level.INFO,
+    log.level.DEBUG or None, indicating where to send messages about the
+    inner working of the ConfigSection. When set to None, no information
+    will be logged, while the other 2 values indicate the log level to
+    which the messages should be logged. When enabled, it will output
+    detailed descriptions of what it does and the state it reaches after
+    operations like read(), set() or reset() as well as the initial class
+    creation or individual changes to settings.
+
+12. Modified the data converters/validators in datatypes to also accept on
+    input what they generate on output. Since they are not real types and
+    do not return instances of themselves, they need to accept what they
+    generate, not only strings in order for ConfigSection.set() to work
+    when restoring a previously saved state. Care must be taken with custom
+    defined data converters/validators to make sure they are able to process
+    not only the input strings that come from the configuration, but also
+    the values they generate out of those strings. This is because when
+    ConfigSection.set() is later called on a saved state, it will no longer
+    receive strings as input values anymore, but it will receive the values
+    that were previously returned by the data converters/validators.
+    If real data types are used instead to define settings, this is not an
+    issue as then the values can be identified by their type and if already
+    the right type the type will no longer be applied on them before being
+    assigned as settings.
+
+Deprecated in this version and scheduled to be removed in 1.2.0:
+
+- ConfigFile.read_settings() in favor of ConfigSection.read()
+- dump_settings(MyConfig) in favor of print MyConfig
+- ConfigSection.__configfile__ in favor of ConfigSection.__cfgfile__
+
+All the deprecated features issue a deprecation warning when used/accessed.
+
+
+The Process class in the process module has received a new property to control
+the local config directory. Until now, the local config directory could not be
+modified and always pointed to the directory containing the script being run.
+Starting with this version, the local config directory only defaults to the
+script's directory but can be later changed using the local_config_directory
+property, similar to the system_config_directory which controls the system
+config directory.
+
+
 New in version 1.1.4
 --------------------
 
