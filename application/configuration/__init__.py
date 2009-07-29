@@ -123,6 +123,7 @@ class ConfigSetting(object):
 class ConfigSectionMeta(type):
     def __init__(cls, clsname, bases, dct):
         cls.__defaults__ = dict(cls)
+        cls.__trace__("Dumping initial %s state:\n%s", cls.__name__, cls)
         if None not in (cls.__cfgfile__, cls.__section__):
             cls.__read__()
 
@@ -161,6 +162,8 @@ class ConfigSectionMeta(type):
                 settings[attr] = ConfigSetting(type=data_type, value=value)
         dct.update(settings)
         dct['__settings__'] = settings
+        if dct.get('__tracing__', None) not in (log.level.INFO, log.level.DEBUG, None):
+            raise ValueError("__tracing__ must be one of log.level.INFO, log.level.DEBUG or None")
         return type.__new__(clstype, clsname, bases, dct)
 
     def __str__(cls):
@@ -172,7 +175,10 @@ class ConfigSectionMeta(type):
     def __setattr__(cls, attr, value):
         if attr in cls.__settings__:
             cls.__settings__[attr].__set__(None, value)
+            cls.__trace__("setting %s.%s as %r from %r", cls.__name__, attr, getattr(cls, attr), value)
         else:
+            if attr == '__tracing__' and value not in (log.level.INFO, log.level.DEBUG, None):
+                raise ValueError("__tracing__ must be one of log.level.INFO, log.level.DEBUG or None")
             type.__setattr__(cls, attr, value)
 
     def __delattr__(cls, attr):
@@ -205,6 +211,7 @@ class ConfigSection(object):
     __cfgtype__ = ConfigFile
     __cfgfile__ = None
     __section__ = None
+    __tracing__ = None
 
     def __new__(cls, *args, **kwargs):
         raise TypeError("cannot instantiate ConfigSection class")
@@ -215,19 +222,25 @@ class ConfigSection(object):
         if not set(cls.__settings__).issuperset(kw):
             raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
         saved_state = dict(cls)
+        cls.__trace__("changing multiple settings of %s", cls.__name__)
         try:
             for name, value in kw.iteritems():
                 setattr(cls, name, value)
         except:
+            cls.__trace__("reverting settings to previous values due to error while setting %s", name)
             for name, descriptor in cls.__settings__.iteritems():
                 descriptor.__set__(None, saved_state[name], convert=False)
             raise
+        else:
+            cls.__trace__("Dumping %s state after set():\n%s", cls.__name__, cls)
 
     @classmethod
     def __reset__(cls):
         """Reset settings to the default values from the class definition"""
+        cls.__trace__("resetting %s to default values", cls.__name__)
         for name, descriptor in cls.__settings__.iteritems():
             descriptor.__set__(None, cls.__defaults__[name], convert=False)
+        cls.__trace__("Dumping %s state after reset():\n%s", cls.__name__, cls)
 
     @classmethod
     def __read__(cls, cfgfile=None, section=None):
@@ -244,13 +257,23 @@ class ConfigSection(object):
             section_list = (section,)
         else:
             section_list = section
+        cls.__trace__("reading %s from %s requested as '%s'", cls.__name__, ', '.join(config_file.files), config_file.filename)
         for section in section_list:
+            cls.__trace__("reading section '%s'", section)
             for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
                 try:
                     setattr(cls, name, value)
                 except Exception, why:
                     msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
                     log.warn(msg, **config_file.log_context)
+        cls.__trace__("Dumping %s state after read():\n%s", cls.__name__, cls)
+
+    @classmethod
+    def __trace__(cls, message, *args):
+        if cls.__tracing__ == log.level.INFO:
+            log.info(message % args)
+        elif cls.__tracing__ == log.level.DEBUG:
+            log.debug(message % args)
 
     set   = __set__
     reset = __reset__
