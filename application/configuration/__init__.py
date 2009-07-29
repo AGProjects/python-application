@@ -283,8 +283,5 @@ class ConfigSection(object):
 def dump_settings(cls):
     """Print a ConfigSection class attributes"""
     warn("dump_settings is deprecated in favor of using `print ConfigSection' and will be removed in 1.2.0.", DeprecationWarning)
-    print '%s:' % cls.__name__
-    for name in cls.__settings__:
-        print '  %s: %s' % (name, getattr(cls, name))
-    print ''
+    print cls
 
