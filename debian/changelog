@@ -1,3 +1,35 @@
+python-application (1.1.5) unstable; urgency=low
+
+  * Made a ConfigSection iterable as (name, value) pairs
+  * Modified ConfigSetting to allow any callable to be used as a validator
+  * Fixed __import__ statement to work with python older than 2.5
+  * Refactored ConfigSectionMeta to decouple it from ConfigSetting
+  * Save ConfigSetting's initial default values as cls.__defaults__
+  * Added __delattr__ on ConfigSectionMeta to prevent deletion of settings
+  * Added a mechanism to skip applying the type for a ConfigSetting
+  * Added set/reset capabilities to ConfigSection
+  * Enhanced ConfigFile.get_section with filtering and default return value
+    for missing section capabilities
+  * Reworded docstrings to fit in width on a standard terminal
+  * Allow ConfigSection.__configfile__ to be an instance of ConfigFile too
+  * Added read capabilities directly on ConfigSection classes
+  * Improved caching mechanism in ConfigFile
+  * Use ConfigSection's read capabilities instead of ConfigFile.read_settings
+  * Added support for specifying the configuration file type in ConfigSection
+  * Deprecated ConfigFile.read_settings and dump_settings
+  * Added local_config_directory property on Process
+  * Deprecated using __configfile__ in favor of __cfgfile__ on ConfigSection
+  * Added filename attribute to ConfigFile instances
+  * Added __str__ representation to ConfigSection
+  * Added tracing capabilities to ConfigSection
+  * Replaced dump_settings function body with printing the class
+  * Updated ConfigSection's docstring to describe the special attributes
+  * Rephrased exception message for clarity
+  * Modified data type converters to accept what they generate as input
+  * Updated examples to match the latest configuration API changes
+
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 29 Jul 2009 21:50:13 +0300
+
 python-application (1.1.4) unstable; urgency=low
 
   * Allow version numbers without the micro or minor number
