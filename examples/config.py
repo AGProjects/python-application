@@ -5,6 +5,7 @@
 from application.configuration import *
 from application.process import process
 from application.system import default_host_ip
+from application import log
 
 # Define a specific data type we will later use with the configuration
 class Priority(int):
@@ -47,66 +48,130 @@ class StorageConfig(ConfigSection):
     dburi = 'mysql://undefined@localhost/database'
 
 # Dump the default hardcoded values of the options defined above
-print "\nSettings before reading the configuration file (default hardcoded values)\n"
-dump_settings(NetworkConfig)
-dump_settings(StorageConfig)
-
-# Create a ConfigFile instance that handles our configuration
-#
-# The configuration files are read from two directories:
-#  1. The directory where the application resides.
-#  2. A system directory given by process.system_config_directory (which
-#     defaults to /etc if not specified)
-#
-# The first directory is there to allow one to run an application that is
-# self contained inside a directory. This directory is automatically
-# determined from the application path and is not configurable.
-# The second directory is useful if the application is installed and running
-# from a standard path like /usr/bin. This directory is configurable using
-# process.system_config_directory. In this example though, we do not use the
-# system config directory, instead the configuration file is in the same
-# directory as the example itself.
-#
-configuration = ConfigFile('config.ini')
+print "Settings before reading the configuration file (default hardcoded values)\n"
+print NetworkConfig
+print
+print StorageConfig
+print
 
 # Read the settings from the configuration file into the attributes of our
-# configuration classes defined above. The functions below will search in
-# the configuration file in the specified section for settings that have
-# names that match the names of the class attributes. If they are found,
-# their values will be interpreted using the specified data types and if
-# the values are valid they will be used to overwrite the default values
-# of the corresponding attributes which were defined above.
-# If an attribute doesn't have a corresponding value in the configuration
-# file it will keep its default value defined above. The settings in the
-# configuration file that do not have a corresponding attribute in the
-# configuration class we load will be ignored.
+# configuration classes. The read function takes a configuration file name
+# and a section name (or an iterable that returns multiple section names
+# in which case they will be read in the order that the iterable returns
+# them). Internally the ConfigSection will create a ConfigFile instance
+# using the provided filename. The file is searched in both the system
+# and the local config directories and the files which are present will be
+# loaded in this order. This means that a local config file will overwrite
+# settings from the system config file if both are present.
+# The config directories are configurable on the process instance available
+# from application.process.process, as process.system_config_directory and
+# process.local_config_directory. By default the system config directory
+# defaults to /etc and the local config directory defaults to the path from
+# where the script is run, thus allowing applications to run from inside a
+# directory without any other dependencies. In this example the config file
+# will be read from ./config.ini which is in the local config directory.
 #
-configuration.read_settings('Network', NetworkConfig)
-configuration.read_settings('Storage', StorageConfig)
+# While reading the section, only settings that are defined on the config
+# class wil be considered. Those present in the section that do not have a
+# correspondent in the class attributes will be ignored, while the class
+# attributes for which there are no settings in the section will remain
+# unchanged.
+#
+NetworkConfig.read('config.ini', 'Network')
+StorageConfig.read('config.ini', 'Storage')
 
 # Dump the values of the options after they were loaded from the config file
 print "\nSettings after reading the configuration file(s)\n"
-dump_settings(NetworkConfig)
-dump_settings(StorageConfig)
+print NetworkConfig
+print
+print StorageConfig
+print
 
 # Configuration options can be accessed as class attributes
 ip = NetworkConfig.ip
 
 # Starting with version 1.1.2, there is a simpler way to have a section loaded
-# automatically, by defining the __configfile__ and __section__ attributes on
-# the class.
+# automatically, by defining the __cfgfile__ and __section__ attributes on
+# the class. (Note: between version 1.1.2 through 1.1.4, __cfgfile__ was
+# named __configfile__)
 
 # Here is an example of such a class that will be automatically loaded
+
+print "\n------------------------------------\n"
+print "Using __cfgfile__ and __section__ to automatically load sections\n"
+
 class AutoStorageConfig(ConfigSection):
-    __configfile__ = 'config.ini'
+    __cfgfile__ = 'config.ini'
     __section__ = 'Storage'
     dburi = 'mysql://undefined@localhost/database'
 
 # Dump the values of the options after they were loaded from the config file
-print "\nSettings in the automatically loaded section\n"
-dump_settings(AutoStorageConfig)
+print "Settings in the automatically loaded section\n"
+print AutoStorageConfig
 
-# Or we can get individual settings from a given section
+# An example of how to use tracing to see inner workings of our configuration
+# class and to display its internal state after it is operated on. We will
+# redefine the NetworkConfig class with autoloading and tracing enabled
+#
+
+print "\n------------------------------------\n"
+print "Tracing the inner working of a config class using __tracing__\n"
+
+class NetworkConfigTraced(ConfigSection):
+    __cfgfile__ = 'config.ini'
+    __section__ = 'Network'
+    __tracing__ = log.level.INFO # log trace to INFO level
+
+    name = 'undefined'
+    ip = ConfigSetting(type=datatypes.IPAddress, value=default_host_ip)
+    port = 8000
+    priority = ConfigSetting(type=Priority, value=Priority('Normal'))
+    domains = ConfigSetting(type=datatypes.StringList, value=[])
+    allow = ConfigSetting(type=datatypes.NetworkRangeList, value=[])
+    use_tls = False
+
+print "\nReset to defaults and read settings from config file again\n"
+# reset to defaults
+NetworkConfigTraced.reset()
+# read back from config file. since we defined __cfgfile__ and __section__
+# we do not need to pass a file and section as arguments to read, the above
+# mentioned class atributes will be used instead. Passing arguments to read()
+# will overwrite the class attributes though.
+NetworkConfigTraced.read()
+
+print "\nChange individual options\n"
+NetworkConfigTraced.name = 'manually_set_name'
+NetworkConfigTraced.ip = '1.2.3.4'
+
+print "\nSave current state, reset to defaults and then restore from saved state\n"
+# save a snapshot of the current settings
+state = dict(NetworkConfigTraced)
+# reset to defaults
+NetworkConfigTraced.reset()
+# restore to a previously saved state
+NetworkConfigTraced.set(**state)
+
+# disabled tracing
+NetworkConfigTraced.__tracing__ = None
+# the following operations will not be traced
+NetworkConfigTraced.reset()
+NetworkConfigTraced.read()
+NetworkConfigTraced.set(**state)
+
+
+# We can also get individual settings from a given section.
+#
+# For this we create ConfigFile instance that will handle the configuration
+# file. The information about the system and local configuration directories
+# and where are the configuration files being looked up (which was presented
+# above with the ConfigSection.read() method) apply here as well.
+#
+
+print "\n------------------------------------\n"
+print "Reading individual settings from sections without using ConfigSection"
+
+configuration = ConfigFile('config.ini')
+
 dburi = configuration.get_setting('Storage', 'dburi', type=str, default='undefined')
 print "\nGot dburi directly from Storage section as `%s'\n" % dburi
 
