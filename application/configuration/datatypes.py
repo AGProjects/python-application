@@ -23,7 +23,7 @@ class Boolean(int):
             value + 0
         except:
             try: value + ''
-            except: raise TypeError, 'value should be a string'
+            except: raise TypeError('value must be a string')
             else: val = value.lower()
         else:
             val = value # eventually we can accept any int value by using 'not not value'
