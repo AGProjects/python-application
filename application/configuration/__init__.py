@@ -163,6 +163,9 @@ class ConfigSectionMeta(type):
         dct['__settings__'] = settings
         return type.__new__(clstype, clsname, bases, dct)
 
+    def __str__(cls):
+        return "%s:\n%s" % (cls.__name__, '\n'.join("  %s = %r" % (name, value) for name, value in cls) or "  pass")
+
     def __iter__(cls):
         return ((name, desc.__get__(None, cls)) for name, desc in cls.__settings__.iteritems())
 
@@ -256,7 +259,7 @@ class ConfigSection(object):
 
 def dump_settings(cls):
     """Print a ConfigSection class attributes"""
-    warn("dump_settings is deprecated in favor of using ConfigSection.__debug__ and will be removed in 1.2.0.", DeprecationWarning)
+    warn("dump_settings is deprecated in favor of using `print ConfigSection' and will be removed in 1.2.0.", DeprecationWarning)
     print '%s:' % cls.__name__
     for name in cls.__settings__:
         print '  %s: %s' % (name, getattr(cls, name))
