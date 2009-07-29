@@ -206,7 +206,20 @@ class ConfigSection(object):
     Settings defined in superclasses are not inherited, but cloned as if
     defined in the subclass using ConfigSetting. All other attributes
     are inherited as normal.
+
+    The following special attributes can be set on a ConfigSection class:
+
+      __cfgtype__ - the ConfigFile type used to read/parse the config file
+      __cfgfile__ - the configuration file name
+      __section__ - the section in the config file. It can be a string for
+                    reading one section, or an iterable returning strings
+                    for reading multiple sections (they will be read in
+                    the order the iterable returns them)
+      __tracing__ - one of log.level.INFO, log.level.DEBUG or None
+                    indicating where to log messages about the inner
+                    workings of the ConfigSection
     """
+
     __metaclass__ = ConfigSectionMeta
     __cfgtype__ = ConfigFile
     __cfgfile__ = None
