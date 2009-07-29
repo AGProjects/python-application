@@ -42,6 +42,7 @@ class ConfigFile(object):
             instance = object.__new__(cls)
             instance.parser = ConfigParser()
             instance.files = instance.parser.read(files)
+            instance.filename = filename
             instance.timestamp = timestamp
             cls.instances[filename] = instance
         return instance
