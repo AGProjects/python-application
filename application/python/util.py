@@ -43,6 +43,7 @@ class Null(object):
     def __nonzero__(self): return 0
     def __eq__(self, other): return isinstance(other, self.__class__)
     def __ne__(self, other): return not isinstance(other, self.__class__)
+    def __contains__(self, item): return False
     def __getattr__(self, name): return self
     def __setattr__(self, name, value): pass
     def __delattr__(self, name): pass
