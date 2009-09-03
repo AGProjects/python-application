@@ -48,5 +48,8 @@ class Null(object):
     def __getitem__(self, key): return self
     def __setitem__(self, key, value): pass
     def __delitem__(self, key): pass
+    def __get__(self, obj, type): return self
+    def __set__(self, obj, value): pass
+    def __delete__(self, obj): pass
     __str__ = __repr__
 
