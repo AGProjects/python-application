@@ -53,6 +53,8 @@ class Null(object):
     def __get__(self, obj, type): return self
     def __set__(self, obj, value): pass
     def __delete__(self, obj): pass
+    def __enter__(self): return self
+    def __exit__(self, exc_type, exc_value, traceback): pass
     def __iter__(self): return self
     def next(self): raise StopIteration
     __str__ = __repr__
