@@ -39,6 +39,7 @@ class Null(object):
     def __init__(self, *args, **kwargs): pass
     def __call__(self, *args, **kwargs): return self
     def __repr__(self): return self.__class__.__name__
+    def __len__(self): return 0
     def __nonzero__(self): return 0
     def __eq__(self, other): return isinstance(other, self.__class__)
     def __ne__(self, other): return not isinstance(other, self.__class__)
