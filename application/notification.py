@@ -107,10 +107,13 @@ class NotificationCenter(object):
 
     def remove_observer(self, observer, name=Any, sender=Any):
         """
-        Remove an observer's subscription.
+        Remove an observer's subscription if present, else raise KeyError.
 
-        The `name' and `sender' arguments must match the ones used to register
-        the observer.
+        The `name' and `sender' arguments must match the ones used to
+        register the observer.
+
+        See discard_observer for a variant that doesn't raise KeyError if
+        the observer is not registered.
         """
         try:
             observer_set = self.observers[(name, sender)]
@@ -119,6 +122,22 @@ class NotificationCenter(object):
             raise KeyError("observer %r not registered for %r events from %r" % (observer, name, sender))
         if len(observer_set) == 0:
             del self.observers[(name, sender)]
+
+    def discard_observer(self, observer, name=Any, sender=Any):
+        """
+        Remove an observer's subscription if present, else do nothing.
+
+        The `name' and `sender' arguments must match the ones used to
+        register the observer.
+
+        See remove_observer for a variant that raises KeyError if the
+        observer is not registered.
+        """
+        observer_set = self.observers.get((name, sender), None)
+        if observer_set is not None:
+            observer_set.discard(observer)
+            if len(observer_set) == 0:
+                del self.observers[(name, sender)]
 
     def post_notification(self, name, sender=UnknownSender, data=NotificationData()):
         """
