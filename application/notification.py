@@ -44,7 +44,7 @@ class IObserver(Interface):
 
 class NotificationData(object):
     """Object containing the notification data"""
-    
+
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -65,7 +65,7 @@ class Notification(object):
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name, self.sender, self.data)
-    
+
     __str__ = __repr__
 
 
@@ -144,7 +144,7 @@ class NotificationCenter(object):
         Post a notification which will be delivered to all observers whose
         subscription matches the name and sender attributes of the notification.
         """
-        
+
         notification = Notification(name, sender, data)
         self.queue.append(notification)
         if len(self.queue) > 1:
