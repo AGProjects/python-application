@@ -3,9 +3,12 @@
 
 """Implements a notification system"""
 
+from __future__ import with_statement
+
 __all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter']
 
 from collections import deque
+from threading import Lock
 from zope.interface import Interface
 
 from application import log
@@ -90,6 +93,7 @@ class NotificationCenter(object):
         """
         self.name = name
         self.observers = {}
+        self.lock = Lock()
 
     def add_observer(self, observer, name=Any, sender=Any):
         """
@@ -103,7 +107,8 @@ class NotificationCenter(object):
         """
         if not IObserver.providedBy(observer):
             raise TypeError("observer must implement the IObserver interface")
-        self.observers.setdefault((name, sender), set()).add(observer)
+        with self.lock:
+            self.observers.setdefault((name, sender), set()).add(observer)
 
     def remove_observer(self, observer, name=Any, sender=Any):
         """
@@ -115,13 +120,14 @@ class NotificationCenter(object):
         See discard_observer for a variant that doesn't raise KeyError if
         the observer is not registered.
         """
-        try:
-            observer_set = self.observers[(name, sender)]
-            observer_set.remove(observer)
-        except KeyError:
-            raise KeyError("observer %r not registered for %r events from %r" % (observer, name, sender))
-        if len(observer_set) == 0:
-            del self.observers[(name, sender)]
+        with self.lock:
+            try:
+                observer_set = self.observers[(name, sender)]
+                observer_set.remove(observer)
+            except KeyError:
+                raise KeyError("observer %r not registered for %r events from %r" % (observer, name, sender))
+            if not observer_set:
+                del self.observers[(name, sender)]
 
     def discard_observer(self, observer, name=Any, sender=Any):
         """
@@ -133,11 +139,12 @@ class NotificationCenter(object):
         See remove_observer for a variant that raises KeyError if the
         observer is not registered.
         """
-        observer_set = self.observers.get((name, sender), None)
-        if observer_set is not None:
-            observer_set.discard(observer)
-            if len(observer_set) == 0:
-                del self.observers[(name, sender)]
+        with self.lock:
+            observer_set = self.observers.get((name, sender), None)
+            if observer_set is not None:
+                observer_set.discard(observer)
+                if not observer_set:
+                    del self.observers[(name, sender)]
 
     def post_notification(self, name, sender=UnknownSender, data=NotificationData()):
         """
