@@ -147,7 +147,7 @@ class NotificationCenter(object):
 
         notification = Notification(name, sender, data)
         self.queue.append(notification)
-        if len(self.queue) > 1:
+        if len(self.queue) > 1: # This is true if we post a notification from inside a notification handler
             return
 
         while self.queue:
