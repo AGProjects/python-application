@@ -2,16 +2,16 @@
 
 from time import time
 from zope.interface import implements
-from application.notification import Any, IObserver, NotificationData, NotificationCenter
+from application.notification import Any, IObserver, NotificationData, NotificationCenter, ObserverWeakrefProxy
 
 class Sender(object):
     def publish(self):
         center = NotificationCenter()
         print "Sending notification with name 'simple':"
-        print "Expecting CatchAllObserver, SimpleObserver and ObjectObserver to receive notifications"
+        print "Expecting CatchAllObserver, SimpleObserver, ObjectObserver and VolatileAllObserver to receive notifications"
         center.post_notification(name='simple', sender=self)
         print "\nSending notification with name 'complex':"
-        print "Expecting CatchAllObserver and ObjectObserver to receive notifications"
+        print "Expecting CatchAllObserver, ObjectObserver and VolatileAllObserver to receive notifications"
         center.post_notification(name='complex', sender=self, data=NotificationData(timestamp=time(), complex_attribute='complex_value'))
 
     def __repr__(self):
@@ -21,10 +21,10 @@ class AnonymousSender(Sender):
     def publish(self):
         center = NotificationCenter()
         print "Sending notification with name 'simple':"
-        print "Expecting SimpleObserver to receive notifications (CatchAllObserver has been unregistered)"
+        print "Expecting SimpleObserver to receive notifications (CatchAllObserver and VolatileAllObserver have been unregistered)"
         center.post_notification(name='simple')
         print "\nSending notification with name 'empty':"
-        print "Expecting no observer to receive notifications (CatchAllObserver has been unregistered)"
+        print "Expecting no observer to receive notifications (CatchAllObserver and VolatileAllObserver have been unregistered)"
         center.post_notification(name='empty', data=None)
 
 class CatchAllObserver(object):
@@ -75,6 +75,17 @@ class ObjectObserver(object):
     def handle_notification(self, notification):
         print "In ObjectObserver got %r" % (notification,)
 
+class VolatileAllObserver(object):
+    """An observer that registers itself to receive all notifications and it is weakly referenced"""
+    implements(IObserver)
+    
+    def __init__(self):
+        print "Registering VolatileAllObserver to receive all notifications"
+        NotificationCenter().add_observer(ObserverWeakrefProxy(self))
+    
+    def handle_notification(self, notification):
+        print "In VolatileAllObserver got %r" % (notification,)
+
 
 # instatiate senders
 sender = Sender()
@@ -88,6 +99,7 @@ simple_observer = SimpleObserver()
 simple_observer.register()
 object_observer = ObjectObserver(sender)
 object_observer.register()
+volatile_observer = VolatileAllObserver()
 
 # send notifications
 print "\nSending notifications from Sender:"
@@ -96,6 +108,8 @@ sender.publish()
 
 print "\nUnregistering some observers:"
 catchall_observer.unregister()
+print "Deleting VolatileAllObserver which will automatically unregister it from receiving all notifications"
+del volatile_observer
 
 print "\nSending notifications from AnonymousSender:"
 print "-------------------------------------------"
