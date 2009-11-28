@@ -82,7 +82,7 @@ class ObserverWeakrefProxy(object):
     def cleanup(self, ref):
         # remove all observer's remaining registrations (the ones that the observer didn't remove itself)
         for notification_center, name, sender in self.tracked_items:
-            notification_center.discard_observer(self, name , sender)
+            notification_center.discard_observer(self, name, sender)
 
     def handle_notification(self, notification):
         observer = self.observer_ref()
