@@ -3,7 +3,7 @@
 
 """Application configuration file handling"""
 
-__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes', 'dump_settings']
+__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes']
 
 import os
 import types
@@ -11,7 +11,6 @@ try:    from ConfigParser import SafeConfigParser as ConfigParser
 except: from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
 from itertools import chain
-from warnings import warn
 
 from application import log
 from application.process import process
@@ -48,25 +47,6 @@ class ConfigFile(object):
             cls.instances[filename] = instance
         return instance
 
-    def read_settings(self, section, cls):
-        """Update cls's attributes with values read from the given section"""
-        warn("read_settings is deprecated in favor of using ConfigSection.read and will be removed in 1.2.0.", DeprecationWarning)
-        if not issubclass(cls, ConfigSection):
-            raise TypeError("cls must be a subclass of ConfigSection")
-        if section not in self.parser.sections():
-            return
-        for name in cls.__settings__:
-            try:
-                value = self.parser.get(section, name)
-            except:
-                continue
-            else:
-                try:
-                    setattr(cls, name, value)
-                except Exception, why:
-                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
-                    log.warn(msg, **ConfigFile.log_context)
-    
     def get_setting(self, section, setting, type=str, default=''):
         """Get a setting from a given section using type, or default if missing"""
         try:
@@ -83,11 +63,6 @@ class ConfigFile(object):
                 msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, setting, value, why)
                 log.warn(msg, **ConfigFile.log_context)
                 return default
-    
-    def get_option(self, section, option, default='', type=str):
-        """Get an option from a given section using type, or default if missing"""
-        warn("get_option is deprecated in favor of get_setting and will be removed in 1.2.0.", DeprecationWarning)
-        return self.get_setting(section, option, type=type, default=default)
     
     def get_section(self, section, filter=None, default=None):
         """
@@ -129,32 +104,16 @@ class ConfigSectionMeta(type):
             cls.__read__()
 
     def __new__(clstype, clsname, bases, dct):
-        if '__configfile__' in dct:
-            warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
-            dct.setdefault('__cfgfile__', dct.pop('__configfile__'))
         settings = {}
         # copy all settings defined by parents unless also defined in the class being constructed
         for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
             if name not in dct and name not in settings:
                 settings[name] = ConfigSetting(type=setting.type, value=setting.value)
-        if '_datatypes' in dct:
-            warn("using _datatypes is deprecated in favor of ConfigSetting descriptors and will be removed in 1.2.0.", DeprecationWarning)
-            for setting_name, setting_type in dct['_datatypes'].iteritems():
-                try:
-                    value = dct[setting_name]
-                except KeyError:
-                    log.warn("%s declared in %s._datatypes but not defined" % (setting_name, clsname))
-                else:
-                    settings[setting_name] = ConfigSetting(type=setting_type, value=value)
         for attr, value in dct.iteritems():
             if isinstance(value, ConfigSetting):
                 settings[attr] = value
-            elif attr == '_datatypes' or attr.startswith('__'):
+            elif attr.startswith('__') or isdescriptor(value) or type(value) is types.BuiltinFunctionType:
                 continue
-            elif isdescriptor(value) or type(value) is types.BuiltinFunctionType:
-                continue
-            elif attr in settings:
-                pass # already added descriptor from _datatypes declarations
             else:
                 if type(value) is bool:
                     data_type = datatypes.Boolean
@@ -187,17 +146,6 @@ class ConfigSectionMeta(type):
             raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, attr))
         else:
             type.__delattr__(cls, attr)
-
-    def _get__configfile__(cls):
-        warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
-        return cls.__cfgfile__
-
-    def _set__configfile__(cls, value):
-        warn("using __configfile__ is deprecated in favor of __cfgfile__ and will be removed in 1.2.0.", DeprecationWarning)
-        cls.__cfgfile__ = value
-
-    __configfile__ = property(_get__configfile__, _set__configfile__)
-    del _get__configfile__, _set__configfile__
 
 
 class ConfigSection(object):
@@ -293,9 +241,4 @@ class ConfigSection(object):
     reset = __reset__
     read  = __read__
 
-
-def dump_settings(cls):
-    """Print a ConfigSection class attributes"""
-    warn("dump_settings is deprecated in favor of using `print ConfigSection' and will be removed in 1.2.0.", DeprecationWarning)
-    print cls
 

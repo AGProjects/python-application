@@ -188,23 +188,6 @@ class NetworkRangeList(list):
         return ranges or None
 
 
-class DeprecationMeta(type):
-    """Added temporarily to help with attribute name transitions. Will be removed in 1.2.0"""
-    def __init__(cls, name, bases, dic):
-        from warnings import warn
-        super(DeprecationMeta, cls).__init__(name, bases, dic)
-        if '_defaultPort' in dic:
-            warn('_defaultPort is deprecated in favor of default_port and will be removed in 1.2.0.', DeprecationWarning)
-            cls.default_port = cls._defaultPort
-        elif 'default_port' in dic:
-            cls._defaultPort = cls.default_port
-        if '_name' in dic:
-            warn('_name is deprecated in favor of name and will be removed in 1.2.0.', DeprecationWarning)
-            cls.name = cls._name
-        elif 'name' in dic:
-            cls._name = cls.name
-
-
 class NetworkAddress(tuple):
     """
     A TCP/IP host[:port] network address.
@@ -220,8 +203,6 @@ class NetworkAddress(tuple):
             default_port = 5060
 
     """
-
-    __metaclass__ = DeprecationMeta
 
     default_port = 0
 
