@@ -65,24 +65,13 @@ class ObserverWeakrefProxy(object):
                 return cls.observer_map[observer]
             instance = object.__new__(cls)
             instance.observer_ref = weakref.ref(observer, instance.cleanup)
-            instance.tracked_items = set()
             cls.observer_map[observer] = instance
             return instance
 
-    def track(self, notification_center, name, sender):
-        observer = self.observer_ref() # retain a reference to avoid threading issues while we add tracking data
-        if observer is not None:       # track data only if observer is alive, else preserve tracked_items as cleanup iterates through them
-            self.tracked_items.add((notification_center, name, sender))
-
-    def untrack(self, notification_center, name, sender):
-        observer = self.observer_ref() # retain a reference to avoid threading issues while we discard tracking data
-        if observer is not None:       # untrack data only if observer is alive, else preserve tracked_items as cleanup iterates through them
-            self.tracked_items.discard((notification_center, name, sender))
-
     def cleanup(self, ref):
         # remove all observer's remaining registrations (the ones that the observer didn't remove itself)
-        for notification_center, name, sender in self.tracked_items:
-            notification_center.discard_observer(self, name, sender)
+        for notification_center in NotificationCenter._instances.itervalues():
+            notification_center.purge_observer(self)
 
     def handle_notification(self, notification):
         observer = self.observer_ref()
@@ -156,8 +145,6 @@ class NotificationCenter(object):
             raise TypeError("observer must implement the IObserver interface")
         with self.lock:
             self.observers.setdefault((name, sender), set()).add(observer)
-            if isinstance(observer, ObserverWeakrefProxy):
-                observer.track(self, name, sender)
 
     def remove_observer(self, observer, name=Any, sender=Any):
         """
@@ -177,8 +164,6 @@ class NotificationCenter(object):
                 raise KeyError("observer %r not registered for %r events from %r" % (observer, name, sender))
             if not observer_set:
                 del self.observers[(name, sender)]
-            if isinstance(observer, ObserverWeakrefProxy):
-                observer.untrack(self, name, sender)
 
     def discard_observer(self, observer, name=Any, sender=Any):
         """
@@ -196,8 +181,15 @@ class NotificationCenter(object):
                 observer_set.discard(observer)
                 if not observer_set:
                     del self.observers[(name, sender)]
-                if isinstance(observer, ObserverWeakrefProxy):
-                    observer.untrack(self, name, sender)
+
+    def purge_observer(self, observer):
+        """Remove all the observer's subscriptions."""
+        with self.lock:
+            subscriptions = [(key, observer_set) for key, observer_set in self.observers.iteritems() if observer in observer_set]
+            for key, observer_set in subscriptions:
+                observer_set.remove(observer)
+                if not observer_set:
+                    del self.observers[key]
 
     def post_notification(self, name, sender=UnknownSender, data=NotificationData()):
         """
