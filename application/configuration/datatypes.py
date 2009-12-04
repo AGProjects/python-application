@@ -86,10 +86,6 @@ class Hostname(str):
             raise TypeError("value must be a string")
         if value.lower() == 'any':
             return '0.0.0.0'
-        try:
-            socket.inet_aton(socket.gethostbyname(value))
-        except (socket.error, socket.gaierror):
-            raise ValueError("invalid hostname or IP address: %r" % value)
         return str(value)
 
 
