@@ -68,10 +68,6 @@ class StringList(list):
 class IPAddress(str):
     """An IP address in quad dotted number notation"""
     def __new__(cls, value):
-        if not isinstance(value, basestring):
-            raise TypeError("value must be a string")
-        if value.lower() == 'any':
-            return '0.0.0.0'
         try:
             socket.inet_aton(value)
         except socket.error:
