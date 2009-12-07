@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Dan Pascu <dan@ag-projects.com>
 Build-Depends: cdbs (>= 0.4.47), debhelper (>= 5.0.42), python
 Build-Depends-Indep: python-support
-Standards-Version: 3.8.2
+Standards-Version: 3.8.3
 Homepage: http://cheeseshop.python.org/pypi/python-application
 
 Package: python-application
