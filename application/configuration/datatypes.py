@@ -72,6 +72,8 @@ class IPAddress(str):
             socket.inet_aton(value)
         except socket.error:
             raise ValueError("invalid IP address: %r" % value)
+        except TypeError:
+            raise TypeError("value must be a string")
         return str(value)
 
 
