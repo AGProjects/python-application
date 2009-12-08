@@ -1,3 +1,86 @@
+New in version 1.2.0
+--------------------
+
+1. python-application now depends on python2.5 or later.
+
+2. The functionality which was deprecated up to this version was removed. This
+   includes:
+    - Within the configuration system:
+      * The ConfigFile.read_settings and ConfigFile.get_option methods
+      * The ConfigSection.__configfile__ and ConfigSection._datatypes special
+        attributes
+      * The dump_settings global function
+      * The NetworkAddress._defaultPort, EndpointAddress._defaultPort and
+        EndpointAddress._name special attributes
+    - Within the logging system:
+      * The startSyslog global function
+    - Within the application.process module:
+      * The Process.config_directory special attribute
+
+   The corresponding entries within this file point to the equivalent
+   functionality provided.
+
+3. The notification system has received a number of enhancements which improve
+   its usability.
+
+   Two new methods were added to the NotificationCenter:
+    - discard_observer: which is equivalent to remove_observer but does not
+      raise an error if the observer is not subscribed for the specified
+      entry in the NotificationCenter
+    - purge_observer: which will remove all of the observer's subscriptions
+      within the NotificationCenter
+
+   A new class, ObserverWeakrefProxy, has been added which allows the
+   NotificationCenter to keep a weak reference to the observer and automatically
+   removes all of its subscriptions once the observer object's reference count
+   reaches zero. Please see examples/notification.py for an example of using the
+   class.
+
+4. The application.system module now contains a host object with dynamic
+   properties that reflect the default IP address, hostname, fully qualified
+   domain name, domain name and host aliases of the running system.
+
+   In addition, the default_host_ip attribute has been deprecated and will be
+   removed in a future release. This attribute is not dynamic and its value is
+   frozen to that determined at module load time. The default_host_ip attribute
+   should be replaced by host.default_ip.
+
+5. The logging system was improved to offer better consistency. The twisted
+   backend was removed and the application.log module is built exclusively upon
+   the standard logging module. This allows better integration with applications
+   which don't use twisted but run on a system where it is available. For the
+   applications which do use it, twisted's log module is hooked automatically to
+   use the logging system in python-application the first time a twisted module
+   is imported. This improvement also simplifies the log module, allowing it to
+   be more easily extended, and in the same time makes it faster.
+
+   The log functions now pass their keyword arguments as a dictionary to the
+   `extra' argument of the functions in the logging module for use by
+   applications which define their own log formatters:
+
+   application.log.info('message', foo=1, bar=2)
+
+   translates to
+
+   logging.info('message', extra={'foo': 1, 'bar': 2})
+
+   The functions log.warn, log.fatal and log.err have been replaced with
+   log.warning, log.critical and log.exception respectively. The previous names
+   have been kept as aliases and can continue to be used as they are not
+   deprecated.
+
+   The log.exception/log.err function now accepts an optional message which, if
+   present, is logged at ERROR level in addition to the exception traceback,
+   which otherwise is logged as before.
+
+6. Miscellaneous improvements:
+    - The Hostname configuration data type no longer tries to resolve the
+      provided value in DNS; this is due to the fact that a glitch in DNS could
+      have resulted in a configuration setting being ignored.
+    - The Null object has been improved with several new methods for descriptor
+      and sequence protocol support.
+
+
 New in version 1.1.5
 --------------------
 
