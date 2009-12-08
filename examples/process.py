@@ -69,7 +69,7 @@ time.sleep(3)
 try:
     bar = foo
 except NameError, e:
-    log.error("cannot access foo: %s" % str(e))
+    log.error("cannot access foo: %s" % e)
     # Also log the backtrace
     log.err()
 
