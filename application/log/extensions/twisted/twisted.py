@@ -2,8 +2,8 @@
 #
 
 from __future__ import absolute_import
-import sys, os
 from application.log.extensions import twisted as fake_twisted
+import sys, os
 
 try:
     sys.path.remove(os.path.realpath(fake_twisted.__path__[0]))
