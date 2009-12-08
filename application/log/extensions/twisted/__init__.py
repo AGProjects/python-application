@@ -26,7 +26,6 @@ def divert_logger():
         log.defaultObserver = SimpleObserver()
         log.defaultObserver.start()
 
-
 if 'twisted' in sys.modules:
     divert_logger()
 else:
