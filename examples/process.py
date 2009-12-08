@@ -71,7 +71,7 @@ try:
 except NameError, e:
     log.error("cannot access foo: %s" % e)
     # Also log the backtrace
-    log.err()
+    log.exception()
 
 log.msg("program done, exiting")
 
