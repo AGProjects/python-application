@@ -1,3 +1,32 @@
+python-application (1.2.0) unstable; urgency=low
+
+  * Modified Null not to return self for __setattr__ and __delattr__
+  * Added indexing support for the Null class
+  * Allow a Null object to be a descriptor
+  * Added __len__ method to the Null class
+  * Added iteration support for the Null class
+  * Added __contains__ method to the Null class
+  * Added context management support to the Null class
+  * Added discard_observer method to NotificationCenter
+  * Added comment to clarify behaviour
+  * Fixed threading issues with adding and removing observers
+  * Fixed handling of settings which contain uppercase characters and dashes
+  * Added support for weakly referencing observers in the notification system
+  * Added example of how to have a weakly referenced notification observer
+  * Removed deprecated functionality
+  * Added purge_observer method on NotificationCenter
+  * Added dynamic host properties to application.system
+  * Removed resolution test from Hostname configuration datatype
+  * Improved error message for invalid type in IPAddress
+  * Removed twisted logging backend and added a logging extension for twisted
+  * Improved logging functions and added some commonly used aliases
+  * Fixed initial setting of the current log level
+  * Added debian runtime dependency on python2.5 or newer
+  * Removed debian Suggests for python-twisted-core
+  * Bumped debian standards version to 3.8.3
+
+ -- Dan Pascu <dan@ag-projects.com>  Tue, 08 Dec 2009 18:42:16 +0200
+
 python-application (1.1.5) unstable; urgency=low
 
   * Made a ConfigSection iterable as (name, value) pairs
