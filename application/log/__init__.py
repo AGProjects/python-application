@@ -3,7 +3,7 @@
 
 """Application logging system for stdout/stderr and syslog"""
 
-__all__ = ['level', 'msg', 'err', 'info', 'warn', 'debug', 'error', 'fatal', 'start_syslog']
+__all__ = ['level', 'info', 'warning', 'debug', 'error', 'critical', 'exception', 'msg', 'warn', 'fatal', 'err', 'start_syslog']
 
 import sys
 import syslog
@@ -21,23 +21,28 @@ class IfNotInteractive(object):
 IfNotInteractive = IfNotInteractive()
 
 def info(message, **context):
-    logging.info(message)
-msg = info
+    logging.info(message, extra=context)
 
-def warn(message, **context):
-    logging.warning(message)
+def warning(message, **context):
+    logging.warning(message, extra=context)
 
 def debug(message, **context):
-    logging.debug(message)
+    logging.debug(message, extra=context)
 
 def error(message, **context):
-    logging.error(message)
+    logging.error(message, extra=context)
 
-def fatal(message, **context):
-    logging.critical(message)
+def critical(message, **context):
+    logging.critical(message, extra=context)
 
-def err(message=None, exception=None, **context):
-    logging.exception(None)
+def exception(message=None, **context):
+    logging.error(message, exc_info=1, extra=context)
+
+# Some aliases that are commonly used
+msg = info
+warn = warning
+fatal = critical
+err = exception
 
 class SimpleFormatter(logging.Formatter):
     def format(self, record):
