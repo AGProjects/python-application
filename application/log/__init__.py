@@ -149,6 +149,7 @@ class NamedLevel(int):
 class CurrentLevelDescriptor(object):
     def __init__(self, value):
         self.value = value
+        logging.getLogger().setLevel(value)
     def __get__(self, obj, objtype):
         return self.value
     def __set__(self, obj, value):
