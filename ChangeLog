@@ -1,3 +1,8 @@
+Changes in version 1.2.1
+------------------------
+
+  * Added the missing application.log package to the build
+
 Changes in version 1.2.0
 ------------------------
 
