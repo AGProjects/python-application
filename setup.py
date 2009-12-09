@@ -2,6 +2,10 @@
 
 from distutils.core import setup, Extension
 from application import __version__
+import os
+
+def find_packages(toplevel):
+    return [directory.replace('/', '.') for directory, subdirs, files in os.walk(toplevel) if '__init__.py' in files]
 
 setup(name         = "python-application",
       version      = __version__,
@@ -21,4 +25,4 @@ setup(name         = "python-application",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules"
       ],
-      packages     = ['application', 'application.configuration', 'application.debug', 'application.python'])
+      packages     = find_packages('application'))
