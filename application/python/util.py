@@ -34,7 +34,7 @@ class Singleton(type):
     def __call__(cls, *args, **kw):
         return cls._instance_creator(*args, **kw)
 
-class NullType(object):
+class Null(object):
     """Instances of this class always and reliably "do nothing"."""
     def __init__(self, *args, **kwargs): pass
     def __call__(self, *args, **kwargs): return self
@@ -59,4 +59,5 @@ class NullType(object):
     def next(self): raise StopIteration
     __str__ = __repr__
 
-Null = NullType()
+Null = Null()
+
