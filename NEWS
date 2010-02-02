@@ -1,3 +1,14 @@
+New in version 1.2.2
+--------------------
+
+Null from application.python.util was transformed into an instance. This
+means that one is no longer required to instantiate it after importing it.
+Exiting code that did that should be unaffected as calling on a Null
+instance returns Null itself. This change will make Null easier to use and
+similar in semantics with None. If the type is still needed (for subclassing
+for example) it can be obtained as type(Null) or Null.__class__
+
+
 New in version 1.2.0
 --------------------
 
