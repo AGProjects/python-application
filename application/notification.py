@@ -198,22 +198,25 @@ class NotificationCenter(object):
         """
 
         notification = Notification(name, sender, data)
-        self.queue.append(notification)
-        if len(self.queue) > 1: # This is true if we post a notification from inside a notification handler
+        queue = self.queue
+        queue.append(notification)
+        if len(queue) > 1: # This is true if we post a notification from inside a notification handler
             return
 
-        while self.queue:
-            notification = self.queue[0]
-            observers = (self.observers.get((Any, Any), set()) |
-                         self.observers.get((Any, notification.sender), set()) |
-                         self.observers.get((notification.name, Any), set()) |
-                         self.observers.get((notification.name, notification.sender), set()))
+        empty_set = set()
+
+        while queue:
+            notification = queue[0]
+            observers = (self.observers.get((Any, Any), empty_set) |
+                         self.observers.get((Any, notification.sender), empty_set) |
+                         self.observers.get((notification.name, Any), empty_set) |
+                         self.observers.get((notification.name, notification.sender), empty_set))
             for observer in observers:
                 try:
                     observer.handle_notification(notification)
                 except:
                     log.error("Exception occured in observer %r while handling notification %r" % (observer, notification.name))
                     log.err()
-            self.queue.popleft()
+            queue.popleft()
 
 
