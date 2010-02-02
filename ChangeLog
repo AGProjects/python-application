@@ -1,3 +1,9 @@
+Changes in version 1.2.2
+------------------------
+
+  * Made Null from application.python.util an instance. See NEWS.
+  * Improved processing speed for post_notification.
+
 Changes in version 1.2.1
 ------------------------
 

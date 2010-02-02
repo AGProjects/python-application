@@ -1,3 +1,10 @@
+python-application (1.2.2) unstable; urgency=low
+
+  * Made Null from application.python.util an instance. See NEWS.
+  * Improved processing speed for post_notification.
+
+ -- Dan Pascu <dan@ag-projects.com>  Tue, 02 Feb 2010 17:05:15 +0200
+
 python-application (1.2.1) unstable; urgency=low
 
   * Added the missing application.log package to the build
