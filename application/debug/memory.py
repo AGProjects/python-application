@@ -26,11 +26,18 @@ import gc
 def memory_dump():
     print "\nGARBAGE:"
     gc.collect()
+
+    try:
+        import fcntl, struct, sys, termios
+        console_width = struct.unpack('HHHH', fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))[1]
+    except:
+        console_width = 80
+
     print "\nGARBAGE OBJECTS:"
     for x in gc.garbage:
         s = str(x)
-        if len(s) > 80:
-            s = s[:77] + '...'
+        if len(s) > console_width-2:
+            s = s[:console_width-5] + '...'
         print "%s\n  %s" % (type(x), s)
 
 gc.enable()
