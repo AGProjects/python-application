@@ -1,3 +1,9 @@
+Changes in version 1.2.3
+------------------------
+
+  * Improved memory_dump's output using console size information
+  * Added support for detecting object cycles in application.debug.memory
+
 Changes in version 1.2.2
 ------------------------
 

@@ -1,3 +1,12 @@
+python-application (1.2.3) unstable; urgency=low
+
+  * Improved memory_dump's output using console size information
+  * Added support for detecting object cycles in application.debug.memory
+  * Added Lucian Stanescu to Uploaders list
+  * Bumped Standards-Version to 3.8.4
+
+ -- Lucian Stanescu <luci@ag-projects.com>  Wed, 17 Feb 2010 16:07:30 +0000
+
 python-application (1.2.2) unstable; urgency=low
 
   * Made Null from application.python.util an instance. See NEWS.
