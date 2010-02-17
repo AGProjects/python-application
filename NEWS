@@ -1,3 +1,20 @@
+New in version 1.2.3
+--------------------
+
+The memory_dump function from application.debug.memory was enhanced to detect
+and report the cycles of objects whose reference count reached zero. The
+function now receives two arguments, show_cycles and show_objects, defaulting to
+True and False respectively. The former controls whether the object cycles are
+printed, while the latter whether the garbage objects are printed. In order to
+obtain the behaviour found in the previous versions, the function needs to be
+called as:
+
+memory_dump(show_cycles=False, show_objects=True)
+
+In addition, the representation of garbage objects is truncated according to the
+width of the console, rather than at the fixed size of 80 characters.
+
+
 New in version 1.2.2
 --------------------
 
