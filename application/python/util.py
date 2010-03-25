@@ -34,10 +34,19 @@ class Singleton(type):
     def __call__(cls, *args, **kw):
         return cls._instance_creator(*args, **kw)
 
+class NullTypeMeta(type):
+    def __init__(cls, name, bases, dic):
+        super(NullTypeMeta, cls).__init__(name, bases, dic)
+        cls.__instance__ = super(NullTypeMeta, cls).__call__()
+    def __call__(cls, *args, **kw):
+        return cls.__instance__
+
 class NullType(object):
     """Instances of this class always and reliably "do nothing"."""
+    __metaclass__ = NullTypeMeta
     def __init__(self, *args, **kwargs): pass
     def __call__(self, *args, **kwargs): return self
+    def __reduce__(self): return (self.__class__, (), None)
     def __repr__(self): return 'Null'
     def __len__(self): return 0
     def __nonzero__(self): return 0
