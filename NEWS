@@ -1,3 +1,17 @@
+New in version 1.2.4
+--------------------
+
+The Null class in in application.python.util is no longer overwritten with an
+instance. Instead the Null class was renamed to NullType and is now available
+from the module, while Null remains to be an instance that can be used as a
+singleton as before. This was done mainly because overwriting the Null class
+with an instance, prevented it to be pickled as the class could not be found
+anymore during pickling.
+
+NullType was also transformed into a singleton in order to prevent multiple
+Null instances when unpickling.
+
+
 New in version 1.2.3
 --------------------
 
