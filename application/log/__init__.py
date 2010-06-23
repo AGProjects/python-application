@@ -6,10 +6,15 @@
 __all__ = ['level', 'info', 'warning', 'debug', 'error', 'critical', 'exception', 'msg', 'warn', 'fatal', 'err', 'start_syslog']
 
 import sys
-import syslog
 import logging
 
 from application.log.extensions import twisted
+from application.python.util import Null
+
+try:
+    import syslog
+except ImportError:
+    syslog = Null
 
 
 class IfNotInteractive(object):
@@ -116,6 +121,8 @@ class LoggingFile(object):
             self.logger(line)
 
 def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+    if syslog is Null:
+        raise RuntimeError("syslog is not available on this platform")
     logger = logging.getLogger()
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
