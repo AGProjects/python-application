@@ -14,6 +14,15 @@ class HostProperties(object):
 
     __metaclass__ = Singleton
 
+    def outgoing_ip_for(self, destination):
+        import socket
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect((destination, 1))
+            return s.getsockname()[0]
+        except socket.error:
+            return None
+
     @property
     def default_ip(self):
         """
@@ -22,13 +31,7 @@ class HostProperties(object):
         words the IP address that will be used when making connections to the
         internet.
         """
-        import socket
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(('1.2.3.4', 56))
-            return s.getsockname()[0]
-        except socket.error:
-            return None
+        return self.outgoing_ip_for('1.2.3.4')
 
     @property
     def name(self):
