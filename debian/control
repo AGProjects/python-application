@@ -5,7 +5,7 @@ Maintainer: Dan Pascu <dan@ag-projects.com>
 Uploaders: Lucian Stanescu <luci@ag-projects.com>
 Build-Depends: cdbs (>= 0.4.47), debhelper (>= 5.0.42), python
 Build-Depends-Indep: python-support
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Homepage: http://cheeseshop.python.org/pypi/python-application
 
 Package: python-application
