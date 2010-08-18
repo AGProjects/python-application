@@ -1,3 +1,9 @@
+Changes in version 1.2.5
+------------------------
+
+  * Fixed syslog on platforms that do not support it
+  * Added outgoing_ip_for method to host object
+
 Changes in version 1.2.4
 ------------------------
 
