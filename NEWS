@@ -1,3 +1,19 @@
+New in version 1.2.5
+--------------------
+
+1. An outgoing_ip_for method was added to the host object from
+   application.system which determines the IP address which would be used as a
+   source for sending packets to the IP address specified as an argument. This
+   always works correctly as long as no port or protocol based routing is
+   performed. The method needs to be called with an IP address as an argument:
+
+   host.outgoing_ip_for('192.0.2.1')
+
+2. The application.log module can now be used on systems that do not have
+   syslog. The start_syslog function will raise a RuntimeError if it is called
+   on such a system.
+
+
 New in version 1.2.4
 --------------------
 
