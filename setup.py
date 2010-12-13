@@ -5,7 +5,7 @@ from application import __version__
 import os
 
 def find_packages(toplevel):
-    return [directory.replace('/', '.') for directory, subdirs, files in os.walk(toplevel) if '__init__.py' in files]
+    return [directory.replace(os.path.sep, '.') for directory, subdirs, files in os.walk(toplevel) if '__init__.py' in files]
 
 setup(name         = "python-application",
       version      = __version__,
