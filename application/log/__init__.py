@@ -86,7 +86,10 @@ class SyslogHandler(logging.Handler):
         logging.Handler.close(self)
     def emit(self, record):
         priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
-        for line in self.format(record).rstrip().split('\n'):
+        message = self.format(record)
+        if isinstance(message, unicode):
+            message = message.encode('utf-8')
+        for line in message.rstrip().split('\n'):
             syslog.syslog(priority, line)
 
 class LoggingFile(object):
