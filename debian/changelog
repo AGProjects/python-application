@@ -1,3 +1,10 @@
+python-application (1.2.6) unstable; urgency=low
+
+  * Use the system path separator when building the list of packages
+  * Fixed handling of unicode in the syslog logger
+
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 16 Feb 2011 17:30:00 +0200
+
 python-application (1.2.5) unstable; urgency=low
 
   * Fixed syslog on platforms that do not support it

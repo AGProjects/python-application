@@ -1,3 +1,9 @@
+Changes in version 1.2.6
+------------------------
+
+  * Use the system path separator when building the list of packages
+  * Fixed handling of unicode in the syslog logger
+
 Changes in version 1.2.5
 ------------------------
 
