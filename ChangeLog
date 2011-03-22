@@ -1,3 +1,8 @@
+Changes in version 1.2.7
+------------------------
+
+  * Release EventQueue events immediately after processing
+
 Changes in version 1.2.6
 ------------------------
 
