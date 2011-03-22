@@ -45,6 +45,8 @@ class EventQueue(Thread):
             except:
                 log.error("exception happened during event handling")
                 log.err()
+            finally:
+                del event # do not reference this event until the next event arrives, in order to allow it to be released
     def stop(self, force_exit=False):
         """Terminate the event processing loop/thread (force_exit=True skips processing events already on queue)"""
         if force_exit:
@@ -156,6 +158,8 @@ class CumulativeEventQueue(EventQueue):
                     except:
                         log.error("exception happened during high priority event handling")
                         log.err()
+                    finally:
+                        del event # do not reference this event until the next event arrives, in order to allow it to be released
                 else:
                     self._waiting.append(event)
     def process(self):
