@@ -9,6 +9,7 @@
 (^|/)core(\.[0-9]+)?$
 \.(pyc|pyo|o|so|orig|bak|BAK|prof|wpu|cvsignore)$
 (^|/)(build|dist)($|/)
+(^|/)\.komodotools($|/)
 (^|/)debian/python-application.*($|/)
 (^|/)debian/files$
 ^python-build-stamp-.*$
