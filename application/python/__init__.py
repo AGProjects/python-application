@@ -1,7 +1,7 @@
 # Copyright (C) 2007-2011 Dan Pascu. See LICENSE for details.
 #
 
-"""Pyhton utilities and helpers"""
+"""Pyhton language extensions"""
 
 __all__ = ['Null', 'limit']
 
