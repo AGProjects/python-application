@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from distutils.core import setup, Extension
+from distutils.core import setup
 from application import __version__
 import os
 
