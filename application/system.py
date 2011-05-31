@@ -62,8 +62,6 @@ class HostProperties(object):
 
 host = HostProperties()
 
-del HostProperties, Singleton
-
 
 ## Functions
 
