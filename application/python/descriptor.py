@@ -43,11 +43,12 @@ class ThreadLocal(object):
 
 
 class WriteOnceAttribute(object):
-    """Descriptor that allows objects to have write once attributes.
+    """
+    Descriptor that allows objects to have write once attributes.
 
-       It should be noted that the descriptor only enforces this when directly
-       accessing the object's attribute. It is still possible to modify/delete
-       such an attribute by messing around with the descriptor's internal data.
+    It should be noted that the descriptor only enforces this when directly
+    accessing the object's attribute. It is still possible to modify/delete
+    such an attribute by messing around with the descriptor's internal data.
     """
     def __init__(self):
         self.values = {}
