@@ -49,6 +49,7 @@ class NullType(object):
     def __call__(self, *args, **kwargs): return self
     def __reduce__(self): return (self.__class__, (), None)
     def __repr__(self): return self.__name__
+    def __str__(self): return self.__name__
     def __len__(self): return 0
     def __nonzero__(self): return 0
     def __eq__(self, other): return isinstance(other, self.__class__)
@@ -67,5 +68,4 @@ class NullType(object):
     def __exit__(self, exc_type, exc_value, traceback): pass
     def __iter__(self): return self
     def next(self): raise StopIteration
-    __str__ = __repr__
 
