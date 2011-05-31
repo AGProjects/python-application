@@ -3,7 +3,10 @@
 
 """Interaction with the underlying operating system"""
 
-__all__ = ['host', 'default_host_ip', 'unlink']
+__all__ = ['host', 'default_host_ip', 'makedirs', 'unlink']
+
+import errno
+import os
 
 from application.python.util import Singleton
 
@@ -70,10 +73,19 @@ default_host_ip = host.default_ip
 
 ## Functions
 
+def makedirs(path, mode=0777):
+    """Create a directory recursively and ignore error if it already exists"""
+    try:
+        os.makedirs(path, mode)
+    except OSError, e:
+        if e.errno==errno.EEXIST and os.path.isdir(path) and os.access(path, os.R_OK | os.W_OK | os.X_OK):
+            return
+        raise
+
 def unlink(path):
     """Remove a file ignoring errors"""
-    from os import unlink as os_unlink
-    try:    os_unlink(path)
-    except: pass
-
+    try:
+        os.unlink(path)
+    except:
+        pass
 
