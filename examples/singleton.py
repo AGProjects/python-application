@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from application.python.util import Singleton
+from application.python.types import Singleton
 
 class Unique(object):
     """This class has only one instance"""

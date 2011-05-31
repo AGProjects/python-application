@@ -8,7 +8,7 @@ __all__ = ['host', 'default_host_ip', 'makedirs', 'unlink']
 import errno
 import os
 
-from application.python.util import Singleton
+from application.python.types import Singleton
 
 ## System properties and attributes
 

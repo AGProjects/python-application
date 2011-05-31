@@ -9,7 +9,7 @@ import sys
 import logging
 
 from application.log.extensions import twisted
-from application.python.util import Null
+from application.python import Null
 
 try:
     import syslog

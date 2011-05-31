@@ -10,7 +10,7 @@ import signal
 import atexit
 
 from application import log
-from application.python.util import Singleton
+from application.python.types import Singleton
 
 try:
     set

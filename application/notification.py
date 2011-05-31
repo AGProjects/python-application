@@ -14,8 +14,8 @@ from threading import Lock
 from zope.interface import Interface, implements
 
 from application import log
-from application.python.util import Singleton
 from application.python.descriptor import ThreadLocal
+from application.python.types import Singleton
 
 
 ## Special objects
