@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2009 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2011 Dan Pascu. See LICENSE for details.
 #
 
 """Application logging system for stdout/stderr and syslog"""

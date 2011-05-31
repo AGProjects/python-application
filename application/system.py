@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2011 Dan Pascu. See LICENSE for details.
 #
 
 """Interaction with the underlying operating system"""
