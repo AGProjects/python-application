@@ -3,7 +3,7 @@
 
 """Miscellaneous utility descriptors"""
 
-__all__ = ['ThreadLocal', 'WriteOnceAttribute', 'isdescriptor']
+__all__ = ['ThreadLocal', 'WriteOnceAttribute', 'classproperty', 'isdescriptor']
 
 import weakref
 from threading import local
@@ -65,6 +65,18 @@ class WriteOnceAttribute(object):
         self.values[obj_id] = (value, weakref.ref(obj, lambda weak_ref: self.values.pop(obj_id)))
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
+
+
+def classproperty(function):
+    """A class level read only property"""
+    class Descriptor(object):
+        def __get__(self, obj, type):
+            return function(type)
+        def __set__(self, obj, value):
+            raise AttributeError("read-only attribute cannot be set")
+        def __delete__(self, obj):
+            raise AttributeError("read-only attribute cannot be deleted")
+    return Descriptor()
 
 
 def isdescriptor(object):
