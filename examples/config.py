@@ -4,7 +4,7 @@
 
 from application.configuration import *
 from application.process import process
-from application.system import default_host_ip
+from application.system import host
 from application import log
 
 # Define a specific data type we will later use with the configuration
@@ -36,7 +36,7 @@ class Priority(int):
 
 class NetworkConfig(ConfigSection):
     name = 'undefined'
-    ip = ConfigSetting(type=datatypes.IPAddress, value=default_host_ip)
+    ip = ConfigSetting(type=datatypes.IPAddress, value=host.default_ip)
     port = 8000
     priority = ConfigSetting(type=Priority, value=Priority('Normal'))
     domains = ConfigSetting(type=datatypes.StringList, value=[])
@@ -123,7 +123,7 @@ class NetworkConfigTraced(ConfigSection):
     __tracing__ = log.level.INFO # log trace to INFO level
 
     name = 'undefined'
-    ip = ConfigSetting(type=datatypes.IPAddress, value=default_host_ip)
+    ip = ConfigSetting(type=datatypes.IPAddress, value=host.default_ip)
     port = 8000
     priority = ConfigSetting(type=Priority, value=Priority('Normal'))
     domains = ConfigSetting(type=datatypes.StringList, value=[])

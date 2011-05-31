@@ -3,7 +3,7 @@
 
 """Interaction with the underlying operating system"""
 
-__all__ = ['host', 'default_host_ip', 'makedirs', 'unlink']
+__all__ = ['host', 'makedirs', 'unlink']
 
 import errno
 import os
@@ -63,12 +63,6 @@ class HostProperties(object):
 host = HostProperties()
 
 del HostProperties, Singleton
-
-# This attribute is here for backward compatibility reasons and will be removed
-# soon. Do not use it, use host.default_ip instead which is dynamic and updates
-# if the host IP changes (default_host_ip is frozen to the value computed when
-# the module is loaded).
-default_host_ip = host.default_ip
 
 
 ## Functions
