@@ -5,9 +5,9 @@
 
 __all__ = ['host', 'default_host_ip', 'unlink']
 
-## System variables
-
 from application.python.util import Singleton
+
+## System properties and attributes
 
 class HostProperties(object):
     """Host specific properties"""
