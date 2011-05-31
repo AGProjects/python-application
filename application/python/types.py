@@ -44,10 +44,11 @@ class NullTypeMeta(type):
 class NullType(object):
     """Instances of this class always and reliably "do nothing"."""
     __metaclass__ = NullTypeMeta
+    __name__ = 'Null'
     def __init__(self, *args, **kwargs): pass
     def __call__(self, *args, **kwargs): return self
     def __reduce__(self): return (self.__class__, (), None)
-    def __repr__(self): return 'Null'
+    def __repr__(self): return self.__name__
     def __len__(self): return 0
     def __nonzero__(self): return 0
     def __eq__(self, other): return isinstance(other, self.__class__)
