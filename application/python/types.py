@@ -3,6 +3,8 @@
 
 """Types and metaclasses"""
 
+from __future__ import absolute_import
+
 __all__ = ['Singleton', 'NullType']
 
 from new import instancemethod
