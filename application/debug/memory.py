@@ -37,7 +37,7 @@ class Node(object):
 
 class Cycle(tuple):
     def __init__(self, *args, **kwargs):
-        tuple.__init__(self, *args, **kwargs)
+        tuple.__init__(self)
         self.collectable = all(not hasattr(obj, '__del__') for obj in self)
 
     def __eq__(self, other):
