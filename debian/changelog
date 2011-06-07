@@ -1,3 +1,14 @@
+python-application (1.2.8) unstable; urgency=low
+
+  * Reorganized the application.python package contents
+  * Added the limit function to restrict a numeric value to a given range
+  * Added function to recursively create directory and ignore error if exists
+  * Added classproperty descriptor for defining properties at the class level
+  * Removed obsolete default_host_ip attribute from application.system
+  * Improved Null to better act as a class substitute
+
+ -- Saul Ibarra <saul@ag-projects.com>  Tue, 07 Jun 2011 12:11:09 +0200
+
 python-application (1.2.7) unstable; urgency=low
 
   * Release EventQueue events immediately after processing
