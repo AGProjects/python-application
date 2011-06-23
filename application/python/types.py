@@ -21,14 +21,14 @@ class Singleton(type):
         else:
             def initializer(self, *args, **kw): pass
         @preserve_signature(initializer)
-        def instance_creator(cls, *args, **kwargs):
-            key = (args, tuple(sorted(kwargs.iteritems())))
+        def instance_creator(cls, *args, **kw):
+            key = (args, tuple(sorted(kw.iteritems())))
             try:
                 hash(key)
             except TypeError:
                 raise TypeError("cannot have singletons for classes with unhashable arguments")
             if key not in cls._instances:
-                cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
+                cls._instances[key] = super(Singleton, cls).__call__(*args, **kw)
             return cls._instances[key]
         super(Singleton, cls).__init__(name, bases, dic)
         cls._instances = {}
@@ -47,8 +47,8 @@ class NullType(object):
     """Instances of this class always and reliably "do nothing"."""
     __metaclass__ = NullTypeMeta
     __name__ = 'Null'
-    def __init__(self, *args, **kwargs): pass
-    def __call__(self, *args, **kwargs): return self
+    def __init__(self, *args, **kw): pass
+    def __call__(self, *args, **kw): return self
     def __reduce__(self): return (self.__class__, (), None)
     def __repr__(self): return self.__name__
     def __str__(self): return self.__name__
