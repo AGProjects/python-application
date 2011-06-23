@@ -13,10 +13,10 @@ from application.python.decorator import preserve_signature
 class Singleton(type):
     """Metaclass for making singletons"""
     def __init__(cls, name, bases, dic):
-        from types import UnboundMethodType
+        from types import FunctionType, UnboundMethodType
         if type(cls.__init__) is UnboundMethodType:
             initializer = cls.__init__
-        elif type(cls.__new__) is UnboundMethodType:
+        elif type(cls.__new__) is FunctionType:
             initializer = cls.__new__
         else:
             def initializer(self, *args, **kw): pass
