@@ -27,14 +27,14 @@ class Singleton(type):
                 hash(key)
             except TypeError:
                 raise TypeError("cannot have singletons for classes with unhashable arguments")
-            if key not in cls._instances:
-                cls._instances[key] = super(Singleton, cls).__call__(*args, **kw)
-            return cls._instances[key]
+            if key not in cls.__instances__:
+                cls.__instances__[key] = super(Singleton, cls).__call__(*args, **kw)
+            return cls.__instances__[key]
         super(Singleton, cls).__init__(name, bases, dic)
-        cls._instances = {}
-        cls._instance_creator = instancemethod(instance_creator, cls, type(cls))
+        cls.__instances__ = {}
+        cls.__instantiate__ = instancemethod(instance_creator, cls, type(cls))
     def __call__(cls, *args, **kw):
-        return cls._instance_creator(*args, **kw)
+        return cls.__instantiate__(*args, **kw)
 
 class NullTypeMeta(type):
     def __init__(cls, name, bases, dic):
