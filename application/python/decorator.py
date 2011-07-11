@@ -92,9 +92,9 @@ def execute_once(func):
             self.lock = RLock()
         def __call__(self, *args, **kw):
             with self.lock:
+                check_arguments(*args, **kw)
                 if self.__callmap__[self.__func__]:
                     return
-                check_arguments(*args, **kw)
                 self.__callmap__[self.__func__] = True
                 return self.__func__.__call__(*args, **kw)
         def __dir__(self):
