@@ -36,6 +36,10 @@ def preserve_signature(func):
 def execute_once(func):
     """Execute function/method once per function/instance"""
 
+    @preserve_signature(func)
+    def check_arguments(*args, **kw):
+        pass
+
     class ExecuteOnceMethodWrapper(object):
         __slots__ = ('__weakref__', '__method__', 'im_func_wrapper', 'called', 'lock')
         def __init__(self, method, func_wrapper):
@@ -44,16 +48,8 @@ def execute_once(func):
         def __call__(self, *args, **kw):
             with self.im_func_wrapper.lock:
                 method = self.__method__
-                try:
-                    instance = method.im_self or args[0]
-                except IndexError:
-                    raise TypeError("unbound method %s() must be called with %s instance as first argument (got nothing instead)" % (method.__name__, method.im_class.__name__))
-                if not isinstance(instance, method.im_class):
-                    try:
-                        type_name = instance.__class__.__name__
-                    except AttributeError:
-                        type_name = type(instance).__name__
-                    raise TypeError("unbound method %s() must be called with %s instance as first argument (got %s instance instead)" % (method.__name__, method.im_class.__name__, type_name))
+                check_arguments.__get__(method.im_self, method.im_class)(*args, **kw)
+                instance = method.im_self or args[0]
                 if self.im_func_wrapper.__callmap__.get(instance, False):
                     return
                 self.im_func_wrapper.__callmap__[instance] = True
@@ -98,6 +94,7 @@ def execute_once(func):
             with self.lock:
                 if self.__callmap__[self.__func__]:
                     return
+                check_arguments(*args, **kw)
                 self.__callmap__[self.__func__] = True
                 return self.__func__.__call__(*args, **kw)
         def __dir__(self):
