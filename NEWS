@@ -1,3 +1,22 @@
+New in version 1.2.8
+--------------------
+
+1. Reorganized the application.python package contents
+
+   - The types module was added to hold python types.
+   - the util module was made obsolete and is scheduled to be removed in 1.3.0
+   - the NullType was moved to application.python.types
+   - Null was moved to application.python
+
+2. Added functions/descriptors:
+
+   - added limit function to restrict a numeric value to a given range
+   - added function to recursively create directory and ignore error if exists
+   - added classproperty descriptor for defining properties at the class level
+
+3. Removed obsolete default_host_ip attribute from application.system
+
+
 New in version 1.2.5
 --------------------
 
