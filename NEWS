@@ -1,9 +1,20 @@
+New in version 1.2.9
+--------------------
+
+Added execute_once decorator, that allows a function or method that is
+decorated with it to be executed only once for each entity to which it
+belongs. For example a decorated method will be executed only once for
+each instance of that class.
+The decorator will add the 'called' and 'lock' attributes to the decorated
+function/method and these attributes can be inspected/used from the outside.
+
+
 New in version 1.2.8
 --------------------
 
 1. Reorganized the application.python package contents
 
-   - The types module was added to hold python types.
+   - the types module was added to hold python types.
    - the util module was made obsolete and is scheduled to be removed in 1.3.0
    - the NullType was moved to application.python.types
    - Null was moved to application.python
