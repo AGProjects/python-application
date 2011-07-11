@@ -1,13 +1,18 @@
-# Copyright (C) 2007 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2007-2011 Dan Pascu. See LICENSE for details.
 #
 
-"""Helper functions for writing well behaved decorators."""
+"""Decorators and helper functions for writing well behaved decorators."""
 
-__all__ = ['decorator', 'preserve_signature']
+from __future__ import with_statement
+
+
+__all__ = ['decorator', 'preserve_signature', 'execute_once']
+
 
 def decorator(func):
     """A syntactic marker with no other effect than improving readability."""
     return func
+
 
 def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
@@ -25,6 +30,100 @@ def preserve_signature(func):
         new_wrapper.__dict__.update(func.__dict__)
         return new_wrapper
     return fix_signature
+
+
+@decorator
+def execute_once(func):
+    """Execute function/method once per function/instance"""
+
+    class ExecuteOnceMethodWrapper(object):
+        __slots__ = ('__weakref__', '__method__', 'im_func_wrapper', 'called', 'lock')
+        def __init__(self, method, func_wrapper):
+            self.__method__ = method
+            self.im_func_wrapper = func_wrapper
+        def __call__(self, *args, **kw):
+            with self.im_func_wrapper.lock:
+                method = self.__method__
+                try:
+                    instance = method.im_self or args[0]
+                except IndexError:
+                    raise TypeError("unbound method %s() must be called with %s instance as first argument (got nothing instead)" % (method.__name__, method.im_class.__name__))
+                if not isinstance(instance, method.im_class):
+                    try:
+                        type_name = instance.__class__.__name__
+                    except AttributeError:
+                        type_name = type(instance).__name__
+                    raise TypeError("unbound method %s() must be called with %s instance as first argument (got %s instance instead)" % (method.__name__, method.im_class.__name__, type_name))
+                if self.im_func_wrapper.__callmap__.get(instance, False):
+                    return
+                self.im_func_wrapper.__callmap__[instance] = True
+                self.im_func_wrapper.__callmap__[method.im_class] = True
+                return method.__call__(*args, **kw)
+        def __dir__(self):
+            return sorted(set(dir(self.__method__) + dir(self.__class__) + list(self.__slots__)))
+        def __get__(self, obj, cls):
+            method = self.__method__.__get__(obj, cls)
+            return self.__class__(method, self.im_func_wrapper)
+        def __getattr__(self, name):
+            return getattr(self.__method__, name)
+        def __setattr__(self, name, value):
+            if name in self.__slots__:
+                object.__setattr__(self, name, value)
+            else:
+                setattr(self.__method__, name, value)
+        def __delattr__(self, name):
+            if name in self.__slots__:
+                object.__delattr__(self, name)
+            else:
+                delattr(self.__method__, name)
+        def __repr__(self):
+            return self.__method__.__repr__().replace('<', '<wrapper of ', 1)
+        @property
+        def called(self):
+            return self.im_func_wrapper.__callmap__.get(self.__method__.im_self or self.__method__.im_class, False)
+        @property
+        def lock(self):
+            return self.im_func_wrapper.lock
+
+    class ExecuteOnceFunctionWrapper(object):
+        __slots__ = ('__weakref__', '__func__', '__callmap__', 'called', 'lock')
+        def __init__(self, func):
+            from threading import RLock
+            from weakref import WeakKeyDictionary
+            self.__func__ = func
+            self.__callmap__ = WeakKeyDictionary()
+            self.__callmap__[func] = False
+            self.lock = RLock()
+        def __call__(self, *args, **kw):
+            with self.lock:
+                if self.__callmap__[self.__func__]:
+                    return
+                self.__callmap__[self.__func__] = True
+                return self.__func__.__call__(*args, **kw)
+        def __dir__(self):
+            return sorted(set(dir(self.__func__) + dir(self.__class__) + list(self.__slots__)))
+        def __get__(self, obj, cls):
+            method = self.__func__.__get__(obj, cls)
+            return ExecuteOnceMethodWrapper(method, self)
+        def __getattr__(self, name):
+            return getattr(self.__func__, name)
+        def __setattr__(self, name, value):
+            if name in self.__slots__:
+                object.__setattr__(self, name, value)
+            else:
+                setattr(self.__func__, name, value)
+        def __delattr__(self, name):
+            if name in self.__slots__:
+                object.__delattr__(self, name)
+            else:
+                delattr(self.__func__, name)
+        def __repr__(self):
+            return self.__func__.__repr__().replace('<', '<wrapper of ', 1)
+        @property
+        def called(self):
+            return self.__callmap__[self.__func__]
+
+    return ExecuteOnceFunctionWrapper(func)
 
 
 __usage__ = """
