@@ -1,3 +1,10 @@
+Changes in version 1.2.9
+------------------------
+
+  * Renamed Singleton's internal attribute to make them less obtrusive
+  * Fixed detection for the class's __new__ in Singleton
+  * Added execute_once decorator
+
 Changes in version 1.2.8
 ------------------------
 
