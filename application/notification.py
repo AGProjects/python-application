@@ -70,7 +70,7 @@ class ObserverWeakrefProxy(object):
 
     def cleanup(self, ref):
         # remove all observer's remaining registrations (the ones that the observer didn't remove itself)
-        for notification_center in NotificationCenter._instances.itervalues():
+        for notification_center in NotificationCenter.__instances__.itervalues():
             notification_center.purge_observer(self)
 
     def handle_notification(self, notification):
