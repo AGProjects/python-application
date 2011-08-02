@@ -54,8 +54,8 @@ class NullType(object):
     def __str__(self): return self.__name__
     def __len__(self): return 0
     def __nonzero__(self): return False
-    def __eq__(self, other): return isinstance(other, self.__class__)
-    def __ne__(self, other): return not isinstance(other, self.__class__)
+    def __eq__(self, other): return self is other
+    def __ne__(self, other): return self is not other
     def __contains__(self, item): return False
     def __getattr__(self, name): return self
     def __setattr__(self, name, value): pass
