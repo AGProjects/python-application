@@ -1,3 +1,10 @@
+New in version 1.3.0
+--------------------
+
+Removed the obsolete application.python.util module. It's contents was moved
+to application.python and application.python.types in version 1.2.8
+
+
 New in version 1.2.9
 --------------------
 

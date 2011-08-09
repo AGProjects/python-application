@@ -1,3 +1,12 @@
+python-application (1.3.0) unstable; urgency=low
+
+  * Fixed cleaning up observer weakref proxies after recent Singleton changes
+  * Return False instead of 0 from NullType.__nonzero__
+  * Made Null only compare equal with itself
+  * Removed obsolete application.python.util module
+
+ -- Dan Pascu <dan@ag-projects.com>  Tue, 09 Aug 2011 18:55:15 +0300
+
 python-application (1.2.9) unstable; urgency=low
 
   * Renamed Singleton's internal attribute to make them less obtrusive
