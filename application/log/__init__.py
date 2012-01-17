@@ -115,12 +115,16 @@ class LoggingFile(object):
         self.buf = ''
         self.logger = logger
     def write(self, data):
+        if isinstance(data, unicode):
+            data = data.encode(self.encoding)
         lines = (self.buf + data).split('\n')
         self.buf = lines[-1]
         for line in lines[:-1]:
             self.logger(line)
     def writelines(self, lines):
         for line in lines:
+            if isinstance(line, unicode):
+                line = line.encode(self.encoding)
             self.logger(line)
 
 def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
