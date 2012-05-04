@@ -11,7 +11,7 @@ def divert_logger():
     class SimpleObserver(log.DefaultObserver):
         """Use logging as log backend for twisted"""
         def _emit(self, record):
-            message = ' '.join(str(m) for m in record['message'])
+            message = ' '.join(record['message'])
             if record['isError']:
                 if record.has_key('failure'):
                     failure = record['failure']
