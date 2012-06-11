@@ -17,13 +17,17 @@ def decorator(func):
 def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
     from inspect import getargspec, formatargspec
-    signature  = formatargspec(*getargspec(func))[1:-1]
-    parameters = formatargspec(*getargspec(func), **{'formatvalue': lambda value: ""})[1:-1]
+    from itertools import count
+    class ValueFormatter(count):
+        def __call__(self, value):
+            return "=defaults[%d]" % self.next()
+    argspec    = getargspec(func)
+    signature  = formatargspec(*argspec, formatvalue=ValueFormatter())[1:-1]
+    parameters = formatargspec(*argspec, formatvalue=lambda value: "")[1:-1]
     def fix_signature(wrapper):
+        defaults = func.func_defaults
         code = "def %s(%s): return wrapper(%s)\nnew_wrapper = %s\n" % (func.__name__, signature, parameters, func.__name__)
-        exec code in locals(), locals()
-        #expression = "lambda %s: wrapper(%s)" % (signature, parameters)
-        #new_wrapper = eval(expression, {'wrapper': wrapper})
+        exec code in locals()
         new_wrapper.__name__ = func.__name__
         new_wrapper.__doc__ = func.__doc__
         new_wrapper.__module__ = func.__module__
