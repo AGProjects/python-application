@@ -1,3 +1,12 @@
+python-application (1.3.1) unstable; urgency=low
+
+  * Added workaround for logging unicode and string objects
+  * Don't apply str over log records diverted from Twisted
+  * Fixed the wrapper's default arguments when preserving function signatures
+  * Bumped Standards-Version to 3.9.3
+
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 11 Jun 2012 10:11:17 +0300
+
 python-application (1.3.0) unstable; urgency=low
 
   * Fixed cleaning up observer weakref proxies after recent Singleton changes
