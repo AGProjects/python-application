@@ -18,9 +18,11 @@ def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
     from inspect import getargspec, formatargspec
     from itertools import count
-    class ValueFormatter(count):
+    class ValueFormatter(object):
+        def __init__(self):
+            self.count = count()
         def __call__(self, value):
-            return "=defaults[%d]" % self.next()
+            return "=defaults[%d]" % next(self.count)
     argspec    = getargspec(func)
     signature  = formatargspec(*argspec, formatvalue=ValueFormatter())[1:-1]
     parameters = formatargspec(*argspec, formatvalue=lambda value: "")[1:-1]
