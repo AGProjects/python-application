@@ -21,7 +21,7 @@ class objectref(weakref.ref):
         super(objectref, self).__init__(object, discard_callback)
         self.id = id(object)
 
-class objectid(long):
+class weakobjectid(long):
     def __new__(cls, object, discard_callback):
         instance = long.__new__(cls, id(object))
         instance.ref = objectref(object, discard_callback)
@@ -41,10 +41,10 @@ class ThreadLocal(object):
         try:
             return self.thread_local.__dict__[id(obj)]
         except KeyError:
-            self.thread_local.__dict__[objectid(obj, discarder(self.thread_local.__dict__))] = instance = self.type(*self.args, **self.kw)
+            self.thread_local.__dict__[weakobjectid(obj, discarder(self.thread_local.__dict__))] = instance = self.type(*self.args, **self.kw)
             return instance
     def __set__(self, obj, value):
-        self.thread_local.__dict__[objectid(obj, discarder(self.thread_local.__dict__))] = value
+        self.thread_local.__dict__[weakobjectid(obj, discarder(self.thread_local.__dict__))] = value
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
 
