@@ -92,7 +92,6 @@ class NotificationData(object):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, ', '.join('%s=%r' % (name, value) for name, value in self.__dict__.iteritems()))
 
-    __str__ = __repr__
 
 class Notification(object):
     """Object representing a notification"""
@@ -115,8 +114,6 @@ class Notification(object):
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name, self.sender, self.data)
-
-    __str__ = __repr__
 
 
 ## Notification Center
