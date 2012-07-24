@@ -3,6 +3,8 @@
 
 """UNIX process and signal management"""
 
+__all__ = ['Process', 'ProcessError', 'Signals', 'process']
+
 import sys
 import os
 import errno
