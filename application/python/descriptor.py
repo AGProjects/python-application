@@ -9,35 +9,42 @@ import weakref
 from threading import local
 
 
+class discarder(object):
+    def __init__(self, mapping):
+        self.mapping = mapping
+    def __call__(self, wr):
+        del self.mapping[wr.id]
+
+class objectref(weakref.ref):
+    __slots__ = ("id",)
+    def __init__(self, object, discard_callback):
+        super(objectref, self).__init__(object, discard_callback)
+        self.id = id(object)
+
+class objectid(long):
+    def __new__(cls, object, discard_callback):
+        instance = long.__new__(cls, id(object))
+        instance.ref = objectref(object, discard_callback)
+        return instance
+
+
 class ThreadLocal(object):
     """Descriptor that allows objects to have thread specific attributes"""
-    thread_local = local()
     def __init__(self, type, *args, **kw):
+        self.thread_local = local()
         self.type = type
         self.args = args
         self.kw = kw
     def __get__(self, obj, objtype):
         if obj is None:
             return self
-        obj_id = id(obj)
-        self_id = id(self)
         try:
-            return self.thread_local.__dict__[(obj_id, self_id)][0]
+            return self.thread_local.__dict__[id(obj)]
         except KeyError:
-            instance = self.type(*self.args, **self.kw)
-            thread_dict = self.thread_local.__dict__
-            ref = weakref.ref(obj, lambda weak_ref: thread_dict.pop((obj_id, self_id)))
-            thread_dict[(obj_id, self_id)] = (instance, ref)
+            self.thread_local.__dict__[objectid(obj, discarder(self.thread_local.__dict__))] = instance = self.type(*self.args, **self.kw)
             return instance
     def __set__(self, obj, value):
-        obj_id = id(obj)
-        self_id = id(self)
-        thread_dict = self.thread_local.__dict__
-        if (obj_id, self_id) in thread_dict:
-            ref = thread_dict[(obj_id, self_id)][1]
-        else:
-            ref = weakref.ref(obj, lambda weak_ref: thread_dict.pop((obj_id, self_id)))
-        thread_dict[(obj_id, self_id)] = (value, ref)
+        self.thread_local.__dict__[objectid(obj, discarder(self.thread_local.__dict__))] = value
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
 
