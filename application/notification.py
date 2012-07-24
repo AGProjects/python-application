@@ -10,7 +10,9 @@ __all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notificatio
 
 import weakref
 from collections import deque
+from datetime import datetime
 from threading import Lock
+from time import time
 from zope.interface import Interface, implements
 
 from application import log
@@ -101,6 +103,15 @@ class Notification(object):
         self.name = name
         self.sender = sender
         self.data = data
+        self.timestamp = time()
+
+    @property
+    def datetime(self):
+        return self.__dict__.get('datetime') or self.__dict__.setdefault('datetime', datetime.fromtimestamp(self.timestamp))
+
+    @property
+    def utcdatetime(self):
+        return self.__dict__.get('utcdatetime') or self.__dict__.setdefault('utcdatetime', datetime.utcfromtimestamp(self.timestamp))
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name, self.sender, self.data)
