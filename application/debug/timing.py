@@ -21,7 +21,7 @@ class timer(object):
     def __init__(self, count):
         self.count = count
         self.start = time()
-    def end(self, duration=True, rate=True, msg=None):
+    def end(self, msg=None, duration=True, rate=True):
         _duration = time() - self.start
         _rate = self.count/_duration
         if duration:
