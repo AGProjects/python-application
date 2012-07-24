@@ -5,10 +5,11 @@
 
 from __future__ import absolute_import
 
-__all__ = ['Singleton', 'NullType']
+__all__ = ['Singleton', 'NullType', 'MarkerType']
 
 from new import instancemethod
 from application.python.decorator import preserve_signature
+
 
 class Singleton(type):
     """Metaclass for making singletons"""
@@ -36,12 +37,14 @@ class Singleton(type):
     def __call__(cls, *args, **kw):
         return cls.__instantiate__(*args, **kw)
 
+
 class NullTypeMeta(type):
     def __init__(cls, name, bases, dic):
         super(NullTypeMeta, cls).__init__(name, bases, dic)
         cls.__instance__ = super(NullTypeMeta, cls).__call__()
     def __call__(cls, *args, **kw):
         return cls.__instance__
+
 
 class NullType(object):
     """Instances of this class always and reliably "do nothing"."""
@@ -70,4 +73,12 @@ class NullType(object):
     def __exit__(self, exc_type, exc_value, traceback): pass
     def __iter__(self): return self
     def next(self): raise StopIteration
+
+
+class MarkerType(type):
+    """Metaclass for defining marker entities"""
+    def __call__(cls, *args, **kw):
+        return cls
+    def __repr__(cls):
+        return cls.__name__
 
