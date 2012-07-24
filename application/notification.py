@@ -98,7 +98,7 @@ class Notification(object):
     """Object representing a notification"""
 
     def __init__(self, name, sender=UnknownSender, data=NotificationData()):
-        if Any in (name, sender):
+        if name is Any or sender is Any:
             raise ValueError("name and/or sender must not be the special object Any")
         self.name = name
         self.sender = sender
