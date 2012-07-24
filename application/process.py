@@ -12,11 +12,6 @@ import atexit
 from application import log
 from application.python.types import Singleton
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
 
 class ProcessError(Exception): pass
 
