@@ -3,8 +3,6 @@
 
 """Decorators and helper functions for writing well behaved decorators."""
 
-from __future__ import with_statement
-
 __all__ = ['decorator', 'preserve_signature', 'execute_once']
 
 from inspect import getargspec, formatargspec

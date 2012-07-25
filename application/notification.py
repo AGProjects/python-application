@@ -3,10 +3,7 @@
 
 """Implements a notification system"""
 
-from __future__ import with_statement
-
 __all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter', 'ObserverWeakrefProxy']
-
 
 import weakref
 from collections import deque
