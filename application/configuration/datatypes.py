@@ -25,7 +25,7 @@ class Boolean(int):
         elif not hasattr(value, 'lower'):
             raise TypeError("value must be a string, number or boolean")
         try:
-            return Boolean.__valuemap__[value.lower()]
+            return cls.__valuemap__[value.lower()]
         except KeyError:
             raise ValueError('not a boolean value: %r' % value)
 
