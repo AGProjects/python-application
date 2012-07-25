@@ -7,8 +7,8 @@
 __all__ = ['Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
            'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
 
-import socket
 import re
+import socket
 import struct
 
 from application import log
