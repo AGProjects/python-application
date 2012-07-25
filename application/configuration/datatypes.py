@@ -149,7 +149,7 @@ class NetworkRange(tuple):
             raise ValueError("invalid network mask in address: '%s' (should be between 0 and 32)" % description)
         try:
             netaddr = socket.inet_aton(net)
-        except:
+        except Exception:
             raise ValueError("invalid IP address: '%s'" % net)
         mask = (0xFFFFFFFFL << 32-netbits) & 0xFFFFFFFFL
         netbase = struct.unpack('!L', netaddr)[0] & mask

@@ -44,7 +44,7 @@ class EventQueue(Thread):
                 break
             try:
                 self.handle(event)
-            except:
+            except Exception:
                 log.error("exception happened during event handling")
                 log.err()
             finally:
@@ -147,7 +147,7 @@ class CumulativeEventQueue(EventQueue):
                             raise ValueError("%s handler must return a list of unhandled events or None" % self.__class__.__name__)
                         if unhandled is not None:
                             preserved = unhandled ## preserve the unhandled events that the handler returned
-                    except:
+                    except Exception:
                         log.error("exception happened during event handling")
                         log.err()
                     self._waiting = preserved
@@ -157,7 +157,7 @@ class CumulativeEventQueue(EventQueue):
                 if getattr(event, 'high_priority', False):
                     try:
                         self.handle([event])
-                    except:
+                    except Exception:
                         log.error("exception happened during high priority event handling")
                         log.err()
                     finally:

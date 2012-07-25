@@ -50,7 +50,7 @@ class ConfigFile(object):
         """Get a setting from a given section using type, or default if missing"""
         try:
             value = self.parser.get(section, setting)
-        except:
+        except Exception:
             return default
         else:
             try:
@@ -187,7 +187,7 @@ class ConfigSection(object):
         try:
             for name, value in kw.iteritems():
                 setattr(cls, name, value)
-        except:
+        except Exception:
             cls.__trace__("reverting settings to previous values due to error while setting %s", name)
             for name, descriptor in cls.__settings__.iteritems():
                 descriptor.__set__(None, saved_state[name], convert=False)

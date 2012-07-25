@@ -18,7 +18,7 @@ class Version(str):
             return instance
         try:
             major, minor, micro = int(major), int(minor), int(micro)
-        except:
+        except (TypeError, ValueError):
             raise TypeError("major, minor and micro must be integer numbers")
         if extraversion is None:
             instance = str.__new__(cls, "%d.%d.%d" % (major, minor, micro))
