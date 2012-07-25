@@ -3,8 +3,9 @@
 
 """Manage application dependencies at runtime"""
 
-
 __all__ = ['ApplicationDependencies', 'PackageDependency', 'DependencyError']
+
+from application.version import Version
 
 
 class DependencyError(Exception): pass
@@ -60,7 +61,6 @@ class ApplicationDependencies(object):
 
     def check(self):
         """Raise DependencyError if the dependencies are not satisfied"""
-        from application.version import Version
         for dep in self.dependencies:
             if dep.installed_version is None:
                 raise DependencyError("need %s version %s or higer but it's not installed" % (dep.name, dep.required_version))

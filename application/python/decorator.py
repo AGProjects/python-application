@@ -5,8 +5,12 @@
 
 from __future__ import with_statement
 
-
 __all__ = ['decorator', 'preserve_signature', 'execute_once']
+
+from inspect import getargspec, formatargspec
+from itertools import count
+from threading import RLock
+from weakref import WeakKeyDictionary
 
 
 def decorator(func):
@@ -16,8 +20,6 @@ def decorator(func):
 
 def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
-    from inspect import getargspec, formatargspec
-    from itertools import count
     class ValueFormatter(object):
         def __init__(self):
             self.count = count()
@@ -90,8 +92,6 @@ def execute_once(func):
     class ExecuteOnceFunctionWrapper(object):
         __slots__ = ('__weakref__', '__func__', '__callmap__', 'called', 'lock')
         def __init__(self, func):
-            from threading import RLock
-            from weakref import WeakKeyDictionary
             self.__func__ = func
             self.__callmap__ = WeakKeyDictionary()
             self.__callmap__[func] = False

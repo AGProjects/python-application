@@ -7,14 +7,13 @@ from __future__ import absolute_import
 
 __all__ = ['Singleton', 'NullType', 'MarkerType']
 
-from new import instancemethod
+from types import FunctionType, MethodType, UnboundMethodType
 from application.python.decorator import preserve_signature
 
 
 class Singleton(type):
     """Metaclass for making singletons"""
     def __init__(cls, name, bases, dic):
-        from types import FunctionType, UnboundMethodType
         if type(cls.__init__) is UnboundMethodType:
             initializer = cls.__init__
         elif type(cls.__new__) is FunctionType:
@@ -33,7 +32,7 @@ class Singleton(type):
             return cls.__instances__[key]
         super(Singleton, cls).__init__(name, bases, dic)
         cls.__instances__ = {}
-        cls.__instantiate__ = instancemethod(instance_creator, cls, type(cls))
+        cls.__instantiate__ = MethodType(instance_creator, cls, type(cls))
     def __call__(cls, *args, **kw):
         return cls.__instantiate__(*args, **kw)
 

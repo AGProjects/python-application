@@ -7,6 +7,7 @@ __all__ = ['host', 'makedirs', 'unlink']
 
 import errno
 import os
+import socket
 
 from application.python.types import Singleton
 
@@ -18,7 +19,6 @@ class HostProperties(object):
     __metaclass__ = Singleton
 
     def outgoing_ip_for(self, destination):
-        import socket
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect((destination, 1))
@@ -38,22 +38,18 @@ class HostProperties(object):
 
     @property
     def name(self):
-        import socket
         return socket.gethostname()
 
     @property
     def fqdn(self):
-        import socket
         return socket.getfqdn()
 
     @property
     def domain(self):
-        import socket
         return socket.getfqdn()[len(socket.gethostname())+1:] or None
 
     @property
     def aliases(self):
-        import socket
         hostname = socket.gethostname()
         aliases = socket.gethostbyaddr(hostname)[1]
         if hostname in aliases:

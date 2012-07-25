@@ -5,6 +5,8 @@
 
 __all__ = ['Version']
 
+import re
+
 
 class Version(str):
     """A major.minor.micro[extraversion] version string that is comparable"""
@@ -25,7 +27,6 @@ class Version(str):
             instance = str.__new__(cls, "%d.%d.%d-%d" % (major, minor, micro, extraversion))
             weight = 0
         elif isinstance(extraversion, basestring):
-            import re
             instance = str.__new__(cls, "%d.%d.%d%s" % (major, minor, micro, extraversion))
             match = re.match(r'^[-.]?(?P<name>(pre|rc|alpha|beta|))(?P<number>\d+)$', extraversion)
             if match:
@@ -48,7 +49,6 @@ class Version(str):
             raise TypeError("value should be a string")
         if value == 'undefined':
             return Version(None, None, None)
-        import re
         match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)
         if not match:
             raise ValueError("not a recognized version string")
