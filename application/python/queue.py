@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2007 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
 #
 
 """Event processing queues, that process the events in a distinct thread"""

@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2011 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2007-2012 Dan Pascu. See LICENSE for details.
 #
 
 """Decorators and helper functions for writing well behaved decorators."""

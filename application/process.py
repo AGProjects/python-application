@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2011 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
 #
 
 """UNIX process and signal management"""

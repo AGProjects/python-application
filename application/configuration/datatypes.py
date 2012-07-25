@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2009 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
 #
 
 """Basic data types to describe the type of the entries in the configuration file"""
