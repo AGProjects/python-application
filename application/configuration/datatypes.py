@@ -12,6 +12,7 @@ import socket
 import struct
 
 from application import log
+from application.python import limit
 
 
 class Boolean(int):
@@ -32,10 +33,8 @@ class Boolean(int):
 class LogLevel(int):
     """A log level indicated by a non-negative integer or one of the named attributes of log.level"""
     def __new__(cls, value):
-        def constrain(value, min_value, max_value):
-            return min(max(min_value, value), max_value)
         if isinstance(value, (int, long)):
-            return log.NamedLevel(constrain(value, log.level.ALL, log.level.NONE))
+            return log.NamedLevel(limit(value, min=log.level.ALL, max=log.level.NONE))
         elif not isinstance(value, basestring):
             raise TypeError("value must be a string, int or long")
         log_level = value.upper()
@@ -43,7 +42,7 @@ class LogLevel(int):
         if log_level in names:
             return getattr(log.level, log_level)
         try:
-            return log.NamedLevel(constrain(int(log_level), log.level.ALL, log.level.NONE))
+            return log.NamedLevel(limit(int(log_level), min=log.level.ALL, max=log.level.NONE))
         except ValueError:
             raise ValueError("invalid log level: %s" % value)
 
