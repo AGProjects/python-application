@@ -9,11 +9,13 @@ import Queue
 from threading import Thread, Event, Lock
 
 from application import log
+from application.python.types import MarkerType
+
 
 # Special events that control the queue operation (for internal use)
-class StopProcessing: pass
-class ProcessEvents: pass
-class DiscardEvents: pass
+class StopProcessing: __metaclass__ = MarkerType
+class ProcessEvents:  __metaclass__ = MarkerType
+class DiscardEvents:  __metaclass__ = MarkerType
 
 
 class EventQueue(Thread):
