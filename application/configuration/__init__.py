@@ -7,9 +7,7 @@ __all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes']
 
 import os
 
-try:    from ConfigParser import SafeConfigParser as ConfigParser
-except: from ConfigParser import ConfigParser
-from ConfigParser import NoSectionError
+from ConfigParser import SafeConfigParser, NoSectionError
 from itertools import chain
 from types import ClassType, TypeType, BuiltinFunctionType
 
@@ -40,7 +38,7 @@ class ConfigFile(object):
         instance = cls.instances.get(filename, None)
         if instance is None or instance.files != files or instance.timestamp < timestamp:
             instance = object.__new__(cls)
-            instance.parser = ConfigParser()
+            instance.parser = SafeConfigParser()
             instance.parser.optionxform = lambda x: x.replace('-', '_')
             instance.files = instance.parser.read(files)
             instance.filename = filename
