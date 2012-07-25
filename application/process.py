@@ -71,13 +71,13 @@ class Process(object):
         try:
             pf = open(pidfile, 'rb')
         except IOError, why:
-            raise ProcessError, "unable to open pidfile %s: %s" % (pidfile, str(why))
+            raise ProcessError("unable to open pidfile %s: %s" % (pidfile, str(why)))
         else:
             try:
                 try:
                     pid = int(pf.readline().strip())
                 except IOError, why:
-                    raise ProcessError, "unable to read pidfile %s: %s" % (pidfile, str(why))
+                    raise ProcessError("unable to read pidfile %s: %s" % (pidfile, str(why)))
                 except ValueError:
                     pass
                 else:
@@ -87,9 +87,9 @@ class Process(object):
                         os.kill(pid, 0)
                     except OSError, why:
                         if why[0] in (errno.EPERM, errno.EACCES):
-                            raise ProcessError, "already running with pid %d" % pid
+                            raise ProcessError("already running with pid %d" % pid)
                     else:
-                        raise ProcessError, "already running with pid %d" % pid
+                        raise ProcessError("already running with pid %d" % pid)
             finally:
                 pf.close()
 
@@ -105,7 +105,7 @@ class Process(object):
                 sys.exit(0) ## exit parent
                 #os._exit(0)
         except OSError, e:
-            raise ProcessError, "fork #1 failed: %d: %s" % (e.errno, e.strerror)
+            raise ProcessError("fork #1 failed: %d: %s" % (e.errno, e.strerror))
         
         ## Decouple from the controling terminal.
         ## Calling setsid() we become a process group and session group leader.
@@ -124,7 +124,7 @@ class Process(object):
                 sys.exit(0) ## exit 1st child too
                 #os._exit(0)
         except OSError, e:
-            raise ProcessError, "fork #2 failed: %d: %s" % (e.errno, e.strerror)
+            raise ProcessError("fork #2 failed: %d: %s" % (e.errno, e.strerror))
         
         ## Setup our environment.
         ## Change working directory to / so we do not keep any directory in use
@@ -143,7 +143,7 @@ class Process(object):
             finally:
                 pf.close()
         except IOError, e:
-            raise ProcessError, "unable to write pidfile %s: %s" % (self._pidfile, str(e))
+            raise ProcessError("unable to write pidfile %s: %s" % (self._pidfile, str(e)))
 
     def _redirect_stdio(self):
         """Redirect stdin, stdout and stderr to /dev/null"""

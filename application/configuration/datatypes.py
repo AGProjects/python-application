@@ -30,7 +30,7 @@ class Boolean(int):
         try:
             return Boolean.__states[val]
         except KeyError:
-            raise ValueError, 'not a boolean: %s' % value
+            raise ValueError('not a boolean: %s' % value)
 
 
 class LogLevel(int):
@@ -148,14 +148,14 @@ class NetworkRange(tuple):
             try:
                 net = socket.gethostbyname(description) # if not a net/mask it may be a host or ip
             except socket.gaierror:
-                raise NameError, "invalid hostname or IP address: '%s'" % description
+                raise NameError("invalid hostname or IP address: '%s'" % description)
             netbits = 32
         if netbits < 0 or netbits > 32:
-            raise ValueError, "invalid network mask in address: '%s' (should be between 0 and 32)" % description
+            raise ValueError("invalid network mask in address: '%s' (should be between 0 and 32)" % description)
         try:
             netaddr = socket.inet_aton(net)
         except:
-            raise ValueError, "invalid IP address: '%s'" % net
+            raise ValueError("invalid IP address: '%s'" % net)
         mask = (0xFFFFFFFFL << 32-netbits) & 0xFFFFFFFFL
         netbase = struct.unpack('!L', netaddr)[0] & mask
         return (netbase, mask)
