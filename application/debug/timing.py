@@ -15,7 +15,10 @@ t.end(msg="executing loop type 1")
 
 """
 
+__all__ = ["timer"]
+
 from time import time
+
 
 class timer(object):
     def __init__(self, count):
