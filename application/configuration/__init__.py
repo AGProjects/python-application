@@ -6,11 +6,12 @@
 __all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes']
 
 import os
-import types
+
 try:    from ConfigParser import SafeConfigParser as ConfigParser
 except: from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
 from itertools import chain
+from types import ClassType, TypeType, BuiltinFunctionType
 
 from application import log
 from application.process import process
@@ -85,7 +86,7 @@ class ConfigSetting(object):
     def __init__(self, type, value=None):
         self.type = type
         self.value = value
-        self.type_is_class = isinstance(type, (types.ClassType, types.TypeType))
+        self.type_is_class = isinstance(type, (ClassType, TypeType))
 
     def __get__(self, obj, objtype):
         return self.value
@@ -112,7 +113,7 @@ class ConfigSectionMeta(type):
         for attr, value in dct.iteritems():
             if isinstance(value, ConfigSetting):
                 settings[attr] = value
-            elif attr.startswith('__') or isdescriptor(value) or type(value) is types.BuiltinFunctionType:
+            elif attr.startswith('__') or isdescriptor(value) or type(value) is BuiltinFunctionType:
                 continue
             else:
                 if type(value) is bool:
