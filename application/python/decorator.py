@@ -10,7 +10,8 @@ __all__ = ['decorator', 'preserve_signature', 'execute_once']
 from inspect import getargspec, formatargspec
 from itertools import count
 from threading import RLock
-from weakref import WeakKeyDictionary
+
+from application.python.weakref import weakobjectmap
 
 
 def decorator(func):
@@ -93,7 +94,7 @@ def execute_once(func):
         __slots__ = ('__weakref__', '__func__', '__callmap__', 'called', 'lock')
         def __init__(self, func):
             self.__func__ = func
-            self.__callmap__ = WeakKeyDictionary()
+            self.__callmap__ = weakobjectmap()
             self.__callmap__[func] = False
             self.lock = RLock()
         def __call__(self, *args, **kw):

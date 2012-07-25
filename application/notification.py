@@ -18,6 +18,7 @@ from zope.interface import Interface, implements
 from application import log
 from application.python.descriptor import ThreadLocal
 from application.python.types import Singleton, MarkerType
+from application.python.weakref import weakobjectmap
 
 
 ## Special objects
@@ -49,7 +50,7 @@ class ObserverWeakrefProxy(object):
 
     implements(IObserver)
 
-    observer_map = weakref.WeakKeyDictionary()
+    observer_map = weakobjectmap()
     lock = Lock()
 
     def __new__(cls, observer):

@@ -5,8 +5,8 @@
 
 __all__ = ['ThreadLocal', 'WriteOnceAttribute', 'classproperty', 'isdescriptor']
 
-import weakref
 from threading import local
+from application.python.weakref import weakobjectid, weakobjectmap
 
 
 class discarder(object):
@@ -14,18 +14,6 @@ class discarder(object):
         self.mapping = mapping
     def __call__(self, wr):
         del self.mapping[wr.id]
-
-class objectref(weakref.ref):
-    __slots__ = ("id",)
-    def __init__(self, object, discard_callback):
-        super(objectref, self).__init__(object, discard_callback)
-        self.id = id(object)
-
-class weakobjectid(long):
-    def __new__(cls, object, discard_callback):
-        instance = long.__new__(cls, id(object))
-        instance.ref = objectref(object, discard_callback)
-        return instance
 
 
 class ThreadLocal(object):
@@ -58,19 +46,18 @@ class WriteOnceAttribute(object):
     such an attribute by messing around with the descriptor's internal data.
     """
     def __init__(self):
-        self.values = {}
+        self.values = weakobjectmap()
     def __get__(self, obj, type):
         if obj is None:
             return self
         try:
-            return self.values[id(obj)][0]
+            return self.values[obj]
         except KeyError:
             raise AttributeError("attribute is not set")
     def __set__(self, obj, value):
-        obj_id = id(obj)
-        if obj_id in self.values:
+        if obj in self.values:
             raise AttributeError("attribute is read-only")
-        self.values[obj_id] = (value, weakref.ref(obj, lambda weak_ref: self.values.pop(obj_id)))
+        self.values[obj] = value
     def __delete__(self, obj):
         raise AttributeError("attribute cannot be deleted")
 
