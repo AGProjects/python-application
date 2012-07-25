@@ -16,21 +16,17 @@ from application import log
 
 class Boolean(int):
     """A boolean validator that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
-    __states = {'1': True, 'yes': True, 'true': True, 'on': True, 1: True, True: True,
-                '0': False, 'no': False, 'false': False, 'off': False, 0: False, False: False}
+    __valuemap__ = {'1': True,  'yes': True, 'true': True,   'on': True,
+                    '0': False, 'no': False, 'false': False, 'off': False}
     def __new__(cls, value):
-        try: 
-            value + 0
-        except:
-            try: value + ''
-            except: raise TypeError('value must be a string')
-            else: val = value.lower()
-        else:
-            val = value # eventually we can accept any int value by using 'not not value'
+        if isinstance(value, (int, long, float)):
+            return bool(value)
+        elif not hasattr(value, 'lower'):
+            raise TypeError("value must be a string, number or boolean")
         try:
-            return Boolean.__states[val]
+            return Boolean.__valuemap__[value.lower()]
         except KeyError:
-            raise ValueError('not a boolean: %s' % value)
+            raise ValueError('not a boolean value: %r' % value)
 
 
 class LogLevel(int):
