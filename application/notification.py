@@ -17,25 +17,18 @@ from zope.interface import Interface, implements
 
 from application import log
 from application.python.descriptor import ThreadLocal
-from application.python.types import Singleton
+from application.python.types import Singleton, MarkerType
 
 
 ## Special objects
 
-class SpecialType(type):
-    def __str__(cls):
-        return cls.__name__
-    __repr__ = __str__
-
 class Any(object):
     """Any sender or notification name"""
-    __metaclass__ = SpecialType
+    __metaclass__ = MarkerType
 
 class UnknownSender(object):
     """A special sender used for anonymous notifications"""
-    __metaclass__ = SpecialType
-
-del SpecialType
+    __metaclass__ = MarkerType
 
 
 ## Notification Observer
