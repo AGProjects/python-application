@@ -7,7 +7,7 @@ Using this module:
 
 1. at the beginning of your program import this module...
 
-     from application.debug.memory import *
+     from application.debug.memory import memory_dump
 
 2. call memory_dump() later, when you want to check the memory leaks
 
