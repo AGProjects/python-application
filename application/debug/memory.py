@@ -138,7 +138,7 @@ def memory_dump(show_cycles=True, show_objects=False):
         try:
             import fcntl, struct, sys, termios
             console_width = struct.unpack('HHHH', fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))[1]
-        except:
+        except Exception:
             console_width = 80
 
         print "\nGARBAGE OBJECTS:"
