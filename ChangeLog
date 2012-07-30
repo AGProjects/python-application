@@ -1,3 +1,32 @@
+Changes in version 1.4.0
+------------------------
+
+  * Simplified and made ThreadLocal descriptor faster
+  * Added timestamp and datetime properties on notifications
+  * Made test more efficient
+  * Removed unnecessary methods
+  * Removed some old compatibility code
+  * Added missing __all__ entry in process.py
+  * Changed order or arguments for timer.end() for convenience
+  * Added MarkerType metaclass to application.python.types
+  * Use MarkerType to define markers
+  * Ordered imports alphabetically
+  * Do not ignore base exceptions
+  * Fixed documentation example
+  * Added missing __all__ to timing.py
+  * Use MarkerType to define the markers used in queue.py
+  * Moved imports at toplevel
+  * Added weakobjectmap implementation
+  * Replaced WeakKeyDictionary with newly added weakobjectmap
+  * Removed some obsolete backwards compatibility code
+  * Removed compatibility with python2.5
+  * Replaced some old forms or raising an exception
+  * Refactored Boolean data type
+  * Use limit instead of locally defined constrain function
+  * Be specific when catching exceptions
+  * Fixed how we access the class attribute to work with subclassing
+  * Added a center attribute to posted notifications
+
 Changes in version 1.3.2
 ------------------------
 

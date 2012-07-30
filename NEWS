@@ -1,3 +1,38 @@
+New in version 1.4.0
+--------------------
+
+1. Dropped compatibility with python2.5
+
+2. Added the MarkerType type that can be used to define marker entities
+
+3. Added the application.python.weakref module containing the weakobjectmap
+   class, which offers the same functionality as WeakKeyDictionary from the
+   standard python weakref module, with a few notable improvements:
+
+   - it works even with objects (keys) that are not hashable
+   - subclasses can implement __missing__ to define defaultdict like behavior
+   - it is faster as it directly subclasses dict instead of using a UserDict
+   - it is thread safe, as all it's operations are atomic, in the sense that
+     they are the dict's methods executing in C while being protected by the
+     GIL
+   - iterating it as well as the iterating methods (iterkeys, itervalues
+     and iteritems) are safe from changes to the mapping while iterating
+   - it provides a __repr__ implementation that makes it display similar
+     to a dict which provides an easy way to inspect it
+
+4. Added timestamp and center attributes on posted notifications. Timestamp
+   is a POSIX timestamp of when the notification was posted. Center is a
+   reference to the NotificationCenter instance that posted the notification.
+   In addition 2 properties are also available: datetime and utcdatetime
+   which are provided for convenience. As their name suggests, they will
+   give a datetime object with the local respectively the UTC datetime that
+   correspond to the timestamp value. They are lazyly computed and cached.
+
+5. Swapped the order of the arguments for timer.end() from the debug.timing
+   module. Now the msg argument comes first, to make it more convenient as
+   it is the most used argument.
+
+
 New in version 1.3.0
 --------------------
 
