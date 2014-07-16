@@ -51,7 +51,7 @@ class weakobjectmap(dict):
         def remove(wr, selfref=weakref.ref(self)):
             self = selfref()
             if self is not None:
-                super(weakobjectmap, self).__delitem__(wr.id)
+                dict.__delitem__(self, wr.id)
         self.__remove__ = remove
         weakobjectmap.update(self, *args, **kw)
 
