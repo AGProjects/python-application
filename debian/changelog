@@ -1,3 +1,10 @@
+python-application (1.4.1) unstable; urgency=medium
+
+  * Fixed cleaning up weak references in weakobjectmap during shutdown
+  * Increased debian standards version to 3.9.5
+
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 16 Jul 2014 13:09:40 +0300
+
 python-application (1.4.0) unstable; urgency=low
 
   * Simplified and made ThreadLocal descriptor faster

@@ -1,3 +1,8 @@
+Changes in version 1.4.1
+------------------------
+
+  * Fixed cleaning up weak references in weakobjectmap during shutdown
+
 Changes in version 1.4.0
 ------------------------
 
