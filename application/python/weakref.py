@@ -45,7 +45,7 @@ class objectid(long):
 #
 
 class weakobjectmap(dict):
-    """Mapping between objects and data that keeps weak object references"""
+    """Mapping between objects and data, that keeps weak object references"""
 
     def __init__(self, *args, **kw):
         def remove(wr, selfref=weakref.ref(self)):
