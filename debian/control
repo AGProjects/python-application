@@ -9,7 +9,7 @@ Homepage: http://cheeseshop.python.org/pypi/python-application
 
 Package: python-application
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-zopeinterface
+Depends: ${python:Depends}, ${misc:Depends}, python-zope.interface
 Description: Basic building blocks for Python applications
  This module provides some basic components that can be used to simplify
  building Python applications.
