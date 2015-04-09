@@ -1,3 +1,11 @@
+python-application (1.5.0) unstable; urgency=medium
+
+  * Added a generic thread pool in application.python.threadpool
+  * Fixed dependency name in debian/control
+  * Updated debian standards version
+
+ -- Dan Pascu <dan@ag-projects.com>  Thu, 09 Apr 2015 10:51:41 +0300
+
 python-application (1.4.1) unstable; urgency=medium
 
   * Fixed cleaning up weak references in weakobjectmap during shutdown
