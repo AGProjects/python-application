@@ -1,16 +1,20 @@
-# Boring file regexps:
-(^|/)_darcs($|/)
-(^|/)CVS($|/)
-(^|/)\.svn($|/)
+#
+# Boring file regular expressions
+#
+
+~$
+\#
 (^|/)\.DS_Store$
 (^|/)Thumbs\.db$
-\#
-~$
 (^|/)core(\.[0-9]+)?$
-\.(pyc|pyo|o|so|orig|bak|BAK|prof|wpu|cvsignore)$
-(^|/)(build|dist)($|/)
+\.(pyc|pyo|o|so|orig|rej|prof|bak|BAK|tmp|wpu|swp|swo)$
+
+(^|/)\.idea($|/)
 (^|/)\.komodotools($|/)
-(^|/)debian/python-application.*($|/)
-(^|/)debian/files$
-^python-build-stamp-.*$
+(^|/)_darcs($|/)
+
 ^MANIFEST$
+^build($|/)
+^dist($|/)
+^debian/python-application.*($|/)
+^debian/files$
