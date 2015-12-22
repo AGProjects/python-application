@@ -41,6 +41,9 @@ class Version(str):
         instance._version_info = (major, minor, micro, weight, extraversion)
         return instance
 
+    def __init__(self, major, minor, micro, extraversion=None):
+        super(Version, self).__init__()
+
     @classmethod
     def parse(self, value):
         if isinstance(value, Version):
