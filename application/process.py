@@ -223,8 +223,7 @@ class Signals(object):
     
     def __init__(self):
         self._handlers = {}
-        if not hasattr(signal, '_original_signal'):
-            signal._original_signal = signal.signal
+        self._original_signal = signal.signal
 
     def __dispatcher(self, signum, frame):
         for handler in self._handlers.get(signum, []):
@@ -236,11 +235,11 @@ class Signals(object):
             raise RuntimeError("signal handler needs to be a callable")
         self._handlers.setdefault(signum, set()).add(handler)
         if signal.getsignal(signum) != self.__dispatcher:
-            signal._original_signal(signum, self.__dispatcher)
+            self._original_signal(signum, self.__dispatcher)
 
     def ignore(self, signum):
         """Ignore signal"""
-        signal._original_signal(signum, signal.SIG_IGN)
+        self._original_signal(signum, signal.SIG_IGN)
         try:
             del self._handlers[signum]
         except KeyError:
@@ -248,7 +247,7 @@ class Signals(object):
 
     def default_handler(self, signum):
         """Use default handler for signal"""
-        signal._original_signal(signum, signal.SIG_DFL)
+        self._original_signal(signum, signal.SIG_DFL)
         try:
             del self._handlers[signum]
         except KeyError:
@@ -259,7 +258,7 @@ class Signals(object):
         if enable:
             signal.signal = self.add_handler
         else:
-            signal.signal = signal._original_signal
+            signal.signal = self._original_signal
 
 
 process = Process()
