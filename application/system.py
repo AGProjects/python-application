@@ -18,7 +18,8 @@ class HostProperties(object):
 
     __metaclass__ = Singleton
 
-    def outgoing_ip_for(self, destination):
+    @staticmethod
+    def outgoing_ip_for(destination):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect((destination, 1))
