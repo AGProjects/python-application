@@ -12,7 +12,7 @@ class Version(str):
     """A major.minor.micro[extraversion] version string that is comparable"""
 
     def __new__(cls, major, minor, micro, extraversion=None):
-        if major == minor == micro == extraversion == None:
+        if major is minor is micro is extraversion is None:
             instance = str.__new__(cls, "undefined")
             instance._version_info = (None, None, None, None, None)
             return instance
