@@ -51,11 +51,11 @@ class Version(str):
         elif not isinstance(value, basestring):
             raise TypeError("value should be a string")
         if value == 'undefined':
-            return Version(None, None, None)
+            return cls(None, None, None)
         match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)
         if not match:
             raise ValueError("not a recognized version string")
-        return Version(**match.groupdict(0))
+        return cls(**match.groupdict(0))
 
     @property
     def major(self):
