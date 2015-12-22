@@ -96,13 +96,13 @@ class ConfigSetting(object):
 
 
 class ConfigSectionMeta(type):
-    def __init__(cls, clsname, bases, dct):
+    def __init__(cls, name, bases, dct):
         cls.__defaults__ = dict(cls)
         cls.__trace__("Dumping initial %s state:\n%s", cls.__name__, cls)
         if None not in (cls.__cfgfile__, cls.__section__):
             cls.__read__()
 
-    def __new__(clstype, clsname, bases, dct):
+    def __new__(mcls, name, bases, dct):
         settings = {}
         # copy all settings defined by parents unless also defined in the class being constructed
         for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
@@ -123,7 +123,7 @@ class ConfigSectionMeta(type):
         dct['__settings__'] = settings
         if dct.get('__tracing__', None) not in (log.level.INFO, log.level.DEBUG, None):
             raise ValueError("__tracing__ must be one of log.level.INFO, log.level.DEBUG or None")
-        return type.__new__(clstype, clsname, bases, dct)
+        return type.__new__(mcls, name, bases, dct)
 
     def __str__(cls):
         return "%s:\n%s" % (cls.__name__, '\n'.join("  %s = %r" % (name, value) for name, value in cls) or "  pass")
