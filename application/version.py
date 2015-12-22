@@ -91,7 +91,7 @@ class Version(str):
         str.__delattr__(self, name)
 
     def __cmp__(self, other):
-        if isinstance(other, self.__class__):
+        if isinstance(other, Version):
             return cmp(self._version_info, other._version_info)
         elif isinstance(other, basestring):
             return cmp(str(self), other)
