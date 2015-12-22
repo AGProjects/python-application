@@ -78,7 +78,7 @@ class Version(str):
         if weight is not None and weight < 0:
             weight_map = {-10: 'rc', -20: 'pre', -30: 'beta', -40: 'alpha'}
             extraversion = "%s%d" % (weight_map[weight], extraversion)
-        return "%s(%r, %r, %r, %r)" % (self.__class__.__name__, major, minor, micro, extraversion)
+        return "%s(major=%r, minor=%r, micro=%r, extraversion=%r)" % (self.__class__.__name__, major, minor, micro, extraversion)
 
     def __cmp__(self, other):
         if isinstance(other, Version):
