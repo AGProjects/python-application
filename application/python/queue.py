@@ -89,7 +89,7 @@ class EventQueue(Thread):
         """Accept events for processing"""
         self._accepting_events = True
     def ignore_events(self):
-        """Ingore events for processing"""
+        """Ignore events for processing"""
         self._accepting_events = False
     def put(self, event):
         """Add an event on the queue"""

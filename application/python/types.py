@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
 #
 
-"""Types and metaclasses"""
+"""Types and meta classes"""
 
 from __future__ import absolute_import
 

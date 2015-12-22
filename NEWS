@@ -26,7 +26,7 @@ New in version 1.4.0
    In addition 2 properties are also available: datetime and utcdatetime
    which are provided for convenience. As their name suggests, they will
    give a datetime object with the local respectively the UTC datetime that
-   correspond to the timestamp value. They are lazyly computed and cached.
+   correspond to the timestamp value. They are lazily computed and cached.
 
 5. Swapped the order of the arguments for timer.end() from the debug.timing
    module. Now the msg argument comes first, to make it more convenient as
@@ -186,7 +186,7 @@ New in version 1.2.0
 
    The log functions now pass their keyword arguments as a dictionary to the
    `extra' argument of the functions in the logging module for use by
-   applications which define their own log formatters:
+   applications which define their own log formatter:
 
    application.log.info('message', foo=1, bar=2)
 
@@ -467,7 +467,7 @@ package provides them as simple strings, not as comparable Version instances.
 New in version 1.1.1
 --------------------
 
-1. Configuration datatype changes
+1. Configuration data type changes
 
 The _defaultPort and _name attributes from the NetworkAddress and the
 EndpointAddress classes are being deprecated starting with this version,
@@ -475,7 +475,7 @@ being replaced by default_port and respectively name. The deprecated
 attributes are still available, but give a deprecation warning and will
 be completely removed in version 1.2.0
 
-Added the LogLevel datatype that represents a log level and which can be
+Added the LogLevel data type that represents a log level and which can be
 used to map a log level name as read from a configuration file into a log
 level that can be assigned to log.level.current to change the application
 log level.

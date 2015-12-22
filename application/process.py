@@ -107,7 +107,7 @@ class Process(object):
         except OSError, e:
             raise ProcessError("fork #1 failed: %d: %s" % (e.errno, e.strerror))
         
-        ## Decouple from the controling terminal.
+        ## Decouple from the controlling terminal.
         ## Calling setsid() we become a process group and session group leader.
         ## Since a controlling terminal is associated with a session, and this
         ## new session has not yet acquired a controlling terminal our process
@@ -146,7 +146,7 @@ class Process(object):
             raise ProcessError("unable to write pidfile %s: %s" % (self._pidfile, str(e)))
 
     def _redirect_stdio(self):
-        """Redirect stdin, stdout and stderr to /dev/null"""
+        """Redirect standard input, standard output and standard error to /dev/null"""
         sys.stdout.flush()
         sys.stderr.flush()
         null = os.open('/dev/null', os.O_RDWR)

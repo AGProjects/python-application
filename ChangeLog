@@ -25,7 +25,7 @@ Changes in version 1.4.0
   * Fixed documentation example
   * Added missing __all__ to timing.py
   * Use MarkerType to define the markers used in queue.py
-  * Moved imports at toplevel
+  * Moved imports at the top of the file
   * Added weakobjectmap implementation
   * Replaced WeakKeyDictionary with newly added weakobjectmap
   * Removed some obsolete backwards compatibility code
@@ -134,7 +134,7 @@ Changes in version 1.2.0
   * Removed deprecated functionality
   * Added purge_observer method on NotificationCenter
   * Added dynamic host properties to application.system
-  * Removed resolution test from Hostname configuration datatype
+  * Removed resolution test from Hostname configuration data type
   * Improved error message for invalid type in IPAddress
   * Removed twisted logging backend and added a logging extension for twisted
   * Improved logging functions and added some commonly used aliases
@@ -190,7 +190,7 @@ Changes in version 1.1.2
 ------------------------
 
   * Deprecated config_directory in favor of system_config_directory
-  * No longer raise an expection when setting the system config directory,
+  * No longer raise an exception when setting the system config directory,
     if the directory doesn't exist
   * Changed datatypes.Boolean into a validator
   * Added ConfigSetting descriptor that is meant to deprecate the use of the
@@ -213,7 +213,7 @@ Changes in version 1.1.1
   * Deprecated _defaultPort and _name in favor of default_port and name
   * Use a better description for an endpoint address
   * Define log levels ALL and NONE consistently with the others
-  * Added LogLevel configuration datatype
+  * Added LogLevel configuration data type
   * Replaced deprecated startSyslog with start_syslog in examples
 
 Changes in version 1.1.0
@@ -228,7 +228,7 @@ Changes in version 1.1.0
   * Added a new module that implements a notification system
   * Added example script for notification system
   * Do not indent subsequent lines in a multi line log in syslog
-  * Simplified logging of multilines in syslog
+  * Simplified logging of multi-lines in syslog
   * Specify the priority when logging to syslog, based on the message type
   * Implemented fallback log capabilities via the logging module
   * Added prefix to debug log records with twisted backend
@@ -289,7 +289,7 @@ Changes in version 1.0.5
 
   * Added methods for controlling the event processing workflow
      - pause/unpause/resume - to control event processing
-     - accept_events/ingore_events - to control event acceptance
+     - accept_events/ignore_events - to control event acceptance
      - empty - to purge events already on the queue
   * Allow unhandled events in a CumulativeEventQueue to be preserved.
   * Capture unhandled exceptions from a queue's event handler.
@@ -318,7 +318,7 @@ Changes in version 1.0.2
 Changes in version 1.0.1
 ------------------------
 
-  * Fixed issue with printing the memory dump in multithreaded environments.
+  * Fixed issue with printing the memory dump in multi threaded environments.
   * Ignore one time collectable garbage generated before the memory debug
     module is imported.
 

@@ -118,7 +118,7 @@ class ThreadPool(object):
             try:
                 item.function(*item.args, **item.kw)
             except:
-                log.error('Exception occured while calling %r in the %r thread' % (item.function, thread.name))
+                log.error('Exception occurred while calling %r in the %r thread' % (item.function, thread.name))
                 log.err()
             item = None
         self._threads.remove(thread)

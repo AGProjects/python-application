@@ -63,7 +63,7 @@ class ApplicationDependencies(object):
         """Raise DependencyError if the dependencies are not satisfied"""
         for dep in self.dependencies:
             if dep.installed_version is None:
-                raise DependencyError("need %s version %s or higer but it's not installed" % (dep.name, dep.required_version))
+                raise DependencyError("need %s version %s or higher but it's not installed" % (dep.name, dep.required_version))
             if Version.parse(dep.installed_version) < Version.parse(dep.required_version):
-                raise DependencyError("need %s version %s or higer but only %s is installed" % (dep.name, dep.required_version, dep.installed_version))
+                raise DependencyError("need %s version %s or higher but only %s is installed" % (dep.name, dep.required_version, dep.installed_version))
 

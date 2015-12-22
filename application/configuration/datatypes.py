@@ -227,7 +227,7 @@ class EndpointAddress(NetworkAddress):
     A network endpoint. This is a NetworkAddress that cannot be None or have
     an undefined address/port.
 
-    This class is meant to be subclassed to get more specific network enpoint
+    This class is meant to be subclassed to get more specific network endpoint
     descriptions. For example for SIP endpoint:
 
         class SIPEndpointAddress(EndpointAddress):

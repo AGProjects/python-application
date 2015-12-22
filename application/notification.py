@@ -215,7 +215,7 @@ class NotificationCenter(object):
                 try:
                     observer.handle_notification(notification)
                 except Exception:
-                    log.error("Exception occured in observer %r while handling notification %r" % (observer, notification.name))
+                    log.error("Exception occurred in observer %r while handling notification %r" % (observer, notification.name))
                     log.err()
             queue.popleft()
 

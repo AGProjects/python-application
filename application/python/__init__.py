@@ -1,7 +1,7 @@
 # Copyright (C) 2007-2012 Dan Pascu. See LICENSE for details.
 #
 
-"""Pyhton language extensions"""
+"""Python language extensions"""
 
 __all__ = ['Null', 'limit']
 
