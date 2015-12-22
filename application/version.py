@@ -41,7 +41,7 @@ class Version(str):
         instance._version_info = (major, minor, micro, weight, extraversion)
         return instance
 
-    def __init__(self, major, minor, micro, extraversion=None):
+    def __init__(self, *args, **kw):
         super(Version, self).__init__()
 
     @classmethod
