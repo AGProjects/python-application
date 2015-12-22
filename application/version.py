@@ -80,16 +80,6 @@ class Version(str):
             extraversion = "%s%d" % (weight_map[weight], extraversion)
         return "%s(%r, %r, %r, %r)" % (self.__class__.__name__, major, minor, micro, extraversion)
 
-    def __setattr__(self, name, value):
-        if name == '_version_info' and hasattr(self, name):
-            raise AttributeError("'%s' object attribute '%s' is read-only" % (self.__class__.__name__, name))
-        str.__setattr__(self, name, value)
-
-    def __delattr__(self, name):
-        if name == '_version_info':
-            raise AttributeError("'%s' object attribute '%s' is read-only" % (self.__class__.__name__, name))
-        str.__delattr__(self, name)
-
     def __cmp__(self, other):
         if isinstance(other, Version):
             return cmp(self._version_info, other._version_info)
