@@ -240,18 +240,12 @@ class Signals(object):
     def ignore(self, signum):
         """Ignore signal"""
         self._original_signal(signum, signal.SIG_IGN)
-        try:
-            del self._handlers[signum]
-        except KeyError:
-            pass
+        self._handlers.pop(signum, None)
 
     def default_handler(self, signum):
         """Use default handler for signal"""
         self._original_signal(signum, signal.SIG_DFL)
-        try:
-            del self._handlers[signum]
-        except KeyError:
-            pass
+        self._handlers.pop(signum, None)
 
     def steal_handlers(self, enable):
         """Replace signal() from the signal module with add_handler()"""
