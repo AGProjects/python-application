@@ -6,7 +6,6 @@
 __all__ = ['decorator', 'preserve_signature', 'execute_once']
 
 from inspect import getargspec, formatargspec
-from itertools import count
 from threading import RLock
 
 from application.python.weakref import weakobjectmap
@@ -19,21 +18,14 @@ def decorator(func):
 
 def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
-    class ValueFormatter(object):
-        def __init__(self):
-            self.count = count()
-        def __call__(self, value):
-            return "=defaults[%d]" % next(self.count)
-    argspec    = getargspec(func)
-    signature  = formatargspec(*argspec, formatvalue=ValueFormatter())[1:-1]
-    parameters = formatargspec(*argspec, formatvalue=lambda value: "")[1:-1]
     def fix_signature(wrapper):
-        defaults = func.func_defaults
-        code = "def %s(%s): return wrapper(%s)\nnew_wrapper = %s\n" % (func.__name__, signature, parameters, func.__name__)
-        exec code in locals()
+        parameters = formatargspec(*getargspec(func), formatvalue=lambda value: "")
+        exec "def {0}{1}: return wrapper{1}".format(func.__name__, parameters) in locals()
+        new_wrapper = locals()[func.__name__]
         new_wrapper.__name__ = func.__name__
         new_wrapper.__doc__ = func.__doc__
         new_wrapper.__module__ = func.__module__
+        new_wrapper.__defaults__ = func.__defaults__
         new_wrapper.__dict__.update(func.__dict__)
         return new_wrapper
     return fix_signature
