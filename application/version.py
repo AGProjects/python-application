@@ -45,7 +45,7 @@ class Version(str):
         super(Version, self).__init__()
 
     @classmethod
-    def parse(self, value):
+    def parse(cls, value):
         if isinstance(value, Version):
             return value
         elif not isinstance(value, basestring):
