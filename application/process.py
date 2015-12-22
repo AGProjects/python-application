@@ -230,11 +230,11 @@ class Signals(object):
         for handler in self._handlers.get(signum, []):
             handler(signum, frame)
 
-    def add_handler(self, signum, sighandler):
+    def add_handler(self, signum, handler):
         """Add handler to handler list for signal"""
-        if not callable(sighandler):
+        if not callable(handler):
             raise RuntimeError("signal handler needs to be a callable")
-        self._handlers.setdefault(signum, set()).add(sighandler)
+        self._handlers.setdefault(signum, set()).add(handler)
         if signal.getsignal(signum) != self.__dispatcher:
             signal._original_signal(signum, self.__dispatcher)
 
