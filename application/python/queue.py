@@ -21,7 +21,7 @@ class DiscardEvents:  __metaclass__ = MarkerType
 class EventQueue(Thread):
     """Simple event processing queue that processes one event at a time"""
 
-    def __init__(self, handler, name=None, preload=[]):
+    def __init__(self, handler, name=None, preload=()):
         if not callable(handler):
             raise TypeError("handler should be a callable")
         Thread.__init__(self, name=name or self.__class__.__name__)
@@ -80,7 +80,7 @@ class EventQueue(Thread):
                 self._active.set()
         finally:
             self._pause_lock.release()
-    def resume(self, events=[]):
+    def resume(self, events=()):
         """Add events on the queue and resume processing (will unpause and enable accepting events)."""
         [self.queue.put(event) for event in events]
         self.unpause()
@@ -128,7 +128,7 @@ class EventQueue(Thread):
 class CumulativeEventQueue(EventQueue):
     """An event queue that accumulates events and processes all of them together when its process method is called"""
 
-    def __init__(self, handler, name=None, preload=[]):
+    def __init__(self, handler, name=None, preload=()):
         EventQueue.__init__(self, handler, name, preload)
         self._waiting = []
     def run(self):
