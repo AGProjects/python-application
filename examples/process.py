@@ -46,7 +46,7 @@ except ProcessError, e:
     log.fatal(str(e))
     sys.exit(1)
 
-# process was succesfully put in the background. Redirect logging to syslog
+# process was successfully put in the background. Redirect logging to syslog
 log.start_syslog(name)
 
 # This log line will go to syslog
@@ -54,7 +54,7 @@ log.msg('application started (running in the background)')
 
 # Add a signal handler for SIGUSR1
 process.signals.add_handler(signal.SIGUSR1, signal_handler)
-# Add another signal handler for SIGUSR1. Mutliple handlers can be added
+# Add another signal handler for SIGUSR1. Multiple handlers can be added
 # for a given signal by different components/modules/threads of the
 # application. The only limitation is that the first handler must be added
 # from the main thread.

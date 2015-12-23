@@ -111,7 +111,7 @@ print AutoStorageConfig
 
 # An example of how to use tracing to see inner workings of our configuration
 # class and to display its internal state after it is operated on. We will
-# redefine the NetworkConfig class with autoloading and tracing enabled
+# redefine the NetworkConfig class with auto-loading and tracing enabled
 #
 
 print "\n------------------------------------\n"
@@ -135,7 +135,7 @@ print "\nReset to defaults and read settings from config file again\n"
 NetworkConfigTraced.reset()
 # read back from config file. since we defined __cfgfile__ and __section__
 # we do not need to pass a file and section as arguments to read, the above
-# mentioned class atributes will be used instead. Passing arguments to read()
+# mentioned class attributes will be used instead. Passing arguments to read()
 # will overwrite the class attributes though.
 NetworkConfigTraced.read()
 
