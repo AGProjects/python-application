@@ -126,11 +126,10 @@ class NetworkRange(tuple):
     On error ValueError is raised, or NameError for invalid hostnames.
     """
     def __new__(cls, description):
-        if (isinstance(description, tuple) and len(description)==2 and
-            isinstance(description[0], (int, long)) and isinstance(description[1], (int, long))):
+        if isinstance(description, tuple) and len(description) == 2 and all(isinstance(item, (int, long)) and 0 <= item < 2**32 for item in description):
             return description
         elif not isinstance(description, basestring):
-            raise TypeError("value must be a string, or a tuple with 2 integer elements")
+            raise TypeError("value must be a string, or a tuple with 2 32-bit unsigned integers")
         if not description or description.lower()=='none':
             return (0L, 0xFFFFFFFFL)
         if description.lower()=='any':
