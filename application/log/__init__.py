@@ -156,6 +156,10 @@ class NamedLevel(int):
         instance.prefix = prefix
         cls._level_instances[value] = instance
         return instance
+
+    def __init__(self, *args, **kw):
+        super(NamedLevel, self).__init__()
+
     def __repr__(self):
         return self.name
     __str__ = __repr__
