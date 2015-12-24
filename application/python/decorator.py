@@ -19,9 +19,10 @@ def decorator(func):
 def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
     def fix_signature(wrapper):
+        exec_scope = {}
         parameters = formatargspec(*getargspec(func), formatvalue=lambda value: "")
-        exec "def {0}{1}: return wrapper{1}".format(func.__name__, parameters) in locals()
-        new_wrapper = locals()[func.__name__]
+        exec("def {0}{1}: return wrapper{1}".format(func.__name__, parameters), {'wrapper': wrapper}, exec_scope)
+        new_wrapper = exec_scope.pop(func.__name__)
         new_wrapper.__name__ = func.__name__
         new_wrapper.__doc__ = func.__doc__
         new_wrapper.__module__ = func.__module__
