@@ -3,7 +3,6 @@
 """Example of reading application settings from a configuration file"""
 
 from application.configuration import *
-from application.process import process
 from application.system import host
 from application import log
 

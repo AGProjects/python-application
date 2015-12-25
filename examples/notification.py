@@ -2,7 +2,7 @@
 
 from time import time
 from zope.interface import implements
-from application.notification import Any, IObserver, NotificationData, NotificationCenter, ObserverWeakrefProxy
+from application.notification import IObserver, NotificationData, NotificationCenter, ObserverWeakrefProxy
 
 class Sender(object):
     def publish(self):
