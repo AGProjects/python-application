@@ -101,7 +101,7 @@ def memory_dump(show_cycles=True, show_objects=False):
     garbage = gc.garbage[:]
 
     if show_cycles:
-        nodes = dict((id(obj), Node(obj)) for obj in garbage)
+        nodes = {id(obj): Node(obj) for obj in garbage}
         for obj in garbage:
             nodes[id(obj)].successors = tuple(nodes[id(s)] for s in gc.get_referents(obj) if id(s) in nodes)
             nodes[id(obj)].visitable_successors = deque(nodes[id(obj)].successors)
