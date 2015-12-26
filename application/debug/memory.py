@@ -109,7 +109,7 @@ def memory_dump(show_cycles=True, show_objects=False):
         cycles = set()
         remaining_nodes = nodes.copy()
         while remaining_nodes:
-            path = [remaining_nodes.itervalues().next()]
+            path = [next(remaining_nodes.itervalues())]
             while path:
                 node = path[-1]
                 remaining_nodes.pop(id(node.object), None)
