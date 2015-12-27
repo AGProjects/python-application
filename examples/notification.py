@@ -87,7 +87,7 @@ class VolatileAllObserver(object):
         print "In VolatileAllObserver got %r" % (notification,)
 
 
-# instatiate senders
+# instantiate senders
 sender = Sender()
 anonymous = AnonymousSender()
 
