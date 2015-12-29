@@ -5,7 +5,7 @@
 # Timing code execution
 
 from application.debug.timing import timer
-count = 1000000
+
 s1 = 'abcdef'
 s2 = 'ghijkl'
 s3 = 'mnopqr'
@@ -15,20 +15,21 @@ print "Timing different methods of adding strings"
 print "------------------------------------------"
 print ""
 
-t = timer(count)
-for x in xrange(count):
-    s = s1 + s2 + s3
-t.end(rate=True, msg="Adding strings using +")
+# the loop count can be explicitly specified, but it's easier to let the
+# timer automatically detect the loop count that will keep the total runtime
+# per loop between 0.2 and 2 seconds (recommended)
 
-t = timer(count)
-for x in xrange(count):
-    s = "%s%s%s" % (s1, s2, s3)
-t.end(rate=True, msg="Adding strings using %")
+with timer('adding strings with +', loops=1000000):
+    sa = s1 + s2 + s3
 
-t = timer(count)
-for x in xrange(count):
-    s = ''.join((s1, s2, s3))
-t.end(rate=True, msg="Adding strings using ''.join()")
+with timer('adding strings using %'):
+    sb = '%s%s%s' % (s1, s2, s3)
+
+with timer('adding strings using str.format'):
+    sc = '{}{}{}'.format(s1, s2, s3)
+
+with timer("adding strings using ''.join()"):
+    sd = ''.join((s1, s2, s3))
 
 
 # Debugging memory leaks
