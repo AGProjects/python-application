@@ -3,8 +3,6 @@
 
 """Event processing queues, that process the events in a distinct thread"""
 
-__all__ = ['EventQueue', 'CumulativeEventQueue']
-
 import Queue
 from threading import Thread, Event, Lock
 
@@ -12,7 +10,11 @@ from application import log
 from application.python.types import MarkerType
 
 
+__all__ = ['EventQueue', 'CumulativeEventQueue']
+
+
 # Special events that control the queue operation (for internal use)
+
 class StopProcessing: __metaclass__ = MarkerType
 class ProcessEvents:  __metaclass__ = MarkerType
 class DiscardEvents:  __metaclass__ = MarkerType
@@ -35,6 +37,7 @@ class EventQueue(Thread):
         self.handle = handler
         self.load(preload)
         self._active.set()
+
     def run(self):
         """Run the event queue processing loop in its own thread"""
         while not self._exit.isSet():
@@ -48,19 +51,21 @@ class EventQueue(Thread):
                 log.error("exception happened during event handling")
                 log.err()
             finally:
-                del event # do not reference this event until the next event arrives, in order to allow it to be released
+                del event  # do not reference this event until the next event arrives, in order to allow it to be released
+
     def stop(self, force_exit=False):
         """Terminate the event processing loop/thread (force_exit=True skips processing events already on queue)"""
         if force_exit:
             self._exit.set()
         self.queue.put(StopProcessing)
-        ## resume processing in case it is paused
+        # resume processing in case it is paused
         self._pause_lock.acquire()
         try:
             self._pause_counter = 0
             self._active.set()
         finally:
             self._pause_lock.release()
+
     def pause(self):
         """Pause processing events"""
         self._pause_lock.acquire()
@@ -69,36 +74,43 @@ class EventQueue(Thread):
             self._active.clear()
         finally:
             self._pause_lock.release()
+
     def unpause(self):
         """Resume processing events"""
         self._pause_lock.acquire()
         try:
             if self._pause_counter == 0:
-                return ## already active
+                return  # already active
             self._pause_counter -= 1
             if self._pause_counter == 0:
                 self._active.set()
         finally:
             self._pause_lock.release()
+
     def resume(self, events=()):
         """Add events on the queue and resume processing (will unpause and enable accepting events)."""
         [self.queue.put(event) for event in events]
         self.unpause()
         self.accept_events()
+
     def accept_events(self):
         """Accept events for processing"""
         self._accepting_events = True
+
     def ignore_events(self):
         """Ignore events for processing"""
         self._accepting_events = False
+
     def put(self, event):
         """Add an event on the queue"""
         if self._accepting_events:
             self.queue.put(event)
+
     def load(self, events):
         """Add multiple events on the queue"""
         if self._accepting_events:
             [self.queue.put(event) for event in events]
+
     def empty(self):
         """Discard all events that are present on the queue"""
         self.pause()
@@ -108,6 +120,7 @@ class EventQueue(Thread):
         except Queue.Empty:
             pass
         self.unpause()
+
     def get_unhandled(self):
         """Get unhandled events after the queue is stopped (events are removed from queue)"""
         if self.isAlive():
@@ -121,6 +134,7 @@ class EventQueue(Thread):
         except Queue.Empty:
             pass
         return unhandled
+
     def handle(self, event):
         raise RuntimeError("unhandled event")
 
@@ -131,6 +145,7 @@ class CumulativeEventQueue(EventQueue):
     def __init__(self, handler, name=None, preload=()):
         EventQueue.__init__(self, handler, name, preload)
         self._waiting = []
+
     def run(self):
         """Run the event queue processing loop in its own thread"""
         while not self._exit.isSet():
@@ -146,7 +161,7 @@ class CumulativeEventQueue(EventQueue):
                         if not isinstance(unhandled, (list, type(None))):
                             raise ValueError("%s handler must return a list of unhandled events or None" % self.__class__.__name__)
                         if unhandled is not None:
-                            preserved = unhandled ## preserve the unhandled events that the handler returned
+                            preserved = unhandled  # preserve the unhandled events that the handler returned
                     except Exception:
                         log.error("exception happened during event handling")
                         log.err()
@@ -161,17 +176,20 @@ class CumulativeEventQueue(EventQueue):
                         log.error("exception happened during high priority event handling")
                         log.err()
                     finally:
-                        del event # do not reference this event until the next event arrives, in order to allow it to be released
+                        del event  # do not reference this event until the next event arrives, in order to allow it to be released
                 else:
                     self._waiting.append(event)
+
     def process(self):
         """Trigger accumulated event processing. The processing is done on the queue thread"""
         if self._accepting_events:
             self.queue.put(ProcessEvents)
+
     def empty(self):
         """Discard any events present on the queue"""
         EventQueue.empty(self)
         self.queue.put(DiscardEvents)
+
     def get_unhandled(self):
         """Get unhandled events after the queue is stopped (events are removed from queue)"""
         unhandled = self._waiting + EventQueue.get_unhandled(self)

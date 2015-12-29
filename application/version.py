@@ -3,9 +3,10 @@
 
 """Manage the version numbers for applications, modules and packages"""
 
-__all__ = ['Version']
-
 import re
+
+
+__all__ = ['Version']
 
 
 class Version(str):

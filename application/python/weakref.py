@@ -3,24 +3,28 @@
 
 from __future__ import absolute_import
 
-__all__ = ["weakobjectmap"]
-
 import weakref
 from collections import Mapping
 from copy import deepcopy
 
 
+__all__ = ["weakobjectmap"]
+
+
 class objectref(weakref.ref):
-    __slots__ = ("id",)
+    __slots__ = "id"
+
     def __init__(self, object, discard_callback):
         super(objectref, self).__init__(object, discard_callback)
         self.id = id(object)
+
 
 class weakobjectid(long):
     def __new__(cls, object, discard_callback):
         instance = long.__new__(cls, id(object))
         instance.ref = objectref(object, discard_callback)
         return instance
+
 
 class objectid(long):
     def __new__(cls, object):
@@ -49,10 +53,11 @@ class weakobjectmap(dict):
 
     def __init__(self, *args, **kw):
         def remove(wr, selfref=weakref.ref(self)):
-            self = selfref()
-            if self is not None:
-                dict.__delitem__(self, wr.id)
+            myself = selfref()
+            if myself is not None:
+                dict.__delitem__(myself, wr.id)
         self.__remove__ = remove
+        super(weakobjectmap, self).__init__()
         weakobjectmap.update(self, *args, **kw)
 
     def __getitem__(self, key):

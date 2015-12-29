@@ -2,9 +2,11 @@
 
 from application.python.types import Singleton
 
+
 class Unique(object):
     """This class has only one instance"""
     __metaclass__ = Singleton
+
 
 class CustomUnique(object):
     """This class has one instance per __init__ arguments combination"""
@@ -22,10 +24,10 @@ print "o1 is o2 (expect True):", o1 is o2
 
 co1 = CustomUnique()
 co2 = CustomUnique()
-co3 = CustomUnique(name='myname')
-co4 = CustomUnique(name='myname')
-co5 = CustomUnique(name='myname', value=2)
-co6 = CustomUnique(name='myothername')
+co3 = CustomUnique(name='my name')
+co4 = CustomUnique(name='my name')
+co5 = CustomUnique(name='my name', value=2)
+co6 = CustomUnique(name='my other name')
 
 print "co1 is co2 (expect True):", co1 is co2
 print "co3 is co4 (expect True):", co3 is co4

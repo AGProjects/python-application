@@ -17,9 +17,9 @@ class Priority(int):
             try:
                 return map.get(value.lower()) or int(value)
             except ValueError:
-                raise ValueError, "invalid priority value: should be a number or the keywords High, Normal or Low"
+                raise ValueError("invalid priority value: should be a number or the keywords High, Normal or Low")
         else:
-            raise TypeError, 'value should be an integer or string'
+            raise TypeError("value should be an integer or string")
 
 
 # Define a class that gives access (through its attributes) to the values
@@ -42,9 +42,11 @@ class NetworkConfig(ConfigSection):
     allow = ConfigSetting(type=datatypes.NetworkRangeList, value=[])
     use_tls = False
 
+
 # And another class for another section
 class StorageConfig(ConfigSection):
     dburi = 'mysql://undefined@localhost/database'
+
 
 # Dump the default hardcoded values of the options defined above
 print "Settings before reading the configuration file (default hardcoded values)\n"

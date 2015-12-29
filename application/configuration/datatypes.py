@@ -3,10 +3,6 @@
 
 """Basic data types to describe the type of the entries in the configuration file"""
 
-
-__all__ = ['Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
-           'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
-
 import re
 import socket
 import struct
@@ -15,10 +11,16 @@ from application import log
 from application.python import limit
 
 
+__all__ = ['Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
+           'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
+
+
 class Boolean(int):
     """A boolean validator that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
+
     __valuemap__ = {'1': True,  'yes': True, 'true': True,   'on': True,
                     '0': False, 'no': False, 'false': False, 'off': False}
+
     def __new__(cls, value):
         if isinstance(value, (int, long, float)):
             return bool(value)
@@ -32,6 +34,7 @@ class Boolean(int):
 
 class LogLevel(int):
     """A log level indicated by a non-negative integer or one of the named attributes of log.level"""
+
     def __new__(cls, value):
         if isinstance(value, (int, long)):
             return log.NamedLevel(limit(value, min=log.level.ALL, max=log.level.NONE))
@@ -49,6 +52,7 @@ class LogLevel(int):
 
 class StringList(list):
     """A list of strings separated by commas"""
+
     def __new__(cls, value):
         if isinstance(value, (tuple, list)):
             return [str(x) for x in value]
@@ -62,6 +66,7 @@ class StringList(list):
 
 class IPAddress(str):
     """An IP address in quad dotted number notation"""
+
     def __new__(cls, value):
         try:
             socket.inet_aton(value)
@@ -74,6 +79,7 @@ class IPAddress(str):
 
 class Hostname(str):
     """A Hostname or an IP address. The keyword `any' stands for '0.0.0.0'"""
+
     def __new__(cls, value):
         if not isinstance(value, basestring):
             raise TypeError("value must be a string")
@@ -84,12 +90,13 @@ class Hostname(str):
 
 class HostnameList(list):
     """A list of hostnames separated by commas"""
+
     def __new__(cls, description):
         if isinstance(description, (list, tuple)):
             return [Hostname(x) for x in description]
         elif not isinstance(description, basestring):
             raise TypeError("value must be a string, list or tuple")
-        if description.lower()=='none':
+        if description.lower() == 'none':
             return []
         lst = re.split(r'\s*,\s*', description)
         hosts = []
@@ -125,38 +132,40 @@ class NetworkRange(tuple):
 
     On error ValueError is raised, or NameError for invalid hostnames.
     """
+
     def __new__(cls, description):
         if isinstance(description, tuple) and len(description) == 2 and all(isinstance(item, (int, long)) and 0 <= item < 2**32 for item in description):
             return description
         elif not isinstance(description, basestring):
             raise TypeError("value must be a string, or a tuple with 2 32-bit unsigned integers")
-        if not description or description.lower()=='none':
-            return (0L, 0xFFFFFFFFL)
-        if description.lower()=='any':
-            return (0L, 0L) ## This is the any address 0.0.0.0
-        match = re.search(r'^(?P<net>.+?)/(?P<bits>\d+)$', description)
+        if not description or description.lower() == 'none':
+            return 0L, 0xFFFFFFFFL
+        if description.lower() == 'any':
+            return 0L, 0L  # This is the any address 0.0.0.0
+        match = re.search(r'^(?P<address>.+?)/(?P<bits>\d+)$', description)
         if match:
-            net     = match.group('net')
-            netbits = int(match.group('bits'))
+            ip_address = match.group('address')
+            mask_bits = int(match.group('bits'))
         else:
             try:
-                net = socket.gethostbyname(description) # if not a net/mask it may be a host or ip
+                ip_address = socket.gethostbyname(description)  # if not a network/mask it may be a host or ip
             except socket.gaierror:
                 raise NameError("invalid hostname or IP address: '%s'" % description)
-            netbits = 32
-        if netbits < 0 or netbits > 32:
+            mask_bits = 32
+        if not 0 <= mask_bits <= 32:
             raise ValueError("invalid network mask in address: '%s' (should be between 0 and 32)" % description)
         try:
-            netaddr = socket.inet_aton(net)
+            network_address = socket.inet_aton(ip_address)
         except Exception:
-            raise ValueError("invalid IP address: '%s'" % net)
-        mask = (0xFFFFFFFFL << 32-netbits) & 0xFFFFFFFFL
-        netbase = struct.unpack('!L', netaddr)[0] & mask
-        return (netbase, mask)
+            raise ValueError("invalid IP address: '%s'" % ip_address)
+        network_mask = (0xFFFFFFFFL << 32-mask_bits) & 0xFFFFFFFFL
+        base_address = struct.unpack('!L', network_address)[0] & network_mask
+        return base_address, network_mask
 
 
 class NetworkRangeList(list):
     """A list of NetworkRange objects separated by commas"""
+
     def __new__(cls, description):
         if description is None:
             return description
@@ -164,7 +173,7 @@ class NetworkRangeList(list):
             return [NetworkRange(x) for x in description] or None
         elif not isinstance(description, basestring):
             raise TypeError("value must be a string, list, tuple or None")
-        if description.lower()=='none':
+        if description.lower() == 'none':
             return None
         lst = re.split(r'\s*,\s*', description)
         ranges = []
@@ -201,12 +210,14 @@ class NetworkAddress(tuple):
     def __new__(cls, value):
         if value is None:
             return value
-        elif isinstance(value, tuple) and len(value)==2 and isinstance(value[1], (int, long)):
-            return (Hostname(value[0]), value[1])
+        elif isinstance(value, tuple) and len(value) == 2 and isinstance(value[1], (int, long)):
+            return Hostname(value[0]), value[1]
         elif not isinstance(value, basestring):
             raise TypeError("value must be a string, a (host, port) tuple or None")
-        if value.lower() == 'none': return None
-        if value.lower() == 'default': return ('0.0.0.0', cls.default_port)
+        if value.lower() == 'none':
+            return None
+        if value.lower() == 'default':
+            return '0.0.0.0', cls.default_port
         match = re.search(r'^(?P<address>.+?):(?P<port>\d+)$', value)
         if match:
             address = str(match.group('address'))
@@ -218,7 +229,7 @@ class NetworkAddress(tuple):
             address = Hostname(address)
         except ValueError:
             raise ValueError("invalid network address: %r" % value)
-        return (address, port)
+        return address, port
 
 
 class EndpointAddress(NetworkAddress):
@@ -242,7 +253,7 @@ class EndpointAddress(NetworkAddress):
         address = NetworkAddress.__new__(cls, value)
         if address is None:
             raise ValueError("invalid %s: %s" % (cls.name, value))
-        elif address[0]=='0.0.0.0' or address[1]==0:
+        elif address[0] == '0.0.0.0' or address[1] == 0:
             raise ValueError("invalid %s: %s:%s" % (cls.name, address[0], address[1]))
         return address
 

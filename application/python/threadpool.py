@@ -3,8 +3,6 @@
 
 """A generic, resizable thread pool"""
 
-__all__ = ['ThreadPool', 'run_in_threadpool']
-
 from Queue import Queue
 from threading import Lock, Thread, current_thread
 
@@ -12,8 +10,11 @@ from application import log
 from application.python.decorator import decorator, preserve_signature
 
 
+__all__ = ['ThreadPool', 'run_in_threadpool']
+
+
 class CallFunctionEvent(object):
-    __slots__ = ('function', 'args', 'kw')
+    __slots__ = 'function', 'args', 'kw'
 
     def __init__(self, function, args, kw):
         self.function = function
@@ -120,7 +121,7 @@ class ThreadPool(object):
             except:
                 log.error('Exception occurred while calling %r in the %r thread' % (item.function, thread.name))
                 log.err()
-            item = None
+            del item
         self._threads.remove(thread)
 
 

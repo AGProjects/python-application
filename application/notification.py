@@ -3,8 +3,6 @@
 
 """Implements a notification system"""
 
-__all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter', 'ObserverWeakrefProxy']
-
 import weakref
 from collections import deque
 from datetime import datetime
@@ -18,23 +16,23 @@ from application.python.types import Singleton, MarkerType
 from application.python.weakref import weakobjectmap
 
 
-## Special objects
+__all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter', 'ObserverWeakrefProxy']
+
 
 class Any(object):
     """Any sender or notification name"""
     __metaclass__ = MarkerType
+
 
 class UnknownSender(object):
     """A special sender used for anonymous notifications"""
     __metaclass__ = MarkerType
 
 
-## Notification Observer
-
 class IObserver(Interface):
     """Interface describing a Notification Observer"""
 
-    def handle_notification(notification):
+    def handle_notification(self, notification):
         """Function used to handle a posted Notification"""
 
 
@@ -72,8 +70,6 @@ class ObserverWeakrefProxy(object):
             observer.handle_notification(notification)
 
 
-## Notification
-
 class NotificationData(object):
     """Object containing the notification data"""
 
@@ -106,8 +102,6 @@ class Notification(object):
     def __repr__(self):
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name, self.sender, self.data)
 
-
-## Notification Center
 
 class NotificationCenter(object):
     """
@@ -200,7 +194,7 @@ class NotificationCenter(object):
         notification.center = self
         queue = self.queue
         queue.append(notification)
-        if len(queue) > 1: # This is true if we post a notification from inside a notification handler
+        if len(queue) > 1:  # This is true if we post a notification from inside a notification handler
             return
 
         empty_set = set()

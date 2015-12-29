@@ -3,8 +3,6 @@
 
 """UNIX process and signal management"""
 
-__all__ = ['Process', 'ProcessError', 'Signals', 'process']
-
 import sys
 import os
 import errno
@@ -13,6 +11,9 @@ import atexit
 
 from application import log
 from application.python.types import Singleton
+
+
+__all__ = ['Process', 'ProcessError', 'Signals', 'process']
 
 
 class ProcessError(Exception): pass
@@ -81,8 +82,8 @@ class Process(object):
                 except ValueError:
                     pass
                 else:
-                    ## Check if the process identified by pid is running
-                    ## Send the process a signal of zero (0)
+                    # Check if the process identified by pid is running
+                    # Send the process a signal of zero (0)
                     try:
                         os.kill(pid, 0)
                     except OSError, why:
@@ -95,40 +96,40 @@ class Process(object):
 
     def _do_fork(self):
         """Perform the Unix double fork"""
-        ## First fork.
-        ## This will return control to the command line/shell that invoked us and
-        ## will guarantee that the forked child will not be a process group leader
-        ## (which is required for setsid() below to succeed).
+        # First fork.
+        # This will return control to the command line/shell that invoked us and
+        # will guarantee that the forked child will not be a process group leader
+        # (which is required for setsid() below to succeed).
         try:
             pid = os.fork()
             if pid > 0:
-                sys.exit(0) ## exit parent
-                #os._exit(0)
+                sys.exit(0)  # exit parent
+                # os._exit(0)
         except OSError, e:
             raise ProcessError("fork #1 failed: %d: %s" % (e.errno, e.strerror))
         
-        ## Decouple from the controlling terminal.
-        ## Calling setsid() we become a process group and session group leader.
-        ## Since a controlling terminal is associated with a session, and this
-        ## new session has not yet acquired a controlling terminal our process
-        ## now has no controlling terminal, which is a Good Thing for daemons.
+        # Decouple from the controlling terminal.
+        # Calling setsid() we become a process group and session group leader.
+        # Since a controlling terminal is associated with a session, and this
+        # new session has not yet acquired a controlling terminal our process
+        # now has no controlling terminal, which is a Good Thing for daemons.
         os.setsid()
         
-        ## Second fork
-        ## This will allow the parent (the session group leader obtained above)
-        ## to exit. This means that the child, as a non-session group leader,
-        ## can never regain a controlling terminal.
+        # Second fork
+        # This will allow the parent (the session group leader obtained above)
+        # to exit. This means that the child, as a non-session group leader,
+        # can never regain a controlling terminal.
         try:
             pid = os.fork()
             if pid > 0:
-                sys.exit(0) ## exit 1st child too
-                #os._exit(0)
+                sys.exit(0)  # exit 1st child too
+                # os._exit(0)
         except OSError, e:
             raise ProcessError("fork #2 failed: %d: %s" % (e.errno, e.strerror))
         
-        ## Setup our environment.
-        ## Change working directory to / so we do not keep any directory in use
-        ## preventing them from being unmounted. Also set file creation mask.
+        # Setup our environment.
+        # Change working directory to / so we do not keep any directory in use
+        # preventing them from being unmounted. Also set file creation mask.
         os.chdir("/")
         os.umask(022)
 
@@ -158,14 +159,14 @@ class Process(object):
     def _setup_signal_handlers(self):
         """Setup the signal handlers for daemon mode"""
         signals = self.signals
-        ## Ignore Terminal I/O Signals
+        # Ignore Terminal I/O Signals
         if hasattr(signal, 'SIGTTOU'):
             signals.ignore(signal.SIGTTOU)
         if hasattr(signal, 'SIGTTIN'):
             signals.ignore(signal.SIGTTIN)
         if hasattr(signal, 'SIGTSTP'):
             signals.ignore(signal.SIGTSTP)
-        ## Ignore USR signals
+        # Ignore USR signals
         if hasattr(signal, 'SIGUSR1'):
             signals.ignore(signal.SIGUSR1)
         if hasattr(signal, 'SIGUSR2'):
@@ -194,7 +195,7 @@ class Process(object):
 
     def get_config_directories(self):
         """Return a tuple containing the system and local config directories."""
-        return (self._system_config_directory, self._local_config_directory)
+        return self._system_config_directory, self._local_config_directory
 
     def config_file(self, name):
         """Return a config file name. Lookup order: name if absolute, local_dir/name, system_dir/name, None if none found"""

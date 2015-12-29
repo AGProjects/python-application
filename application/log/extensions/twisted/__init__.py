@@ -2,7 +2,10 @@
 #
 
 from __future__ import absolute_import
-import sys, os
+
+import os
+import sys
+
 
 def divert_logger():
     from twisted.python import log
@@ -10,10 +13,11 @@ def divert_logger():
 
     class SimpleObserver(log.DefaultObserver):
         """Use logging as log backend for twisted"""
+
         def _emit(self, record):
             message = ' '.join(record['message'])
             if record['isError']:
-                if record.has_key('failure'):
+                if 'failure' in record:
                     failure = record['failure']
                     logging.error(message, exc_info=(type(failure.value), failure.value, failure.tb))
                 else:

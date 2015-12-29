@@ -3,12 +3,13 @@
 
 """Decorators and helper functions for writing well behaved decorators."""
 
-__all__ = ['decorator', 'preserve_signature', 'execute_once']
-
 from inspect import getargspec, formatargspec
 from threading import RLock
 
 from application.python.weakref import weakobjectmap
+
+
+__all__ = ['decorator', 'preserve_signature', 'execute_once']
 
 
 def decorator(func):
@@ -41,10 +42,12 @@ def execute_once(func):
         pass
 
     class ExecuteOnceMethodWrapper(object):
-        __slots__ = ('__weakref__', '__method__', 'im_func_wrapper', 'called', 'lock')
+        __slots__ = '__weakref__', '__method__', 'im_func_wrapper', 'called', 'lock'
+
         def __init__(self, method, func_wrapper):
             self.__method__ = method
             self.im_func_wrapper = func_wrapper
+
         def __call__(self, *args, **kw):
             with self.im_func_wrapper.lock:
                 method = self.__method__
@@ -55,39 +58,49 @@ def execute_once(func):
                 self.im_func_wrapper.__callmap__[instance] = True
                 self.im_func_wrapper.__callmap__[method.im_class] = True
                 return method.__call__(*args, **kw)
+
         def __dir__(self):
             return sorted(set(dir(self.__method__) + dir(self.__class__) + list(self.__slots__)))
+
         def __get__(self, obj, cls):
             method = self.__method__.__get__(obj, cls)
             return self.__class__(method, self.im_func_wrapper)
+
         def __getattr__(self, name):
             return getattr(self.__method__, name)
+
         def __setattr__(self, name, value):
             if name in self.__slots__:
                 object.__setattr__(self, name, value)
             else:
                 setattr(self.__method__, name, value)
+
         def __delattr__(self, name):
             if name in self.__slots__:
                 object.__delattr__(self, name)
             else:
                 delattr(self.__method__, name)
+
         def __repr__(self):
             return self.__method__.__repr__().replace('<', '<wrapper of ', 1)
+
         @property
         def called(self):
             return self.im_func_wrapper.__callmap__.get(self.__method__.im_self or self.__method__.im_class, False)
+
         @property
         def lock(self):
             return self.im_func_wrapper.lock
 
     class ExecuteOnceFunctionWrapper(object):
-        __slots__ = ('__weakref__', '__func__', '__callmap__', 'called', 'lock')
+        __slots__ = '__weakref__', '__func__', '__callmap__', 'called', 'lock'
+
         def __init__(self, func):
             self.__func__ = func
             self.__callmap__ = weakobjectmap()
             self.__callmap__[func] = False
             self.lock = RLock()
+
         def __call__(self, *args, **kw):
             with self.lock:
                 check_arguments(*args, **kw)
@@ -95,25 +108,32 @@ def execute_once(func):
                     return
                 self.__callmap__[self.__func__] = True
                 return self.__func__.__call__(*args, **kw)
+
         def __dir__(self):
             return sorted(set(dir(self.__func__) + dir(self.__class__) + list(self.__slots__)))
+
         def __get__(self, obj, cls):
             method = self.__func__.__get__(obj, cls)
             return ExecuteOnceMethodWrapper(method, self)
+
         def __getattr__(self, name):
             return getattr(self.__func__, name)
+
         def __setattr__(self, name, value):
             if name in self.__slots__:
                 object.__setattr__(self, name, value)
             else:
                 setattr(self.__func__, name, value)
+
         def __delattr__(self, name):
             if name in self.__slots__:
                 object.__delattr__(self, name)
             else:
                 delattr(self.__func__, name)
+
         def __repr__(self):
             return self.__func__.__repr__().replace('<', '<wrapper of ', 1)
+
         @property
         def called(self):
             return self.__callmap__[self.__func__]

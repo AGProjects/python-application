@@ -34,10 +34,11 @@ with timer("adding strings using ''.join()"):
 
 # Debugging memory leaks
 
-class C1:
+class C1(object):
     pass
 
-class C2:
+
+class C2(object):
     def __del__(self):
         pass
 

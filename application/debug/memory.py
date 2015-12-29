@@ -21,11 +21,13 @@ Note: when debugging for memory leaks is enabled by the inclusion of
       presence of circular references.
 """
 
-__all__ = ['memory_dump']
-
 import gc
 import types
+
 from collections import deque
+
+
+__all__ = ['memory_dump']
 
 
 class Node(object):
@@ -36,8 +38,8 @@ class Node(object):
 
 
 class Cycle(tuple):
-    def __init__(self, *args, **kwargs):
-        tuple.__init__(self)
+    def __init__(self, *args, **kw):
+        super(Cycle, self).__init__(*args, **kw)
         self.collectable = all(not hasattr(obj, '__del__') for obj in self)
 
     def __eq__(self, other):
@@ -76,7 +78,7 @@ class Cycle(tuple):
         cycle = deque(self[index:] + self[:index])
 
         string = ''
-        firstobj = cycle[0] if cycle else None
+        first_obj = cycle[0] if cycle else None
         while cycle:
             obj = cycle.popleft()
             string += repr(obj)
@@ -86,11 +88,11 @@ class Cycle(tuple):
                     if cycle:
                         string += ' .%s' % (key for key, value in d.iteritems() if value is cycle[0]).next()
                     else:
-                        string += ' .%s' % (key for key, value in d.iteritems() if value is firstobj).next()
+                        string += ' .%s' % (key for key, value in d.iteritems() if value is first_obj).next()
                 except StopIteration:
                     string += ' .__dict__ -> %s' % repr(d)
             string += ' -> '
-        string += repr(firstobj)
+        string += repr(first_obj)
 
         return string
 
@@ -114,11 +116,11 @@ def memory_dump(show_cycles=True, show_objects=False):
                 node = path[-1]
                 remaining_nodes.pop(id(node.object), None)
                 if node.visitable_successors:
-                    succ = node.visitable_successors.pop()
-                    if succ in path:
-                        cycles.add(Cycle(n.object for n in path[path.index(succ):]))
+                    successor = node.visitable_successors.pop()
+                    if successor in path:
+                        cycles.add(Cycle(n.object for n in path[path.index(successor):]))
                     else:
-                        path.append(succ)
+                        path.append(successor)
                 else:
                     node.visitable_successors = deque(node.successors)
                     path.pop(-1)
@@ -150,7 +152,7 @@ def memory_dump(show_cycles=True, show_objects=False):
 
 
 gc.enable()
-gc.collect() ## Ignore collectable garbage up to this point
+gc.collect()  # Ignore collectable garbage up to this point
 gc.set_debug(gc.DEBUG_LEAK)
 
 

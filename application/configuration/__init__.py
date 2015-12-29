@@ -3,8 +3,6 @@
 
 """Application configuration file handling"""
 
-__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'datatypes']
-
 import os
 
 from ConfigParser import SafeConfigParser, NoSectionError
@@ -17,6 +15,9 @@ from application.python.descriptor import isdescriptor
 from application.configuration import datatypes
 
 
+__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'SaveState', 'AtomicUpdate', 'datatypes']
+
+
 class ConfigFile(object):
     """Provide access to a configuration file"""
     
@@ -27,13 +28,13 @@ class ConfigFile(object):
         files = []
         timestamp = 0
         for path in process.get_config_directories():
-            file = os.path.realpath(os.path.join(path, filename))
-            if os.access(file, os.R_OK):
+            config_file = os.path.realpath(os.path.join(path, filename))
+            if os.access(config_file, os.R_OK):
                 try:
-                    timestamp = max(timestamp, os.stat(file).st_mtime)
+                    timestamp = max(timestamp, os.stat(config_file).st_mtime)
                 except (OSError, IOError):
                     continue
-                files.append(file)
+                files.append(config_file)
 
         instance = cls.instances.get(filename, None)
         if instance is None or instance.files != files or instance.timestamp < timestamp:
@@ -58,8 +59,8 @@ class ConfigFile(object):
                     return datatypes.Boolean(value)
                 else:
                     return type(value)
-            except Exception, why:
-                msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, setting, value, why)
+            except Exception, e:
+                msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, setting, value, e)
                 log.warn(msg, **ConfigFile.log_context)
                 return default
     
@@ -84,9 +85,8 @@ class ConfigSetting(object):
     def __init__(self, type, value=None):
         self.type = type
         self.value = value
-        self.type_is_class = isinstance(type, (ClassType, TypeType))
 
-    def __get__(self, obj, objtype):
+    def __get__(self, obj, owner):
         return self.value
 
     def __set__(self, obj, value, convert=True):

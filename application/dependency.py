@@ -3,9 +3,10 @@
 
 """Manage application dependencies at runtime"""
 
-__all__ = ['ApplicationDependencies', 'PackageDependency', 'DependencyError']
-
 from application.version import Version
+
+
+__all__ = ['ApplicationDependencies', 'PackageDependency', 'DependencyError']
 
 
 class DependencyError(Exception): pass

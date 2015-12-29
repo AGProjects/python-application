@@ -1,15 +1,17 @@
 # Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
 #
 
-"""Application logging system for stdout/stderr and syslog"""
-
-__all__ = ['level', 'info', 'warning', 'debug', 'error', 'critical', 'exception', 'msg', 'warn', 'fatal', 'err', 'start_syslog']
+"""Application logging system for standard output/error and syslog"""
 
 import sys
 import logging
 
 from application.log.extensions import twisted
 from application.python import Null
+
+
+__all__ = ['level', 'info', 'warning', 'debug', 'error', 'critical', 'exception', 'msg', 'warn', 'fatal', 'err', 'start_syslog']
+
 
 try:
     import syslog
@@ -21,24 +23,32 @@ class IfNotInteractive(object):
     """True when running under a non-interactive interpreter and False otherwise"""
     def __nonzero__(self):
         return sys.argv[0] is not ''
+
     def __repr__(self):
         return self.__class__.__name__
+
 IfNotInteractive = IfNotInteractive()
+
 
 def info(message, **context):
     logging.info(message, extra=context)
 
+
 def warning(message, **context):
     logging.warning(message, extra=context)
+
 
 def debug(message, **context):
     logging.debug(message, extra=context)
 
+
 def error(message, **context):
     logging.error(message, extra=context)
 
+
 def critical(message, **context):
     logging.critical(message, extra=context)
+
 
 def exception(message=None, **context):
     logging.error(message, exc_info=1, extra=context)
@@ -48,6 +58,7 @@ msg = info
 warn = warning
 fatal = critical
 err = exception
+
 
 class SimpleFormatter(logging.Formatter):
     def format(self, record):
@@ -72,18 +83,22 @@ class SimpleFormatter(logging.Formatter):
                 message += record.exc_text
         return message
 
+
 class SyslogHandler(logging.Handler):
     priority_map = {logging.DEBUG:    syslog.LOG_DEBUG,
                     logging.INFO:     syslog.LOG_INFO,
                     logging.WARNING:  syslog.LOG_WARNING,
                     logging.ERROR:    syslog.LOG_ERR,
                     logging.CRITICAL: syslog.LOG_CRIT}
+
     def __init__(self, prefix, facility=syslog.LOG_DAEMON):
         logging.Handler.__init__(self)
         syslog.openlog(prefix, syslog.LOG_PID, facility)
+
     def close(self):
         syslog.closelog()
         logging.Handler.close(self)
+
     def emit(self, record):
         priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
         message = self.format(record)
@@ -92,6 +107,7 @@ class SyslogHandler(logging.Handler):
         for line in message.rstrip().split('\n'):
             syslog.syslog(priority, line)
 
+
 class LoggingFile(object):
     closed = False
     encoding = 'UTF-8'
@@ -99,6 +115,25 @@ class LoggingFile(object):
     name = '<logging file>'
     newlines = None
     softspace = 0
+
+    def __init__(self, logger):
+        self.buf = ''
+        self.logger = logger
+
+    def write(self, data):
+        if isinstance(data, unicode):
+            data = data.encode(self.encoding)
+        lines = (self.buf + data).split('\n')
+        self.buf = lines[-1]
+        for line in lines[:-1]:
+            self.logger(line)
+
+    def writelines(self, lines):
+        for line in lines:
+            if isinstance(line, unicode):
+                line = line.encode(self.encoding)
+            self.logger(line)
+
     def close(self): pass
     def flush(self): pass
     def fileno(self): return -1
@@ -111,21 +146,7 @@ class LoggingFile(object):
     def seek(self, offset, whence=0): raise IOError("cannot seek in log")
     def tell(self): raise IOError("log does not have position")
     def truncate(self, size=0): raise IOError("cannot truncate log")
-    def __init__(self, logger):
-        self.buf = ''
-        self.logger = logger
-    def write(self, data):
-        if isinstance(data, unicode):
-            data = data.encode(self.encoding)
-        lines = (self.buf + data).split('\n')
-        self.buf = lines[-1]
-        for line in lines[:-1]:
-            self.logger(line)
-    def writelines(self, lines):
-        for line in lines:
-            if isinstance(line, unicode):
-                line = line.encode(self.encoding)
-            self.logger(line)
+
 
 def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
     if syslog is Null:
@@ -146,8 +167,10 @@ handler.setFormatter(SimpleFormatter())
 logger = logging.getLogger()
 logger.addHandler(handler)
 
+
 class NamedLevel(int):
     _level_instances = {}
+
     def __new__(cls, value, name=None, prefix=''):
         if value in cls._level_instances:
             return cls._level_instances[value]
@@ -162,17 +185,22 @@ class NamedLevel(int):
 
     def __repr__(self):
         return self.name
+
     __str__ = __repr__
+
 
 class CurrentLevelDescriptor(object):
     def __init__(self, value):
         self.value = value
         logging.getLogger().setLevel(value)
-    def __get__(self, obj, objtype):
+
+    def __get__(self, obj, owner):
         return self.value
+
     def __set__(self, obj, value):
         self.value = value
         logging.getLogger().setLevel(value)
+
 
 class LevelClass(object):
     ALL      = NamedLevel(logging.NOTSET,   name='ALL')
