@@ -10,7 +10,7 @@ from copy import deepcopy
 from threading import local
 
 
-__all__ = ["weakobjectmap"]
+__all__ = ["weakobjectmap", "defaultweakobjectmap"]
 
 
 class objectref(weakref.ref):
@@ -151,6 +151,15 @@ class weakobjectmap(MutableMapping):
             object = key.ref()
             if object is not None:
                 return object, value
+
+
+class defaultweakobjectmap(weakobjectmap):
+    def __init__(self, factory, *args, **kw):
+        self.default_factory = factory
+        super(defaultweakobjectmap, self).__init__(*args, **kw)
+
+    def __missing__(self, key):
+        return self.setdefault(key.object, self.default_factory())
 
 
 class _ReprGuard(object):
