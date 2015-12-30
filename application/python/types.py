@@ -81,9 +81,15 @@ class NullType(object):
 
 class MarkerType(type):
     """Metaclass for defining marker entities"""
+
+    __boolean__ = False
+
     def __call__(cls, *args, **kw):
         return cls
 
     def __repr__(cls):
         return cls.__name__
+
+    def __nonzero__(cls):
+        return cls.__boolean__
 
