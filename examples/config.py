@@ -13,9 +13,9 @@ class Priority(int):
         if isinstance(value, (int, long)):
             return int(value)
         elif isinstance(value, basestring):
-            map = {'high': 10, 'normal': 50, 'low': 100}
+            priority_map = {'high': 10, 'normal': 50, 'low': 100}
             try:
-                return map.get(value.lower()) or int(value)
+                return priority_map.get(value.lower()) or int(value)
             except ValueError:
                 raise ValueError("invalid priority value: should be a number or the keywords High, Normal or Low")
         else:
