@@ -5,8 +5,9 @@ from __future__ import absolute_import
 
 import weakref
 
-from collections import MutableMapping
+from collections import MutableMapping, deque
 from copy import deepcopy
+from threading import local
 
 
 __all__ = ["weakobjectmap"]
@@ -92,7 +93,11 @@ class weakobjectmap(MutableMapping):
         return self.__class__((key, deepcopy(value, memo)) for key, value in self.iteritems())
 
     def __repr__(self):
-        return "%s({%s})" % (self.__class__.__name__, ', '.join(('%r: %r' % (key, value) for key, value in self.iteritems())))
+        with _ReprGuard(self) as guard:
+            if guard.successive_run:
+                return "%s({...})" % self.__class__.__name__
+            else:
+                return "%s({%s})" % (self.__class__.__name__, ', '.join(('%r: %r' % (key, value) for key, value in self.iteritems())))
 
     @classmethod
     def fromkeys(cls, iterable, value=None):
@@ -147,4 +152,29 @@ class weakobjectmap(MutableMapping):
             if object is not None:
                 return object, value
 
+
+class _ReprGuard(object):
+    __local__ = local()
+
+    def __init__(self, instance):
+        self.instance = instance
+
+    def __enter__(self):
+        if self.instance in self.active_instances:
+            self.successive_run = True
+        else:
+            self.successive_run = False
+            self.active_instances.appendleft(self.instance)
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if not self.successive_run:
+            self.active_instances.remove(self.instance)
+
+    @property
+    def active_instances(self):
+        try:
+            return self.__local__.active_instances
+        except AttributeError:
+            return self.__local__.__dict__.setdefault('active_instances', deque())
 
