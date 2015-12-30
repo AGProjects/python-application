@@ -4,6 +4,7 @@ from time import time
 from zope.interface import implements
 from application.notification import IObserver, NotificationData, NotificationCenter, ObserverWeakrefProxy
 
+
 class Sender(object):
     def publish(self):
         center = NotificationCenter()
@@ -17,6 +18,7 @@ class Sender(object):
     def __repr__(self):
         return '%s()' % self.__class__.__name__
 
+
 class AnonymousSender(Sender):
     def publish(self):
         center = NotificationCenter()
@@ -26,6 +28,7 @@ class AnonymousSender(Sender):
         print "\nSending notification with name 'empty':"
         print "Expecting no observer to receive notifications (CatchAllObserver and VolatileAllObserver have been unregistered)"
         center.post_notification(name='empty', data=None)
+
 
 class CatchAllObserver(object):
     """An observer that registers itself to receive all notifications."""
@@ -42,6 +45,7 @@ class CatchAllObserver(object):
     def handle_notification(self, notification):
         print "In CatchAllObserver got %r" % (notification,)
 
+
 class SimpleObserver(object):
     """An observer that registers itself for notifications with name 'simple'."""
     implements(IObserver)
@@ -56,6 +60,7 @@ class SimpleObserver(object):
     
     def handle_notification(self, notification):
         print "In SimpleObserver got %r" % (notification,)
+
 
 class ObjectObserver(object):
     """An observer that registers itself for notifications coming from a specific object."""
@@ -74,6 +79,7 @@ class ObjectObserver(object):
     
     def handle_notification(self, notification):
         print "In ObjectObserver got %r" % (notification,)
+
 
 class VolatileAllObserver(object):
     """An observer that registers itself to receive all notifications and it is weakly referenced"""

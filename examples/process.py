@@ -18,6 +18,7 @@ def signal_handler(*args):
     """A sample signal handler"""
     log.msg("first handler received signal %s" % args[0])
 
+
 def signal_handler2(*args):
     """Another sample signal handler"""
     log.msg("second handler received signal %s" % args[0])

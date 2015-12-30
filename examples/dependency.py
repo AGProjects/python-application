@@ -3,6 +3,7 @@
 from application.dependency import ApplicationDependencies, PackageDependency, DependencyError
 from application import log
 
+
 # helper function to display results
 def dependency_list(dependencies):
     return ', '.join("%s>=%s" % (dep.name, dep.required_version) for dep in dependencies.dependencies)
@@ -71,6 +72,7 @@ else:
 class TwistedDependency(PackageDependency):
     def __init__(self, required_version):
         PackageDependency.__init__(self, 'twisted', required_version, 'twisted.version')
+
     def format_version(self, package_version):
         # we overwrite this method that allows us to take the Version instance
         # that twisted.version provides and format it as a string that we can
