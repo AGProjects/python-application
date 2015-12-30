@@ -4,7 +4,7 @@
 
 from application.configuration import *
 from application.system import host
-from application import log
+
 
 # Define a specific data type we will later use with the configuration
 class Priority(int):
@@ -101,27 +101,10 @@ ip = NetworkConfig.ip
 print "\n------------------------------------\n"
 print "Using __cfgfile__ and __section__ to automatically load sections\n"
 
-class AutoStorageConfig(ConfigSection):
-    __cfgfile__ = 'config.ini'
-    __section__ = 'Storage'
-    dburi = 'mysql://undefined@localhost/database'
 
-# Dump the values of the options after they were loaded from the config file
-print "Settings in the automatically loaded section\n"
-print AutoStorageConfig
-
-# An example of how to use tracing to see inner workings of our configuration
-# class and to display its internal state after it is operated on. We will
-# redefine the NetworkConfig class with auto-loading and tracing enabled
-#
-
-print "\n------------------------------------\n"
-print "Tracing the inner working of a config class using __tracing__\n"
-
-class NetworkConfigTraced(ConfigSection):
+class AutoNetworkConfig(ConfigSection):
     __cfgfile__ = 'config.ini'
     __section__ = 'Network'
-    __tracing__ = log.level.INFO # log trace to INFO level
 
     name = 'undefined'
     ip = ConfigSetting(type=datatypes.IPAddress, value=host.default_ip)
@@ -131,34 +114,20 @@ class NetworkConfigTraced(ConfigSection):
     allow = ConfigSetting(type=datatypes.NetworkRangeList, value=[])
     use_tls = False
 
-print "\nReset to defaults and read settings from config file again\n"
-# reset to defaults
-NetworkConfigTraced.reset()
-# read back from config file. since we defined __cfgfile__ and __section__
-# we do not need to pass a file and section as arguments to read, the above
-# mentioned class attributes will be used instead. Passing arguments to read()
-# will overwrite the class attributes though.
-NetworkConfigTraced.read()
 
-print "\nChange individual options\n"
-NetworkConfigTraced.name = 'manually_set_name'
-NetworkConfigTraced.ip = '1.2.3.4'
+class AutoStorageConfig(ConfigSection):
+    __cfgfile__ = 'config.ini'
+    __section__ = 'Storage'
+    dburi = 'mysql://undefined@localhost/database'
 
-print "\nSave current state, reset to defaults and then restore from saved state\n"
-# save a snapshot of the current settings
-state = dict(NetworkConfigTraced)
-# reset to defaults
-NetworkConfigTraced.reset()
-# restore to a previously saved state
-NetworkConfigTraced.set(**state)
 
-# disabled tracing
-NetworkConfigTraced.__tracing__ = None
-# the following operations will not be traced
-NetworkConfigTraced.reset()
-NetworkConfigTraced.read()
-NetworkConfigTraced.set(**state)
-
+# Dump the values of the options after they were loaded from the config file
+print "Settings in the automatically loaded sections\n"
+print
+print AutoNetworkConfig
+print
+print AutoStorageConfig
+print
 
 # We can also get individual settings from a given section.
 #

@@ -6,8 +6,9 @@
 import os
 
 from ConfigParser import SafeConfigParser, NoSectionError
+from inspect import isclass
 from itertools import chain
-from types import ClassType, TypeType, BuiltinFunctionType
+from types import BuiltinFunctionType
 
 from application import log
 from application.process import process
@@ -90,25 +91,66 @@ class ConfigSetting(object):
         return self.value
 
     def __set__(self, obj, value, convert=True):
-        if convert and value is not None and not (self.type_is_class and isinstance(value, self.type)):
+        if convert and value is not None and not (isclass(self.type) and isinstance(value, self.type)):
             value = self.type(value)
         self.value = value
 
 
-class ConfigSectionMeta(type):
-    def __init__(cls, name, bases, dct):
-        cls.__defaults__ = dict(cls)
-        cls.__trace__("Dumping initial %s state:\n%s", cls.__name__, cls)
-        if None not in (cls.__cfgfile__, cls.__section__):
-            cls.__read__()
+class SaveState(object):
+    def __init__(self, owner):
+        if not isclass(owner) or not isinstance(owner, ConfigSectionType):
+            raise TypeError("owner should be a ConfigSection subclass")
+        self.__owner__ = owner
+        self.__state__ = dict(owner)
 
-    def __new__(mcls, name, bases, dct):
+    def __repr__(self):
+        return "<{0.__owner__.__name__} state: {0.__state__!r}>".format(self)
+
+    def __getitem__(self, item):
+        return self.__state__[item]
+
+    def __iter__(self):
+        return self.__state__.iteritems()
+
+    def __len__(self):
+        return len(self.__state__)
+
+    def __eq__(self, other):
+        if not isinstance(other, SaveState):
+            return NotImplemented
+        return self.__owner__ is other.__owner__ and self.__state__ == other.__state__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class AtomicUpdate(object):
+    def __init__(self, config_section):
+        self.config_section = config_section
+
+    def __enter__(self):
+        self._saved_state = SaveState(self.config_section)
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if exc_value is not None:
+            self.config_section.reset(state=self._saved_state)
+        del self._saved_state
+        return False
+
+
+class ConfigSectionType(type):
+    __cfgtype__ = ConfigFile
+    __cfgfile__ = None
+    __section__ = None
+
+    def __new__(mcls, name, bases, dictionary):
         settings = {}
         # copy all settings defined by parents unless also defined in the class being constructed
-        for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionMeta))):
-            if name not in dct and name not in settings:
+        for name, setting in chain(*(cls.__settings__.iteritems() for cls in bases if isinstance(cls, ConfigSectionType))):
+            if name not in dictionary and name not in settings:
                 settings[name] = ConfigSetting(type=setting.type, value=setting.value)
-        for attr, value in dct.iteritems():
+        for attr, value in dictionary.iteritems():
             if isinstance(value, ConfigSetting):
                 settings[attr] = value
             elif attr.startswith('__') or isdescriptor(value) or type(value) is BuiltinFunctionType:
@@ -119,32 +161,76 @@ class ConfigSectionMeta(type):
                 else:
                     data_type = type(value)
                 settings[attr] = ConfigSetting(type=data_type, value=value)
-        dct.update(settings)
-        dct['__settings__'] = settings
-        if dct.get('__tracing__', None) not in (log.level.INFO, log.level.DEBUG, None):
-            raise ValueError("__tracing__ must be one of log.level.INFO, log.level.DEBUG or None")
-        return type.__new__(mcls, name, bases, dct)
+        dictionary.update(settings)
+
+        cls = super(ConfigSectionType, mcls).__new__(mcls, name, bases, dictionary)
+        cls.__settings__ = settings
+        cls.__defaults__ = SaveState(cls)
+
+        return cls
+
+    def __init__(cls, name, bases, dictionary):
+        super(ConfigSectionType, cls).__init__(name, bases, dictionary)
+        if cls.__cfgfile__ is not None and cls.__section__ is not None:
+            cls.read()
 
     def __str__(cls):
         return "%s:\n%s" % (cls.__name__, '\n'.join("  %s = %r" % (name, value) for name, value in cls) or "  pass")
 
     def __iter__(cls):
-        return ((name, desc.__get__(None, cls)) for name, desc in cls.__settings__.iteritems())
+        return ((name, descriptor.__get__(cls, cls.__class__)) for name, descriptor in cls.__settings__.iteritems())
 
-    def __setattr__(cls, attr, value):
-        if attr in cls.__settings__:
-            cls.__settings__[attr].__set__(None, value)
-            cls.__trace__("setting %s.%s as %r from %r", cls.__name__, attr, getattr(cls, attr), value)
+    def __setattr__(cls, name, value):
+        if name == '__settings__' or name not in cls.__settings__:  # need to check for __settings__ as it is set first and the second part of the test depends on it being available
+            super(ConfigSectionType, cls).__setattr__(name, value)
         else:
-            if attr == '__tracing__' and value not in (log.level.INFO, log.level.DEBUG, None):
-                raise ValueError("__tracing__ must be one of log.level.INFO, log.level.DEBUG or None")
-            type.__setattr__(cls, attr, value)
+            cls.__settings__[name].__set__(cls, value)
 
-    def __delattr__(cls, attr):
-        if attr in cls.__settings__:
-            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, attr))
+    def __delattr__(cls, name):
+        if name == '__settings__' or name in cls.__settings__:
+            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, name))
         else:
-            type.__delattr__(cls, attr)
+            super(ConfigSectionType, cls).__delattr__(name)
+
+    def read(cls, cfgfile=None, section=None):
+        """Read the settings from the given file and section"""
+        cfgfile = cfgfile or cls.__cfgfile__
+        section = section or cls.__section__
+        if None in (cfgfile, section):
+            raise ValueError("A config file and section are required for reading settings")
+        if isinstance(cfgfile, ConfigFile):
+            config_file = cfgfile
+        else:
+            config_file = cls.__cfgtype__(cfgfile)
+        if isinstance(section, basestring):
+            section_list = (section,)
+        else:
+            section_list = section
+        for section in section_list:
+            for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
+                try:
+                    setattr(cls, name, value)
+                except Exception, e:
+                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, e)
+                    log.warn(msg, **config_file.log_context)
+
+    def set(cls, **kw):
+        """Atomically set multiple settings at once"""
+        if not set(kw).issubset(cls.__settings__):
+            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
+        with AtomicUpdate(cls):
+            for name, value in kw.iteritems():
+                setattr(cls, name, value)
+
+    def reset(cls, state=None):
+        """Reset settings to the provided save state or to the default values from the class definition if state is None"""
+        state = state or cls.__defaults__
+        if not isinstance(state, SaveState):
+            raise TypeError("state should be a SaveState instance")
+        if state.__owner__ is not cls:
+            raise ValueError("save state does not belong to this config section")
+        for name, descriptor in cls.__settings__.iteritems():
+            descriptor.__set__(cls, state[name], convert=False)
 
 
 class ConfigSection(object):
@@ -163,81 +249,15 @@ class ConfigSection(object):
                     reading one section, or an iterable returning strings
                     for reading multiple sections (they will be read in
                     the order the iterable returns them)
-      __tracing__ - one of log.level.INFO, log.level.DEBUG or None
-                    indicating where to log messages about the inner
-                    workings of the ConfigSection
     """
 
-    __metaclass__ = ConfigSectionMeta
+    __metaclass__ = ConfigSectionType
+
     __cfgtype__ = ConfigFile
     __cfgfile__ = None
     __section__ = None
-    __tracing__ = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kw):
         raise TypeError("cannot instantiate ConfigSection class")
-
-    @classmethod
-    def __set__(cls, **kw):
-        """Set multiple settings at once"""
-        if not set(cls.__settings__).issuperset(kw):
-            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
-        saved_state = dict(cls)
-        cls.__trace__("changing multiple settings of %s", cls.__name__)
-        try:
-            for name, value in kw.iteritems():
-                setattr(cls, name, value)
-        except Exception:
-            cls.__trace__("reverting settings to previous values due to error while setting %s", name)
-            for name, descriptor in cls.__settings__.iteritems():
-                descriptor.__set__(None, saved_state[name], convert=False)
-            raise
-        else:
-            cls.__trace__("Dumping %s state after set():\n%s", cls.__name__, cls)
-
-    @classmethod
-    def __reset__(cls):
-        """Reset settings to the default values from the class definition"""
-        cls.__trace__("resetting %s to default values", cls.__name__)
-        for name, descriptor in cls.__settings__.iteritems():
-            descriptor.__set__(None, cls.__defaults__[name], convert=False)
-        cls.__trace__("Dumping %s state after reset():\n%s", cls.__name__, cls)
-
-    @classmethod
-    def __read__(cls, cfgfile=None, section=None):
-        """Update settings by reading them from the given file and section"""
-        cfgfile = cfgfile or cls.__cfgfile__
-        section = section or cls.__section__
-        if None in (cfgfile, section):
-            raise ValueError("A config file and section are required for reading settings")
-        if isinstance(cfgfile, ConfigFile):
-            config_file = cfgfile
-        else:
-            config_file = cls.__cfgtype__(cfgfile)
-        if isinstance(section, basestring):
-            section_list = (section,)
-        else:
-            section_list = section
-        cls.__trace__("reading %s from %s requested as '%s'", cls.__name__, ', '.join(config_file.files), config_file.filename)
-        for section in section_list:
-            cls.__trace__("reading section '%s'", section)
-            for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
-                try:
-                    setattr(cls, name, value)
-                except Exception, why:
-                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, why)
-                    log.warn(msg, **config_file.log_context)
-        cls.__trace__("Dumping %s state after read():\n%s", cls.__name__, cls)
-
-    @classmethod
-    def __trace__(cls, message, *args):
-        if cls.__tracing__ == log.level.INFO:
-            log.info(message % args)
-        elif cls.__tracing__ == log.level.DEBUG:
-            log.debug(message % args)
-
-    set   = __set__
-    reset = __reset__
-    read  = __read__
 
 
