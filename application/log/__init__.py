@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2012 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2006-2016 Dan Pascu. See LICENSE for details.
 #
 
 """Application logging system for standard output/error and syslog"""

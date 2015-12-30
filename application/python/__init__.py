@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012 Dan Pascu. See LICENSE for details.
+# Copyright (C) 2007-2016 Dan Pascu. See LICENSE for details.
 #
 
 """Python language extensions"""
