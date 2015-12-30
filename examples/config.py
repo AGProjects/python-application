@@ -9,7 +9,7 @@ from application.system import host
 # Define a specific data type we will later use with the configuration
 class Priority(int):
     """A numeric priority level. The keywords High, Normal and Low map to certain numeric values."""
-    def __new__(typ, value):
+    def __new__(cls, value):
         if isinstance(value, (int, long)):
             return int(value)
         elif isinstance(value, basestring):
