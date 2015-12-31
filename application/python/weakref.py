@@ -28,13 +28,6 @@ class weakobjectid(long):
         return instance
 
 
-class objectid(long):
-    def __new__(cls, object):
-        instance = long.__new__(cls, id(object))
-        instance.object = object
-        return instance
-
-
 # The wekaobjectmap class offers the same functionality as WeakKeyDictionary
 # from the standard python weakref module, with a few notable improvements:
 #
@@ -64,9 +57,9 @@ class weakobjectmap(MutableMapping):
 
     def __getitem__(self, key):
         try:
-            return self.__data__[objectid(key)]
+            return self.__data__[id(key)]
         except KeyError:
-            raise KeyError(key)
+            return self.__missing__(key)
 
     def __setitem__(self, key, value):
         self.__data__[weakobjectid(key, self.__remove__)] = value
@@ -85,6 +78,9 @@ class weakobjectmap(MutableMapping):
 
     def __len__(self):
         return len(self.__data__)
+
+    def __missing__(self, key):
+        raise KeyError(key)
 
     def __copy__(self):
         return self.__class__(self)
@@ -159,7 +155,7 @@ class defaultweakobjectmap(weakobjectmap):
         super(defaultweakobjectmap, self).__init__(*args, **kw)
 
     def __missing__(self, key):
-        return self.setdefault(key.object, self.default_factory())
+        return self.setdefault(key, self.default_factory())
 
 
 class _ReprGuard(object):
