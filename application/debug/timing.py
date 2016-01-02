@@ -158,7 +158,8 @@ class Timer(object):
             code_start += 3
         code_end = with_end - 4  # at the end there is a POP_BLOCK + LOAD_CONST (index) (1 + 3 = 4 bytes)
 
-        code_bytes = o_code.co_code[code_start:code_end]
+        code_bytes = bytearray(o_code.co_code[code_start:code_end])
+
         try:
             xrange
         except NameError:
@@ -203,7 +204,19 @@ class Timer(object):
 
         struct.pack_into('<H', loop_footer,  5, o_code.co_consts.index(None))  # LOAD_CONST index for None
 
-        new_code_bytes = bytes(loop_header) + code_bytes + bytes(loop_footer)
+        # adjust the jump addresses within the original code block to match the new bytecode offset they will have within the for loop
+        index = 0
+        code_length = len(code_bytes)
+        while index < code_length:
+            opcode = code_bytes[index]
+            index += 1
+            if opcode >= dis.HAVE_ARGUMENT:
+                if opcode in dis.hasjabs:
+                    jump_address = struct.unpack_from('<H', code_bytes, index)[0]
+                    struct.pack_into('<H', code_bytes, index, jump_address + len(loop_header) - code_start)
+                index += 2
+
+        new_code_bytes = bytes(loop_header + code_bytes + loop_footer)
 
         # adjust the line numbers table
         class WithinCodeRange(object):
