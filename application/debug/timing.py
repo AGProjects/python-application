@@ -179,7 +179,7 @@ class Timer(object):
         #             16 STORE_NAME               k (__loop_index)
         #
         # Code body:
-        #             19 <code_string>
+        #             19 <code_bytes>
         #
         # Loop footer:
         #
@@ -188,9 +188,9 @@ class Timer(object):
         #       >>  zz+4 LOAD_CONST               l (None)
         #           zz+7 RETURN_VALUE
         #
-        # zz = len(code_string) + 19
-        # xx +  3 == zz + 4  ->  xx = len(code_string) + 19 + 4 -  3 = len(code_string) + 20
-        # yy + 16 == zz + 3  ->  yy = len(code_string) + 19 + 3 - 16 = len(code_string) + 6
+        # zz = len(code_bytes) + 19
+        # xx +  3 == zz + 4  ->  xx = len(code_bytes) + 19 + 4 -  3 = len(code_bytes) + 20
+        # yy + 16 == zz + 3  ->  yy = len(code_bytes) + 19 + 3 - 16 = len(code_bytes) + 6
 
         loop_header = bytearray('\x78\x00\x00\x65\x00\x00\x64\x00\x00\x83\x01\x00\x44\x5d\x00\x00\x5a\x01\x00')
         loop_footer = bytearray('\x71\x0d\x00\x57\x64\x00\x00\x53')
