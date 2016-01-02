@@ -167,7 +167,6 @@ class Timer(object):
             names = o_code.co_names + ('__loop_index', 'xrange')
 
         code_constants = o_code.co_consts + (loop_count,)
-        loops_index = len(code_constants) - 1
 
         # Loop header:
         #
@@ -198,7 +197,7 @@ class Timer(object):
 
         struct.pack_into('<H', loop_header,  1, len(code_bytes) + 20)          # SETUP_LOOP delta (xx)
         struct.pack_into('<H', loop_header,  4, len(names) - 1)                # LOAD_NAME index for range function
-        struct.pack_into('<H', loop_header,  7, loops_index)                   # LOAD_CONST index for loop count
+        struct.pack_into('<H', loop_header,  7, len(code_constants) - 1)       # LOAD_CONST index for loop count
         struct.pack_into('<H', loop_header, 14, len(code_bytes) + 6)           # FOR_ITER delta (yy)
         struct.pack_into('<H', loop_header, 17, len(names) - 2)                # STORE_NAME index for __loop_index
 
