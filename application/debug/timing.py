@@ -196,13 +196,13 @@ class Timer(object):
         loop_header = bytearray('\x78\x00\x00\x65\x00\x00\x64\x00\x00\x83\x01\x00\x44\x5d\x00\x00\x5a\x01\x00')
         loop_footer = bytearray('\x71\x0d\x00\x57\x64\x00\x00\x53')
 
-        struct.pack_into('=H', loop_header,  1, len(code_bytes) + 20)          # SETUP_LOOP delta (xx)
-        struct.pack_into('=H', loop_header,  4, len(names) - 1)                # LOAD_NAME index for range function
-        struct.pack_into('=H', loop_header,  7, loops_index)                   # LOAD_CONST index for loop count
-        struct.pack_into('=H', loop_header, 14, len(code_bytes) + 6)           # FOR_ITER delta (yy)
-        struct.pack_into('=H', loop_header, 17, len(names) - 2)                # STORE_NAME index for __loop_index
+        struct.pack_into('<H', loop_header,  1, len(code_bytes) + 20)          # SETUP_LOOP delta (xx)
+        struct.pack_into('<H', loop_header,  4, len(names) - 1)                # LOAD_NAME index for range function
+        struct.pack_into('<H', loop_header,  7, loops_index)                   # LOAD_CONST index for loop count
+        struct.pack_into('<H', loop_header, 14, len(code_bytes) + 6)           # FOR_ITER delta (yy)
+        struct.pack_into('<H', loop_header, 17, len(names) - 2)                # STORE_NAME index for __loop_index
 
-        struct.pack_into('=H', loop_footer,  5, o_code.co_consts.index(None))  # LOAD_CONST index for None
+        struct.pack_into('<H', loop_footer,  5, o_code.co_consts.index(None))  # LOAD_CONST index for None
 
         new_code_bytes = bytes(loop_header) + code_bytes + bytes(loop_footer)
 
