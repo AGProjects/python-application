@@ -117,7 +117,7 @@ class Timer(object):
                         results.append(duration)
 
                     execution_time = min(results)  # best time out of repeat tries
-                    statement_time = execution_time / loops - iteration_overhead
+                    statement_time = max(execution_time / loops - iteration_overhead, iteration_overhead / 100)
                     statement_rate = 1 / statement_time
 
                     normalized_time, time_unit = normalize_time(statement_time)
