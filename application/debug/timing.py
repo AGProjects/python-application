@@ -165,9 +165,9 @@ class Timer(object):
         try:
             xrange
         except NameError:
-            names = o_code.co_names + ('__loop_index', 'range')
+            names = o_code.co_names + ('range',)
         else:
-            names = o_code.co_names + ('__loop_index', 'xrange')
+            names = o_code.co_names + ('xrange',)
 
         code_constants = o_code.co_consts + (loop_count,)
 
@@ -179,10 +179,10 @@ class Timer(object):
         #              9 CALL_FUNCTION            1
         #             12 GET_ITER
         #       >>    13 FOR_ITER                yy (to zz+3)
-        #             16 STORE_NAME               k (__loop_index)
+        #             16 POP_TOP
         #
         # Code body:
-        #             19 <code_bytes>
+        #             17 <code_bytes>
         #
         # Loop footer:
         #
@@ -191,20 +191,19 @@ class Timer(object):
         #       >>  zz+4 LOAD_CONST               l (None)
         #           zz+7 RETURN_VALUE
         #
-        # zz = len(code_bytes) + 19
-        # xx +  3 == zz + 4  ->  xx = len(code_bytes) + 19 + 4 -  3 = len(code_bytes) + 20
-        # yy + 16 == zz + 3  ->  yy = len(code_bytes) + 19 + 3 - 16 = len(code_bytes) + 6
+        # zz = len(loop_header) + len(code_bytes)
+        # xx +  3 == zz + 4  ->  xx = len(loop_header) + len(code_bytes) + 4 -  3 = len(loop_header) + len(code_bytes) +  1
+        # yy + 16 == zz + 3  ->  yy = len(loop_header) + len(code_bytes) + 3 - 16 = len(loop_header) + len(code_bytes) - 13  (13 is the FOR_ITER bytecode offset)
 
-        loop_header = bytearray('\x78\x00\x00\x65\x00\x00\x64\x00\x00\x83\x01\x00\x44\x5d\x00\x00\x5a\x01\x00')
+        loop_header = bytearray('\x78\x00\x00\x65\x00\x00\x64\x00\x00\x83\x01\x00\x44\x5d\x00\x00\x01')
         loop_footer = bytearray('\x71\x0d\x00\x57\x64\x00\x00\x53')
 
-        struct.pack_into('<H', loop_header,  1, len(code_bytes) + 20)          # SETUP_LOOP delta (xx)
-        struct.pack_into('<H', loop_header,  4, len(names) - 1)                # LOAD_NAME index for range function
-        struct.pack_into('<H', loop_header,  7, len(code_constants) - 1)       # LOAD_CONST index for loop count
-        struct.pack_into('<H', loop_header, 14, len(code_bytes) + 6)           # FOR_ITER delta (yy)
-        struct.pack_into('<H', loop_header, 17, len(names) - 2)                # STORE_NAME index for __loop_index
+        struct.pack_into('<H', loop_header,  1, len(loop_header) + len(code_bytes) + 1)    # SETUP_LOOP delta (xx)
+        struct.pack_into('<H', loop_header,  4, len(names) - 1)                            # LOAD_NAME index for range function
+        struct.pack_into('<H', loop_header,  7, len(code_constants) - 1)                   # LOAD_CONST index for loop count
+        struct.pack_into('<H', loop_header, 14, len(loop_header) + len(code_bytes) - 13)   # FOR_ITER delta (yy)
 
-        struct.pack_into('<H', loop_footer,  5, o_code.co_consts.index(None))  # LOAD_CONST index for None
+        struct.pack_into('<H', loop_footer,  5, code_constants.index(None))                # LOAD_CONST index for None
 
         # adjust the jump addresses within the original code block to match the new bytecode offset they will have within the for loop
         index = 0
