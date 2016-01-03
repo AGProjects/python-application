@@ -91,6 +91,13 @@ class Timer(object):
                 parent = inspect.currentframe().f_back
 
                 try:
+                    # calculate the iteration overhead
+                    empty_loop = self._build_loop_code(parent.f_code, with_start=self._with_start, with_end=self._with_start, loop_count=100000)
+                    start_time = self.time_function()
+                    exec(empty_loop, parent.f_globals, parent.f_locals)
+                    end_time = self.time_function()
+                    iteration_overhead = (end_time - start_time) / empty_loop.co_consts[-1]  # _build_loop_code() puts the loop_count as the last entry in co_consts
+
                     new_code = self._build_loop_code(parent.f_code, with_start=self._with_start, with_end=parent.f_lasti, loop_count=loops)
 
                     results = []
@@ -110,7 +117,7 @@ class Timer(object):
                         results.append(duration)
 
                     execution_time = min(results)  # best time out of repeat tries
-                    statement_time = execution_time / loops
+                    statement_time = execution_time / loops - iteration_overhead
                     statement_rate = 1 / statement_time
 
                     normalized_time, time_unit = normalize_time(statement_time)
