@@ -207,13 +207,14 @@ class Timer(object):
         # adjust the jump addresses within the original code block to match the new bytecode offset they will have within the for loop
         index = 0
         code_length = len(code_bytes)
+        offset = len(loop_header) - code_start
         while index < code_length:
             opcode = code_bytes[index]
             index += 1
             if opcode >= dis.HAVE_ARGUMENT:
                 if opcode in dis.hasjabs:
                     jump_address = struct.unpack_from('<H', code_bytes, index)[0]
-                    struct.pack_into('<H', code_bytes, index, jump_address + len(loop_header) - code_start)
+                    struct.pack_into('<H', code_bytes, index, jump_address + offset)
                 index += 2
 
         new_code_bytes = bytes(loop_header + code_bytes + loop_footer)
