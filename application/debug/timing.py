@@ -82,49 +82,51 @@ class Timer(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_value is None:
-            duration = self.time_function() - self._start_time
+        try:
+            if exc_value is None:
+                duration = self.time_function() - self._start_time
 
-            loops = self.loops or self._estimate_loop_count(duration, 1)
+                loops = self.loops or self._estimate_loop_count(duration, 1)
 
-            parent = inspect.currentframe().f_back
+                parent = inspect.currentframe().f_back
 
-            try:
-                new_code = self._build_loop_code(parent.f_code, with_start=self._with_start, with_end=parent.f_lasti, loop_count=loops)
+                try:
+                    new_code = self._build_loop_code(parent.f_code, with_start=self._with_start, with_end=parent.f_lasti, loop_count=loops)
 
-                results = []
-                for r in range(self.repeat):
-                    start_time = self.time_function()
-                    exec(new_code, parent.f_globals, parent.f_locals)
-                    duration = self.time_function() - start_time
-                    if not self.loops and not results and duration < 0.2 and loops < 10**9:  # the first estimate may have been inaccurate when the duration is very small
-                        # loops = self._estimate_loop_count(duration, loops)
-                        while duration < 0.2 and loops < 10**9:
-                            duration *= 10
-                            loops *= 10
-                        new_code = self._adjust_loop_count(new_code, loops)
+                    results = []
+                    for r in range(self.repeat):
                         start_time = self.time_function()
                         exec(new_code, parent.f_globals, parent.f_locals)
                         duration = self.time_function() - start_time
-                    results.append(duration)
+                        if not self.loops and not results and duration < 0.2 and loops < 10**9:  # the first estimate may have been inaccurate when the duration is very small
+                            # loops = self._estimate_loop_count(duration, loops)
+                            while duration < 0.2 and loops < 10**9:
+                                duration *= 10
+                                loops *= 10
+                            new_code = self._adjust_loop_count(new_code, loops)
+                            start_time = self.time_function()
+                            exec(new_code, parent.f_globals, parent.f_locals)
+                            duration = self.time_function() - start_time
+                        results.append(duration)
 
-                execution_time = min(results)  # best time out of repeat tries
-                statement_time = execution_time / loops
-                statement_rate = 1 / statement_time
+                    execution_time = min(results)  # best time out of repeat tries
+                    statement_time = execution_time / loops
+                    statement_rate = 1 / statement_time
 
-                normalized_time, time_unit = normalize_time(statement_time)
+                    normalized_time, time_unit = normalize_time(statement_time)
 
-                if self.description is not None:
-                    format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec); {description}"
-                else:
-                    format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec)"
-                rate_precision = 2 if statement_rate < 10 else 1 if statement_rate < 100 else 0
-                print format_string.format(loops, self.repeat, normalized_time, time_unit, statement_rate, description=self.description, precision=3, rate_precision=rate_precision)
-            finally:
-                del parent
-                if self._gc_enabled:
-                    gc.enable()
-        del self._start_time, self._with_start, self._gc_enabled
+                    if self.description is not None:
+                        format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec); {description}"
+                    else:
+                        format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec)"
+                    rate_precision = 2 if statement_rate < 10 else 1 if statement_rate < 100 else 0
+                    print format_string.format(loops, self.repeat, normalized_time, time_unit, statement_rate, description=self.description, precision=3, rate_precision=rate_precision)
+                finally:
+                    del parent
+        finally:
+            if self._gc_enabled:
+                gc.enable()
+            del self._start_time, self._with_start, self._gc_enabled
 
     @staticmethod
     def _build_loop_code(o_code, with_start, with_end, loop_count):
