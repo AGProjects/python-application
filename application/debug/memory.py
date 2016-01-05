@@ -152,7 +152,7 @@ def memory_dump(show_cycles=True, show_objects=False):
 
 
 gc.enable()
-gc.collect()  # Ignore collectable garbage up to this point
+gc.collect()  # Ignore the collectable garbage up to this point
 gc.set_debug(gc.DEBUG_LEAK)
 
 
