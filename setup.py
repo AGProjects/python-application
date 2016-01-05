@@ -3,28 +3,34 @@
 import os
 
 from distutils.core import setup
-from application import __version__
+from application import __info__ as package_info
 
 
 def find_packages(root):
     return [directory.replace(os.path.sep, '.') for directory, sub_dirs, files in os.walk(root) if '__init__.py' in files]
 
 
-setup(name         = "python-application",
-      version      = __version__,
-      author       = "Dan Pascu",
-      author_email = "dan@ag-projects.com",
-      url          = "https://github.com/AGProjects/python-application/",
-      description  = "Basic building blocks for python applications",
-      long_description = open('README').read(),
-      license      = "LGPL",
-      platforms    = ["Platform Independent"],
-      classifiers  = [
+setup(
+    name=package_info.__project__,
+    version=package_info.__version__,
+
+    description=package_info.__summary__,
+    long_description=open('README').read(),
+    license=package_info.__license__,
+    url=package_info.__webpage__,
+
+    author=package_info.__author__,
+    author_email=package_info.__email__,
+
+    platforms=["Platform Independent"],
+    classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules"
-      ],
-      packages     = find_packages('application'))
+    ],
+
+    packages=find_packages('application')
+)
