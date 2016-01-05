@@ -1,6 +1,8 @@
 # This file is licensed under LGPL. See the LICENSE file for details.
 #
 
+"""Package information"""
+
 __project__ = "python-application"
 __summary__ = "Basic building blocks for python applications"
 __webpage__ = "https://github.com/AGProjects/python-application"

@@ -1,7 +1,7 @@
 # Copyright (C) 2006-2016 Dan Pascu. See LICENSE for details.
 #
 
-"""Interaction with the underlying operating system"""
+"""Interaction with the operating system"""
 
 import errno
 import os

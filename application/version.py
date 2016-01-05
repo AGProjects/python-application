@@ -1,7 +1,7 @@
 # Copyright (C) 2009-2016 Dan Pascu. See LICENSE for details.
 #
 
-"""Manage the version numbers for applications, modules and packages"""
+"""Describe and handle version numbers for applications, modules and packages"""
 
 import re
 
