@@ -217,4 +217,3 @@ class LevelClass(object):
 level = LevelClass()
 del LevelClass, CurrentLevelDescriptor, IfNotInteractive
 
-
