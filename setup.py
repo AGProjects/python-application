@@ -6,8 +6,8 @@ from distutils.core import setup
 from application import __version__
 
 
-def find_packages(toplevel):
-    return [directory.replace(os.path.sep, '.') for directory, subdirs, files in os.walk(toplevel) if '__init__.py' in files]
+def find_packages(root):
+    return [directory.replace(os.path.sep, '.') for directory, sub_dirs, files in os.walk(root) if '__init__.py' in files]
 
 
 setup(name         = "python-application",
