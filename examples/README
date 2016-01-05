@@ -17,8 +17,6 @@ This directory holds some examples of using python-application.
 
 5. notification.py - Example that shows how to use the notification system.
 
-6. dependency.py   - Example of how to check package dependencies at runtime.
-
 To run the examples without installing python-application, run the
 following command prior to trying the examples:
 
