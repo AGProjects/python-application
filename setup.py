@@ -32,5 +32,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
 
-    packages=find_packages('application')
+    packages=find_packages('application'),
+    provides=['application'],
+    requires=['zope.interface']
 )
