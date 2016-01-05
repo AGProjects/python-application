@@ -1,5 +1,3 @@
-# Copyright (C) 2009-2016 Dan Pascu. See LICENSE for details.
-#
 
 from __future__ import absolute_import
 

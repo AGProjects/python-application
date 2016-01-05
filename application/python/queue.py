@@ -1,5 +1,3 @@
-# Copyright (C) 2006-2016 Dan Pascu. See LICENSE for details.
-#
 
 """Event processing queues, that process the events in a distinct thread"""
 

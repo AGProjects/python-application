@@ -1,5 +1,3 @@
-# Copyright (C) 2009-2016 Dan Pascu. See LICENSE for details.
-#
 
 """Describe and handle version numbers for applications, modules and packages"""
 

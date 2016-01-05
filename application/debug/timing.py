@@ -1,5 +1,3 @@
-# Copyright (C) 2006-2016 Dan Pascu. See LICENSE for details.
-#
 
 """Measure code execution time for benchmarking and profiling purposes.
 

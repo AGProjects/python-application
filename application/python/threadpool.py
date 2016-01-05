@@ -1,5 +1,3 @@
-# Copyright (C) 2015-2016 AG Projects. See LICENSE for details.
-#
 
 """A generic, resizable thread pool"""
 

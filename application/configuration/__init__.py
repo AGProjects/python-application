@@ -1,5 +1,3 @@
-# Copyright (C) 2006-2016 Dan Pascu. See LICENSE for details.
-#
 
 """A framework for describing and handling .ini configuration files as objects with attributes"""
 

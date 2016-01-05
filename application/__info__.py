@@ -1,5 +1,3 @@
-# This file is licensed under LGPL. See the LICENSE file for details.
-#
 
 """Package information"""
 

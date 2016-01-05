@@ -1,5 +1,3 @@
-# Copyright (C) 2009-2016 AG Projects. See LICENSE for details.
-#
 
 """A notification system"""
 
