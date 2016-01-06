@@ -5,7 +5,7 @@ Maintainer: Dan Pascu <dan@ag-projects.com>
 Uploaders: Saul Ibarra <saul@ag-projects.com>
 Build-Depends: debhelper (>= 7.1.5), dh-python, python
 Standards-Version: 3.9.6
-Homepage: http://cheeseshop.python.org/pypi/python-application
+Homepage: https://pypi.python.org/pypi/python-application
 
 Package: python-application
 Architecture: all
