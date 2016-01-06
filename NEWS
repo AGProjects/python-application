@@ -1,3 +1,121 @@
+New in version 2.0.0
+--------------------
+
+1. Refactored weakobjectmap and based it on MutableMapping instead of dict.
+   As a result weakobjectmap is now slightly faster. A side effect of this
+   change is that if __missing__ is defined by a subclass is no longer
+   called with objectid(key), but with the key itself (as it should have
+   been). While this is a backward incompatible change, it is also for the
+   better as calling __missing__ with objectid(key) was just a necessary
+   hack that resulted from the particular details of how the class was
+   implemented on top of dict, but it was non-standard. Now __missing__ is
+   called with the missing key as the argument as expected.
+
+2. Added defaultweakobjectmap to application.python.weakref that is to
+   weakobjectmap what defaultdict is to dict.
+
+3. Refactored the configuration code. As part of this process, the metaclass
+   was renamed from ConfigSectionMeta to ConfigSectionType and all the
+   methods were moved from ConfigSection to its metaclass. The alternative
+   methods __read__, __set__ and __reset__ were removed as now read, set
+   and reset cannot be overwritten anymore by config section attributes.
+   The __tracing__ attribute and the related functionality was removed.
+
+   Added the ability to take snapshots of configuration sections by calling
+   saved_state = SaveState(config_section), which can later be restored by
+   calling config_section.reset(state=saved_state). This method is the
+   recommended one and it overrides the previous way of doing it by using
+   a dictionary like this: saved_state = dict(config_section) and later
+   config_section.set(**saved_state). The new method is not only faster
+   as it doesn't reevaluate each setting, but is also protected against
+   applying saved states from other config sections. While the old method
+   still works is not recommended to be used as it unnecessarily reevaluates
+   every setting before reapplying it. The set method should only be used
+   to set multiple settings at once atomically. Calling reset without any
+   arguments still works as before and it will reset the section to its
+   hardcoded defaults.
+
+4. Improved the timer class by turning it into a context manager. Now code
+   can be timed by simply surrounding it with a with statement like this:
+
+   from application.debug.timing import timer
+
+   with timer("timed code description"):
+       your_timed_code_here
+
+   The timer context manager only works at the script/module level (i.e. it
+   will not work inside a function), but the timed code can be any python
+   code.
+
+   The timer is smart enough to determine how many loops it needs to perform
+   so specifying the loop count is not necessary, unless one has a particular
+   need to do so. It accepts description, loops, repeat and time_function as
+   arguments (all optional). For a complete overview of what can be specified
+   and their default values look at the class implementation.
+
+   In addition the timer has code to measure and compensate for the iteration
+   overhead, resulting in more accurate results.
+
+   In addition a new context manager called time_probe which can measure the
+   time a code section takes to execute. Unlike timer this one doesn't run
+   the timed code in a loop and computes the average time, but only measures
+   the surrounded code by taking a time measurement when entering the section
+   and one when leaving it and computing the difference. This can be used to
+   measure live code in-place to determine the time spent in critical certain
+   sections, with minimal changes to the code (putting a with context manager
+   around the measured section) and with no functional interference to the
+   measured code. The time_probe context manager works everywhere, including
+   inside functions.
+   Because measuring very short code sections that take very little time can
+   be inaccurate, the time_probe will show the level of uncertainty for the
+   measurement as a percent. The higher the uncertainty, the less reliable
+   the measured value is.
+   A companion for the time_probe context manager is the measure_time
+   decorator that can be used to decorate functions in order to time them.
+   The decorator uses the time_probe in its implementation, being just an
+   easier way of using the time probe to measure whole functions.
+
+5. Added openfile function in application.system. This function behaves the
+   same as python's open, but in addition it understands 'x' mode (create
+   a file in exclusive mode, i.e. only if it doesn't already exist) and it
+   also accepts a permissions argument which allows one to create files with
+   certain permissions in a single step to prevent race conditions and
+   security issues. The permissions argument is ignored unless the file is
+   created as a result of this openfile() call. In addition, if the 'x'
+   mode is used and the file already exists, it will raise FileExistsError
+   (which is a subclass of IOError).
+
+   Another improvement over python's open is that openfile will consistently
+   seek to the file end if the file is opened in append mode regardless of
+   the platform (in python2, when a file is opened in append mode, open will
+   not seek to the end until the first write on Microsoft Windows).
+
+6. The MarkerType from application.python.types was modified to create
+   markers that behave like a boolean False value by default (the markers
+   used to behave like boolean True before). This was changed because it
+   is more useful for markers to behave like a boolean False value than
+   the other way around. This can be overwritten by adding:
+
+   __boolean__ = True
+
+   to the marker definition to make it have a True value in boolean
+   expressions.
+
+7. The dependency module was removed.
+
+
+New in version 1.5.0
+--------------------
+
+Added a generic thread pool in application.python.threadpool which can be
+used to run certain operations that need to run in the background, in a
+collection of threads that can be defined using the ThreadPool class.
+After a threadpool is created, it can be used either directly by calling
+pool.run(func, *args, **kw) or by decorating the functions that need to
+run in this threadpool with @run_in_threadpool(pool) (the decorator is
+provided in the threadpool module as well).
+
+
 New in version 1.4.0
 --------------------
 
