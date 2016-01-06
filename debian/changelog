@@ -1,3 +1,66 @@
+python-application (2.0.0) unstable; urgency=medium
+
+  * Modernize code and improve PEP-8 compliance
+  * Do not pass mutable values as default arguments
+  * Fixed __init__ to have the same signature as __new__
+  * Fixed class method first argument name
+  * Fixed class method return value for subclasses
+  * Fixed check for instance type in comparison function
+  * Fixed test for None values
+  * Refactored instance method into static method
+  * Removed unused imports
+  * Use dict comprehension
+  * Use next(iterator) instead of iterator.next()
+  * Removed policing of internal attribute
+  * Improved object representation
+  * Removed superfluous empty lines at the end of files
+  * Adjusted comment to better match code
+  * Updated some module docstrings
+  * Store reference to original signal on self rather than the signal module
+  * Replaced try/del/except/pass on dictionary item with dict.pop(item, None)
+  * Simplified the preserve_signature decorator
+  * Made preserve_signature accept any function name and removed memory cycle
+  * Improved check for input for NetworkRange data type
+  * Refactored configuration
+    - Renamed ConfigSectionMeta to ConfigSectionType
+    - Moved ConfigSection class methods to metaclass
+    - Added SaveState, to save a ConfigSection state
+    - Allow reset() to restore arbitrary save states
+    - Removed __tracing__ and the tracing support
+    - Added AtomicUpdate context manager
+  * Refactored time measuring code
+    - Turned the timer into a context manager to simplify usage
+    - Removed the need to write an explicit for loop with it
+    - Made the timer autodetect the necessary loop count
+    - Calculate and subtract the iteration overhead from the final result
+    - Added time_probe context manager to time code sections in-place
+    - Added measure_time decorator to time function calls in-place
+  * Rewrote weakobjectmap based on MutableMapping (faster)
+    A side effect of this change is that now __missing__ receives the
+    actual key being looked up, instead of objectid(key) as before.
+    While this makes the MutableMapping based implementation backward
+    incompatible, it is to be considered an improvement.
+  * Protect weakobjectmap's __repr__ against recursive elements
+  * Added defaultweakobjectmap type
+  * Added openfile (same as open but supports 'x' mode and file permissions)
+  * Have markers appear as boolean False (overwrite __boolean__ to change it)
+  * Removed the dependency module
+  * Updated the project URLs
+  * Removed download URL from setup
+  * Added __info__ module with package details
+  * Use the new __info__ module in setup.py
+  * Added package requirements
+  * Aggregated copyright and license info from source files into LICENSE
+  * Updated license file to include a link to the license
+  * Updated copyright years
+  * Updated boring file
+  * Updated debian copyright file
+  * Updated debian project description
+  * Updated project homepage in debian/control
+  * Added dh-python to Build-Depends
+
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 06 Jan 2016 20:22:45 +0200
+
 python-application (1.5.0) unstable; urgency=medium
 
   * Added a generic thread pool in application.python.threadpool
