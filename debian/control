@@ -18,11 +18,10 @@ Description: Basic building blocks for Python applications
  handle the following tasks:
  .
   - UNIX process management (forking, signal handling, pid file creation)
-  - A very simple to use interface to handle configuration files.
+  - A very simple to use interface to handle .ini configuration files.
   - An extensible system logger for console and/or syslog.
   - Miscellaneous utilities and helpers.
   - Memory troubleshooting and execution timing.
   - Communicate inside the application using a notification system.
   - Manage the version number for applications, modules and packages.
-  - Verify package dependencies at runtime.
 
