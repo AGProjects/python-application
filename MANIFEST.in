@@ -2,5 +2,6 @@ include ChangeLog
 include LICENSE
 include NEWS
 include README
+include MANIFEST.in
 
 recursive-include examples README *.ini *.py
