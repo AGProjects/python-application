@@ -275,40 +275,6 @@ class Timer(object):
 timer = Timer
 
 
-class OldTimer(object):
-    def __init__(self, description=None, loops=1000000, time_function=Automatic):
-        if not isinstance(loops, int):
-            raise TypeError("loops should be an integer number")
-        if not callable(time_function):
-            raise TypeError("time_function should be a callable")
-        self.description = description
-        self.loops = loops
-        if time_function is Automatic:
-            self.time_function = clock if sys.platform == 'win32' else time
-        else:
-            self.time_function = time_function
-
-    def __enter__(self):
-        self._start_time = self.time_function()
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_value is None:
-            execution_time = self.time_function() - self._start_time
-            statement_time = execution_time / self.loops
-            statement_rate = 1 / statement_time
-
-            normalized_time, time_unit = normalize_time(statement_time)
-
-            if self.description is not None:
-                format_string = u"{} loops: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec); {description}"
-            else:
-                format_string = u"{} loops: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec)"
-            rate_precision = 2 if statement_rate < 10 else 1 if statement_rate < 100 else 0
-            print format_string.format(self.loops, normalized_time, time_unit, statement_rate, description=self.description, precision=3, rate_precision=rate_precision)
-        del self._start_time
-
-
 class TimeProbe(object):
     def __init__(self, description=None, time_function=Automatic):
         if not callable(time_function):
