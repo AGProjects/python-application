@@ -34,5 +34,6 @@ setup(
 
     packages=find_packages('application'),
     provides=['application'],
-    requires=['zope.interface']
+    requires=['zope.interface'],
+    install_requires=['zope.interface']
 )
