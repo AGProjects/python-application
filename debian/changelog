@@ -58,8 +58,9 @@ python-application (2.0.0) unstable; urgency=medium
   * Updated debian project description
   * Updated project homepage in debian/control
   * Added dh-python to Build-Depends
+  * Updated debian supported python versions
 
- -- Dan Pascu <dan@ag-projects.com>  Wed, 06 Jan 2016 20:22:45 +0200
+ -- Dan Pascu <dan@ag-projects.com>  Fri, 08 Jan 2016 08:16:15 +0200
 
 python-application (1.5.0) unstable; urgency=medium
 
