@@ -55,10 +55,6 @@ Changes in version 2.0.0
   * Updated license file to include a link to the license
   * Updated copyright years
   * Updated boring file
-  * Updated debian copyright file
-  * Updated debian project description
-  * Updated project homepage in debian/control
-  * Added dh-python to Build-Depends
 
 Changes in version 1.5.0
 ------------------------
