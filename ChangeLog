@@ -1,3 +1,8 @@
+Changes in version 2.0.1
+------------------------
+
+  * Reverted tuple-form exec to work around bug in python < 2.7.9
+
 Changes in version 2.0.0
 ------------------------
 

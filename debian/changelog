@@ -1,3 +1,9 @@
+python-application (2.0.1) unstable; urgency=medium
+
+  * Reverted tuple-form exec to work around bug in python < 2.7.9
+
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 11 Jan 2016 11:50:51 +0200
+
 python-application (2.0.0) unstable; urgency=medium
 
   * Modernize code and improve PEP-8 compliance
