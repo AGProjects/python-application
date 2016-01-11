@@ -20,7 +20,7 @@ def preserve_signature(func):
     def fix_signature(wrapper):
         exec_scope = {}
         parameters = formatargspec(*getargspec(func), formatvalue=lambda value: "")
-        exec("def {0}{1}: return wrapper{1}".format(func.__name__, parameters), {'wrapper': wrapper}, exec_scope)
+        exec "def {0}{1}: return wrapper{1}".format(func.__name__, parameters) in {'wrapper': wrapper}, exec_scope  # can't use tuple form here (see https://bugs.python.org/issue21591)
         new_wrapper = exec_scope.pop(func.__name__)
         new_wrapper.__name__ = func.__name__
         new_wrapper.__doc__ = func.__doc__
