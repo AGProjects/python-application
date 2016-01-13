@@ -6,6 +6,7 @@ import os
 import errno
 import signal
 import atexit
+import __main__
 
 from application import log
 from application.python.types import Singleton
@@ -28,7 +29,7 @@ class Process(object):
         self.signals = Signals()
         self._runtime_directory = '/var/run'
         self._system_config_directory = '/etc'
-        self._local_config_directory = os.path.realpath(os.path.dirname(sys.argv[0]))
+        self._local_config_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
 
     def _get_local_config_directory(self):
         return self._local_config_directory
