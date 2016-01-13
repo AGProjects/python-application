@@ -1,3 +1,9 @@
+python-application (2.0.2) unstable; urgency=medium
+
+  * Fixed the local config directory in certain contexts
+
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 13 Jan 2016 15:53:11 +0200
+
 python-application (2.0.1) unstable; urgency=medium
 
   * Reverted tuple-form exec to work around bug in python < 2.7.9
