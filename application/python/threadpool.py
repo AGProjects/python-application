@@ -32,9 +32,11 @@ class ThreadPool(object):
         self._started = False
         self._set_size(min_threads, max_threads)
 
+    @property
     def min_threads(self):
         return self.__dict__['min_threads']
 
+    @property
     def max_threads(self):
         return self.__dict__['max_threads']
 
