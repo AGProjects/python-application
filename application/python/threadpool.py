@@ -113,14 +113,14 @@ class ThreadPool(object):
     def _worker(self):
         thread = current_thread()
         while True:
-            item = self._queue.get()
-            if item is self.StopWorker:
+            task = self._queue.get()
+            if task is self.StopWorker:
                 break
             try:
-                item.function(*item.args, **item.kw)
+                task.function(*task.args, **task.kw)
             except:
-                log.exception('Exception occurred while calling %r in the %r thread' % (item.function, thread.name))
-            del item
+                log.exception('Exception occurred while calling %r in the %r thread' % (task.function, thread.name))
+            del task
         self._threads.remove(thread)
 
 
