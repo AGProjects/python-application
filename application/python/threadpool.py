@@ -73,19 +73,19 @@ class ThreadPool(object):
             if self._started:
                 self._maybe_start_workers()
 
-    def _set_size(self, min, max):
+    def _set_size(self, min_threads, max_threads):
         # Must be called with the lock held
-        assert 0 <= min <= max, "invalid bounds"
+        assert 0 <= min_threads <= max_threads, "invalid bounds"
 
-        self.__dict__['min_threads'] = min
-        self.__dict__['max_threads'] = max
+        self.__dict__['min_threads'] = min_threads
+        self.__dict__['max_threads'] = max_threads
 
         if not self._started:
             return
 
-        while self._workers > max:
+        while self._workers > max_threads:
             self._stop_worker()
-        while self._workers < min:
+        while self._workers < min_threads:
             self._start_worker()
 
         self._maybe_start_workers()
