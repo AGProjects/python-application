@@ -75,7 +75,7 @@ class ThreadPool(object):
 
     def _set_size(self, min_threads, max_threads):
         # Must be called with the lock held
-        assert 0 <= min_threads <= max_threads, "invalid bounds"
+        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
 
         self.__dict__['min_threads'] = min_threads
         self.__dict__['max_threads'] = max_threads
