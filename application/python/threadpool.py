@@ -2,6 +2,7 @@
 """A generic, resizable thread pool"""
 
 from Queue import Queue
+from itertools import count
 from threading import Lock, Thread, current_thread
 
 from application import log
@@ -28,6 +29,7 @@ class ThreadPool(object):
         self.name = name
         self._lock = Lock()
         self._queue = Queue()
+        self._thread_id = None
         self._threads = []
         self._workers = 0
         self._jobs = 0
@@ -47,6 +49,7 @@ class ThreadPool(object):
             if self._started:
                 return
             self._started = True
+            self._thread_id = count(1)
             needed_workers = limit(self._jobs, min=self.min_threads, max=self.max_threads)
             while self._workers < needed_workers:
                 self._start_worker()
@@ -61,6 +64,7 @@ class ThreadPool(object):
                 self._stop_worker()
             for thread in threads:
                 thread.join()
+            self._thread_id = None
 
     def resize(self, min_threads=1, max_threads=10):
         with self._lock:
@@ -96,7 +100,7 @@ class ThreadPool(object):
     def _start_worker(self):
         # Must be called with the lock held
         self._workers += 1
-        name = "%sThread-%s-%s" % (self.__class__.__name__, self.name or id(self), self._workers)
+        name = "%sThread-%s-%s" % (self.__class__.__name__, self.name or id(self), next(self._thread_id))
         thread = Thread(target=self._worker, name=name)
         self._threads.append(thread)
         thread.daemon = True
