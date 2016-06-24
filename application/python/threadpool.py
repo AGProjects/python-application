@@ -5,6 +5,7 @@ from Queue import Queue
 from threading import Lock, Thread, current_thread
 
 from application import log
+from application.python import limit
 from application.python.decorator import decorator, preserve_signature
 
 
@@ -29,6 +30,7 @@ class ThreadPool(object):
         self._queue = Queue()
         self._threads = []
         self._workers = 0
+        self._jobs = 0
         self._started = False
         self._set_size(min_threads, max_threads)
 
@@ -45,7 +47,9 @@ class ThreadPool(object):
             if self._started:
                 return
             self._started = True
-            self._set_size(self.min_threads, self.max_threads)
+            needed_workers = limit(self._jobs, min=self.min_threads, max=self.max_threads)
+            while self._workers < needed_workers:
+                self._start_worker()
 
     def stop(self):
         with self._lock:
@@ -64,14 +68,16 @@ class ThreadPool(object):
 
     def compact(self):
         with self._lock:
-            while self._workers > self.min_threads:
+            needed_workers = limit(self._jobs, min=self.min_threads, max=self.max_threads)
+            while self._workers > needed_workers:
                 self._stop_worker()
 
     def run(self, func, *args, **kw):
         with self._lock:
             self._queue.put(CallFunctionEvent(func, args, kw))
-            if self._started:
-                self._maybe_start_workers()
+            self._jobs += 1
+            if self._started and self._workers < limit(self._jobs, max=self.max_threads):
+                self._start_worker()
 
     def _set_size(self, min_threads, max_threads):
         # Must be called with the lock held
@@ -80,15 +86,12 @@ class ThreadPool(object):
         self.__dict__['min_threads'] = min_threads
         self.__dict__['max_threads'] = max_threads
 
-        if not self._started:
-            return
-
-        while self._workers > max_threads:
-            self._stop_worker()
-        while self._workers < min_threads:
-            self._start_worker()
-
-        self._maybe_start_workers()
+        if self._started:
+            needed_workers = limit(self._jobs, min=min_threads, max=max_threads)
+            while self._workers > max_threads:
+                self._stop_worker()
+            while self._workers < needed_workers:
+                self._start_worker()
 
     def _start_worker(self):
         # Must be called with the lock held
@@ -104,12 +107,6 @@ class ThreadPool(object):
         self._queue.put(self.StopWorker)
         self._workers -= 1
 
-    def _maybe_start_workers(self):
-        # Must be called with the lock held
-        needed = self._queue.qsize() + self._workers
-        while self._workers < min(self.max_threads, needed):
-            self._start_worker()
-
     def _worker(self):
         thread = current_thread()
         while True:
@@ -120,7 +117,10 @@ class ThreadPool(object):
                 task.function(*task.args, **task.kw)
             except:
                 log.exception('Exception occurred while calling %r in the %r thread' % (task.function, thread.name))
-            del task
+            finally:
+                with self._lock:
+                    self._jobs -= 1
+                del task
         self._threads.remove(thread)
 
 
