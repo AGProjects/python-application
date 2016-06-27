@@ -26,15 +26,17 @@ class ThreadPool(object):
     StopWorker = object()
 
     def __init__(self, name=None, min_threads=1, max_threads=10):
+        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
         self.name = name
         self._lock = Lock()
         self._queue = Queue()
         self._thread_id = None
         self._threads = []
         self._started = False
+        self.__dict__['min_threads'] = min_threads
+        self.__dict__['max_threads'] = max_threads
         self.__dict__['workers'] = 0
         self.__dict__['jobs'] = 0
-        self._set_size(min_threads, max_threads)
 
     @property
     def min_threads(self):
@@ -75,8 +77,16 @@ class ThreadPool(object):
             self._thread_id = None
 
     def resize(self, min_threads=1, max_threads=10):
+        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
         with self._lock:
-            self._set_size(min_threads, max_threads)
+            self.__dict__['min_threads'] = min_threads
+            self.__dict__['max_threads'] = max_threads
+            if self._started:
+                needed_workers = limit(self.jobs, min=min_threads, max=max_threads)
+                while self.workers > max_threads:
+                    self._stop_worker()
+                while self.workers < needed_workers:
+                    self._start_worker()
 
     def compact(self):
         with self._lock:
@@ -89,20 +99,6 @@ class ThreadPool(object):
             self._queue.put(CallFunctionEvent(func, args, kw))
             self.__dict__['jobs'] += 1
             if self._started and self.workers < limit(self.jobs, max=self.max_threads):
-                self._start_worker()
-
-    def _set_size(self, min_threads, max_threads):
-        # Must be called with the lock held
-        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
-
-        self.__dict__['min_threads'] = min_threads
-        self.__dict__['max_threads'] = max_threads
-
-        if self._started:
-            needed_workers = limit(self.jobs, min=min_threads, max=max_threads)
-            while self.workers > max_threads:
-                self._stop_worker()
-            while self.workers < needed_workers:
                 self._start_worker()
 
     def _start_worker(self):
