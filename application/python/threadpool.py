@@ -83,7 +83,7 @@ class ThreadPool(object):
             self.__dict__['max_threads'] = max_threads
             if self._started:
                 needed_workers = limit(self.jobs, min=min_threads, max=max_threads)
-                while self.workers > max_threads:
+                while self.workers > max_threads:  # compare against needed_workers to compact or against max_threads to not
                     self._stop_worker()
                 while self.workers < needed_workers:
                     self._start_worker()
