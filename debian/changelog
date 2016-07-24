@@ -1,3 +1,15 @@
+python-application (2.1.0) unstable; urgency=medium
+
+  * Compacted error logging statements
+  * Fixed ThreadPool properties
+  * Fixed min/max boundary checks
+  * Fixed ThreadPool thread management
+  * Fixed allocating ThreadPool thread names to avoid duplicates
+  * Added workers and jobs public read-only properties
+  * Removed unnecessary private function
+
+ -- Dan Pascu <dan@ag-projects.com>  Sun, 24 Jul 2016 11:35:33 +0300
+
 python-application (2.0.2) unstable; urgency=medium
 
   * Fixed the local config directory in certain contexts

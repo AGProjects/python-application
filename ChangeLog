@@ -1,3 +1,14 @@
+Changes in version 2.1.0
+------------------------
+
+  * Compacted error logging statements
+  * Fixed ThreadPool properties
+  * Fixed min/max boundary checks
+  * Fixed ThreadPool thread management
+  * Fixed allocating ThreadPool thread names to avoid duplicates
+  * Added workers and jobs public read-only properties
+  * Removed unnecessary private function
+
 Changes in version 2.0.2
 ------------------------
 
