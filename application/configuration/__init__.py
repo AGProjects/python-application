@@ -28,7 +28,7 @@ class ConfigFile(object):
         timestamp = 0
         for path in process.get_config_directories():
             config_file = os.path.realpath(os.path.join(path, filename))
-            if os.access(config_file, os.R_OK):
+            if config_file not in files and os.access(config_file, os.R_OK):
                 try:
                     timestamp = max(timestamp, os.stat(config_file).st_mtime)
                 except (OSError, IOError):
