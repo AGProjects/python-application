@@ -50,7 +50,7 @@ def execute_once(func):
             with self.im_func_wrapper.lock:
                 method = self.__method__
                 check_arguments.__get__(method.im_self, method.im_class)(*args, **kw)
-                instance = method.im_self or args[0]
+                instance = method.im_self if method.im_self is not None else args[0]
                 if self.im_func_wrapper.__callmap__.get(instance, False):
                     return
                 self.im_func_wrapper.__callmap__[instance] = True
@@ -84,7 +84,7 @@ def execute_once(func):
 
         @property
         def called(self):
-            return self.im_func_wrapper.__callmap__.get(self.__method__.im_self or self.__method__.im_class, False)
+            return self.im_func_wrapper.__callmap__.get(self.__method__.im_self if self.__method__.im_self is not None else self.__method__.im_class, False)
 
         @property
         def lock(self):
