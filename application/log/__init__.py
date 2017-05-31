@@ -184,7 +184,8 @@ class NamedLevel(int):
     def __repr__(self):
         return self.name
 
-    __str__ = __repr__
+    def __str__(self):
+        return self.name
 
     def __format__(self, fmt):
         if fmt.endswith('s'):
