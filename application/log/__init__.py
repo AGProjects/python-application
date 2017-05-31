@@ -181,16 +181,16 @@ class NamedLevel(int):
     def __init__(self, *args, **kw):
         super(NamedLevel, self).__init__()
 
+    def __repr__(self):
+        return self.name
+
+    __str__ = __repr__
+
     def __format__(self, fmt):
         if fmt.endswith('s'):
             return self.name.__format__(fmt)
         else:
             return super(NamedLevel, self).__format__(fmt)
-
-    def __repr__(self):
-        return self.name
-
-    __str__ = __repr__
 
 
 class CurrentLevelDescriptor(object):
