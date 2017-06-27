@@ -1,6 +1,7 @@
 
 """Python language extensions"""
 
+from __builtin__ import min as minimum, max as maximum
 from application.python.types import NullType
 
 
@@ -19,6 +20,5 @@ except ValueError:
 
 def limit(value, min=negative_infinite, max=positive_infinite):
     """Limit a numeric value to the specified range"""
-    from __builtin__ import min as minimum, max as maximum
     return maximum(min, minimum(value, max))
 
