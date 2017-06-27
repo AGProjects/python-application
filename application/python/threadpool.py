@@ -124,7 +124,7 @@ class ThreadPool(object):
             try:
                 task.function(*task.args, **task.kw)
             except:
-                log.exception('Exception occurred while calling %r in the %r thread' % (task.function, thread.name))
+                log.exception('Unhandled exception while calling %r in the %r thread' % (task.function, thread.name))
             finally:
                 with self._lock:
                     self.__dict__['jobs'] -= 1

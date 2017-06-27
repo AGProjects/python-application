@@ -21,7 +21,6 @@ class ConfigFile(object):
     """Provide access to a configuration file"""
     
     instances = {}
-    log_context = {'system': 'configuration'}
 
     def __new__(cls, filename):
         files = []
@@ -58,9 +57,8 @@ class ConfigFile(object):
                     return datatypes.Boolean(value)
                 else:
                     return type(value)
-            except Exception, e:
-                msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, setting, value, e)
-                log.warn(msg, **ConfigFile.log_context)
+            except Exception as e:
+                log.warning('ignoring invalid config value: %s.%s=%s (%s).' % (section, setting, value, e))
                 return default
     
     def get_section(self, section, filter=None, default=None):
@@ -208,9 +206,8 @@ class ConfigSectionType(type):
             for name, value in config_file.get_section(section, filter=cls.__settings__, default=[]):
                 try:
                     setattr(cls, name, value)
-                except Exception, e:
-                    msg = "ignoring invalid config value: %s.%s=%s (%s)." % (section, name, value, e)
-                    log.warn(msg, **config_file.log_context)
+                except Exception as e:
+                    log.warning('ignoring invalid config value: %s.%s=%s (%s).' % (section, name, value, e))
 
     def set(cls, **kw):
         """Atomically set multiple settings at once"""

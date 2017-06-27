@@ -46,8 +46,7 @@ class EventQueue(Thread):
             try:
                 self.handle(event)
             except Exception:
-                log.error("exception happened during event handling")
-                log.err()
+                log.exception('Unhandled exception during event handling')
             finally:
                 del event  # do not reference this event until the next event arrives, in order to allow it to be released
 
@@ -161,8 +160,7 @@ class CumulativeEventQueue(EventQueue):
                         if unhandled is not None:
                             preserved = unhandled  # preserve the unhandled events that the handler returned
                     except Exception:
-                        log.error("exception happened during event handling")
-                        log.err()
+                        log.exception('Unhandled exception during event handling')
                     self._waiting = preserved
             elif event is DiscardEvents:
                 self._waiting = []
@@ -171,8 +169,7 @@ class CumulativeEventQueue(EventQueue):
                     try:
                         self.handle([event])
                     except Exception:
-                        log.error("exception happened during high priority event handling")
-                        log.err()
+                        log.exception('Unhandled exception during high priority event handling')
                     finally:
                         del event  # do not reference this event until the next event arrives, in order to allow it to be released
                 else:

@@ -34,16 +34,15 @@ class LogLevel(int):
     """A log level indicated by a non-negative integer or one of the named attributes of log.level"""
 
     def __new__(cls, value):
-        if isinstance(value, (int, long)):
-            return log.NamedLevel(limit(value, min=log.level.ALL, max=log.level.NONE))
-        elif not isinstance(value, basestring):
-            raise TypeError("value must be a string, int or long")
-        log_level = value.upper()
-        names = [attr.name for attr in log.level.__class__.__dict__.itervalues() if type(attr) is log.NamedLevel]
-        if log_level in names:
-            return getattr(log.level, log_level)
+        if isinstance(value, basestring):
+            value = value.upper()
+        elif not isinstance(value, (int, long)):
+            raise TypeError("value must be a string or number")
+        named_levels = {level.name: level for level in log.level.named_levels}
+        if value in named_levels:
+            return named_levels[value]
         try:
-            return log.NamedLevel(limit(int(log_level), min=log.level.ALL, max=log.level.NONE))
+            return log.NamedLevel(limit(int(value), min=log.level.NOTSET))
         except ValueError:
             raise ValueError("invalid log level: %s" % value)
 
@@ -101,8 +100,8 @@ class HostnameList(list):
         for x in lst:
             try:
                 host = Hostname(x)
-            except ValueError, why:
-                log.warn("%s (ignored)" % why)
+            except ValueError as e:
+                log.warning('%s (ignored)' % e)
             else:
                 hosts.append(host)
         return hosts
@@ -179,9 +178,9 @@ class NetworkRangeList(list):
             try:
                 range = NetworkRange(x)
             except NameError:
-                log.warn("couldn't resolve hostname: `%s' (ignored)" % x)
+                log.warning('Could not resolve hostname: %r (ignored)' % x)
             except ValueError:
-                log.warn("Invalid network specification: `%s' (ignored)" % x)
+                log.warning('Invalid network specification: %r (ignored)' % x)
             else:
                 ranges.append(range)
         return ranges or None

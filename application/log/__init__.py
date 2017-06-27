@@ -1,15 +1,14 @@
 
-"""Application logging system for standard output/error and syslog"""
+"""Application logging system for console and syslog"""
 
+import abc
+import io
 import sys
 import logging
+import warnings
 
 from application.log.extensions import twisted
 from application.python import Null
-
-
-__all__ = ['level', 'info', 'warning', 'debug', 'error', 'critical', 'exception', 'msg', 'warn', 'fatal', 'err', 'start_syslog']
-
 
 try:
     import syslog
@@ -17,169 +16,170 @@ except ImportError:
     syslog = Null
 
 
-class IfNotInteractive(object):
-    """True when running under a non-interactive interpreter and False otherwise"""
-    def __nonzero__(self):
-        return sys.argv[0] is not ''
-
-    def __repr__(self):
-        return self.__class__.__name__
-
-IfNotInteractive = IfNotInteractive()
+__all__ = 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal', 'get_logger', 'set_default_formatter', 'capture_warnings', 'start_syslog', 'ContextualLogger'
 
 
-def info(message, **context):
-    logging.info(message, extra=context)
+class Formatter(logging.Formatter):
+    prefix_format = '{record.levelname:<8s} [{record.name}] '
+    prefix_length = 0
 
-
-def warning(message, **context):
-    logging.warning(message, extra=context)
-
-
-def debug(message, **context):
-    logging.debug(message, extra=context)
-
-
-def error(message, **context):
-    logging.error(message, extra=context)
-
-
-def critical(message, **context):
-    logging.critical(message, extra=context)
-
-
-def exception(message=None, **context):
-    logging.error(message, exc_info=1, extra=context)
-
-# Some aliases that are commonly used
-msg = info
-warn = warning
-fatal = critical
-err = exception
-
-
-class SimpleFormatter(logging.Formatter):
     def format(self, record):
-        if not record.msg:
-            message = ''
-        elif record.levelno == level.INFO:
-            message = record.getMessage()
-        else:
-            prefix = NamedLevel(record.levelno).prefix
-            message = '\n'.join(l.rstrip() and (prefix+l) or l for l in record.getMessage().split('\n'))
-        if record.exc_info:
-            # Cache the traceback text to avoid converting it multiple times
-            # (it's constant anyway)
-            if not record.exc_text:
-                record.exc_text = self.formatException(record.exc_info)
+        record.message = record.getMessage()
+        if record.exc_info and not record.exc_text:
+            # Cache the traceback text to avoid converting it multiple times (this is problematic with multiple formatters with different formatException)
+            record.exc_text = self.formatException(record.exc_info)
         if record.exc_text:
-            if not record.msg:
-                message = record.exc_text
-            else:
-                if message[-1:] != "\n":
-                    message += "\n"
-                message += record.exc_text
+            message = record.message + '\n' + record.exc_text if record.message else record.exc_text
+        else:
+            message = record.message
+        if self.prefix_format:
+            prefix = self.prefix_format.format(record=record).ljust(self.prefix_length)
+            message = '\n'.join(prefix+l for l in message.split('\n'))
         return message
 
-
-class SyslogHandler(logging.Handler):
-    priority_map = {logging.DEBUG:    syslog.LOG_DEBUG,
-                    logging.INFO:     syslog.LOG_INFO,
-                    logging.WARNING:  syslog.LOG_WARNING,
-                    logging.ERROR:    syslog.LOG_ERR,
-                    logging.CRITICAL: syslog.LOG_CRIT}
-
-    def __init__(self, prefix, facility=syslog.LOG_DAEMON):
-        logging.Handler.__init__(self)
-        syslog.openlog(prefix, syslog.LOG_PID, facility)
-
-    def close(self):
-        syslog.closelog()
-        logging.Handler.close(self)
-
-    def emit(self, record):
-        priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
-        message = self.format(record)
-        if isinstance(message, unicode):
-            message = message.encode('utf-8')
-        for line in message.rstrip().split('\n'):
-            syslog.syslog(priority, line)
+    def formatException(self, exc_info):
+        output = super(Formatter, self).formatException(exc_info)
+        return 'No exception' if output == 'None' else output
 
 
-class LoggingFile(object):
-    closed = False
-    encoding = 'UTF-8'
-    mode = 'w'
-    name = '<logging file>'
-    newlines = None
-    softspace = 0
+_default_formatter = logging._defaultFormatter = Formatter()
 
-    def __init__(self, logger):
-        self.buf = ''
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(_default_formatter)
+root_logger = logging.getLogger()
+root_logger.addHandler(stream_handler)
+root_logger.name = 'main'
+
+
+def set_default_formatter(formatter):
+    global _default_formatter
+    _default_formatter = logging._defaultFormatter = formatter
+    for handler in root_logger.handlers:
+        handler.setFormatter(formatter)
+
+
+def get_logger(name=None):
+    return logging.getLogger(name)
+
+
+def debug(message, *args, **kw):
+    root_logger.debug(message, *args, **kw)
+
+
+def info(message, *args, **kw):
+    root_logger.info(message, *args, **kw)
+
+
+def warning(message, *args, **kw):
+    root_logger.warning(message, *args, **kw)
+
+warn = warning
+
+
+def error(message, *args, **kw):
+    root_logger.error(message, *args, **kw)
+
+
+def exception(message='', *args, **kw):
+    exc_info = kw.pop('exc_info', None) or True
+    root_logger.error(message, *args, exc_info=exc_info, **kw)
+
+
+def critical(message, *args, **kw):
+    root_logger.critical(message, *args, **kw)
+
+fatal = critical
+
+
+# The following two functions are deprecated and will be removed in the future
+#
+def msg(*args, **kw):
+    warnings.warn('log.msg is deprecated and should be replaced with log.info', category=DeprecationWarning, stacklevel=2)
+    info(*args, **kw)
+
+
+def err(*args, **kw):
+    warnings.warn('log.err is deprecated and should be replaced with log.exception', category=DeprecationWarning, stacklevel=2)
+    exception(*args, **kw)
+
+
+# noinspection PyShadowingBuiltins
+def _showwarning(message, category, filename, lineno, file=None, line=None):
+    if file is not None:
+        _warnings_showwarning(message, category, filename, lineno, file, line)
+    else:
+        _warning_logger.warning(warnings.formatwarning(message, category, filename, lineno, line).rstrip('\n'))
+
+_warnings_showwarning = warnings.showwarning
+_warning_logger = logging.getLogger('python')
+warnings.showwarning = _showwarning  # By default we capture and log python warnings through the logging system
+
+
+def capture_warnings(capture=True):
+    """Toggle capturing and logging of python warnings through the logging system"""
+    warnings.showwarning = _showwarning if capture else _warnings_showwarning
+
+
+# Overwrite the exception method on the Logger class and the one in the logging module with our enhanced version
+# that can be called without a message to just log the traceback and it also accepts passing a custom exc_info
+# in order to log a particular exception, not only the current one.
+
+class Logger(logging.Logger):
+    def exception(self, message='', *args, **kw):
+        exc_info = kw.pop('exc_info', None) or True
+        self.error(message, *args, exc_info=exc_info, **kw)
+
+# logging.setLoggerClass(Logger)
+logging.Logger.exception = Logger.exception.__func__
+logging.exception = exception
+
+
+class ContextualLogger(object):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, logger, **context):
         self.logger = logger
+        self.__dict__.update(context)
 
-    def write(self, data):
-        if isinstance(data, unicode):
-            data = data.encode(self.encoding)
-        lines = (self.buf + data).split('\n')
-        self.buf = lines[-1]
-        for line in lines[:-1]:
-            self.logger(line)
+    @abc.abstractmethod
+    def apply_context(self, message):
+        return message
 
-    def writelines(self, lines):
-        for line in lines:
-            if isinstance(line, unicode):
-                line = line.encode(self.encoding)
-            self.logger(line)
+    def debug(self, message, *args, **kw):
+        self.logger.debug(self.apply_context(message), *args, **kw)
 
-    def close(self): pass
-    def flush(self): pass
-    def fileno(self): return -1
-    def isatty(self): return False
-    def next(self): raise IOError("cannot read from log")
-    def read(self): raise IOError("cannot read from log")
-    def readline(self): raise IOError("cannot read from log")
-    def readlines(self): raise IOError("cannot read from log")
-    def readinto(self, buf): raise IOError("cannot read from log")
-    def seek(self, offset, whence=0): raise IOError("cannot seek in log")
-    def tell(self): raise IOError("log does not have position")
-    def truncate(self, size=0): raise IOError("cannot truncate log")
+    def info(self, message, *args, **kw):
+        self.logger.info(self.apply_context(message), *args, **kw)
 
+    def warning(self, message, *args, **kw):
+        self.logger.warning(self.apply_context(message), *args, **kw)
 
-def start_syslog(prefix='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
-    if syslog is Null:
-        raise RuntimeError("syslog is not available on this platform")
-    logger = logging.getLogger()
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-    handler = SyslogHandler(prefix, facility)
-    handler.setFormatter(SimpleFormatter())
-    logger.addHandler(handler)
-    if capture_stdout:
-        sys.stdout = LoggingFile(info)
-    if capture_stderr:
-        sys.stderr = LoggingFile(error)
+    def error(self, message, *args, **kw):
+        self.logger.error(self.apply_context(message), *args, **kw)
 
-handler = logging.StreamHandler()
-handler.setFormatter(SimpleFormatter())
-logger = logging.getLogger()
-logger.addHandler(handler)
+    def exception(self, message='', *args, **kw):
+        exc_info = kw.pop('exc_info', None) or True
+        self.logger.error(self.apply_context(message), *args, exc_info=exc_info, **kw)
+
+    def critical(self, message, *args, **kw):
+        self.logger.critical(self.apply_context(message), *args, **kw)
+
+    # noinspection PyShadowingNames
+    def log(self, level, message, *args, **kw):
+        self.logger.log(level, self.apply_context(message), *args, **kw)
 
 
 class NamedLevel(int):
     _level_instances = {}
 
-    def __new__(cls, value, name=None, prefix=''):
+    # noinspection PyInitNewSignature,PyArgumentList
+    def __new__(cls, value):
         if value in cls._level_instances:
             return cls._level_instances[value]
         instance = int.__new__(cls, value)
-        instance.name = name or ('LEVEL%02d' % value)
-        instance.prefix = prefix
+        instance.name = logging.getLevelName(value)
         cls._level_instances[value] = instance
         return instance
-
-    def __init__(self, *args, **kw):
-        super(NamedLevel, self).__init__()
 
     def __repr__(self):
         return self.name
@@ -193,32 +193,151 @@ class NamedLevel(int):
         else:
             return super(NamedLevel, self).__format__(fmt)
 
+    def __setattr__(self, name, value):
+        if name == 'name' and 'name' in self.__dict__:
+            logging.addLevelName(int(self), value)
+        super(NamedLevel, self).__setattr__(name, value)
+
 
 class CurrentLevelDescriptor(object):
     def __init__(self, value):
         self.value = value
-        logging.getLogger().setLevel(value)
+        root_logger.setLevel(value)
 
     def __get__(self, obj, owner):
         return self.value
 
     def __set__(self, obj, value):
         self.value = value
-        logging.getLogger().setLevel(value)
+        root_logger.setLevel(value)
 
 
-class LevelClass(object):
-    ALL      = NamedLevel(logging.NOTSET,   name='ALL')
-    NONE     = NamedLevel(sys.maxint,       name='NONE')
-    
-    DEBUG    = NamedLevel(logging.DEBUG,    name='DEBUG',    prefix='debug: ')
-    INFO     = NamedLevel(logging.INFO,     name='INFO',     prefix='')
-    WARNING  = NamedLevel(logging.WARNING,  name='WARNING',  prefix='warning: ')
-    ERROR    = NamedLevel(logging.ERROR,    name='ERROR',    prefix='error: ')
-    CRITICAL = NamedLevel(logging.CRITICAL, name='CRITICAL', prefix='fatal error: ')
+class LevelHandler(object):
+    NOTSET = NamedLevel(logging.NOTSET)
+    DEBUG = NamedLevel(logging.DEBUG)
+    INFO = NamedLevel(logging.INFO)
+    WARNING = NamedLevel(logging.WARNING)
+    ERROR = NamedLevel(logging.ERROR)
+    CRITICAL = NamedLevel(logging.CRITICAL)
 
-    current  = CurrentLevelDescriptor(INFO)
+    current = CurrentLevelDescriptor(INFO)
 
-level = LevelClass()
-del LevelClass, CurrentLevelDescriptor, IfNotInteractive
+    @property
+    def named_levels(self):
+        return {self.NOTSET, self.DEBUG, self.INFO, self.WARNING, self.ERROR, self.CRITICAL} | {item for item in self.__dict__.values() if isinstance(item, NamedLevel)}
 
+    def __setattr__(self, name, value):
+        if isinstance(value, NamedLevel) and value not in self.named_levels:
+            value.name = name
+        super(LevelHandler, self).__setattr__(name, value)
+
+level = LevelHandler()
+
+
+# Syslog handling
+#
+
+class SyslogHandler(logging.Handler):
+    priority_map = {logging.DEBUG:    syslog.LOG_DEBUG,
+                    logging.INFO:     syslog.LOG_INFO,
+                    logging.WARNING:  syslog.LOG_WARNING,
+                    logging.ERROR:    syslog.LOG_ERR,
+                    logging.CRITICAL: syslog.LOG_CRIT}
+
+    def __init__(self, name, facility=syslog.LOG_DAEMON):
+        logging.Handler.__init__(self)
+        syslog.openlog(name, syslog.LOG_PID, facility)
+
+    def close(self):
+        syslog.closelog()
+        logging.Handler.close(self)
+
+    def emit(self, record):
+        priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
+        message = self.format(record)
+        if isinstance(message, unicode):
+            message = message.encode('UTF-8')
+        for line in message.rstrip().split('\n'):
+            syslog.syslog(priority, line)
+
+
+# noinspection PyMethodMayBeStatic
+class StandardIOLogger(io.IOBase):
+    softspace = 0
+
+    def __init__(self, logger, encoding='UTF-8'):
+        super(StandardIOLogger, self).__init__()
+        self._logger = logger
+        self._encoding = encoding or sys.getdefaultencoding()
+        self._buffer = ''
+
+    @property
+    def name(self):
+        return '<{0.__class__.__name__} ({0._encoding})>'.format(self)
+
+    @property
+    def mode(self):
+        return 'w'
+
+    @property
+    def encoding(self):
+        return self._encoding
+
+    @property
+    def newlines(self):
+        return None
+
+    @property
+    def errors(self):
+        return None
+
+    def read(self, size=None):
+        raise io.UnsupportedOperation('read')
+
+    def readinto(self, buf):
+        raise io.UnsupportedOperation('readinto')
+
+    def writable(self):
+        return True
+
+    def write(self, string):
+        self._checkClosed()
+        if isinstance(string, unicode):
+            string = string.encode(self._encoding)
+        lines = (self._buffer + string).split('\n')
+        self._buffer = lines[-1]
+        for line in lines[:-1]:
+            self._logger(line)
+
+    def writelines(self, lines):
+        self._checkClosed()
+        for line in lines:
+            if isinstance(line, unicode):
+                line = line.encode(self._encoding)
+            self._logger(line)
+
+
+class IfNotInteractive(object):
+    """True when running under a non-interactive interpreter and False otherwise"""
+
+    def __nonzero__(self):
+        return sys.argv[0] is not ''
+
+    def __repr__(self):
+        return self.__class__.__name__
+
+IfNotInteractive = IfNotInteractive()
+
+
+def start_syslog(name='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+    if syslog is Null:
+        raise RuntimeError("syslog is not available on this platform")
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    handler = SyslogHandler(name, facility)
+    handler.setFormatter(_default_formatter)
+    root_logger.addHandler(handler)
+    if capture_stdout:
+        sys.stdout = StandardIOLogger(root_logger.info)
+    if capture_stderr:
+        sys.stderr = StandardIOLogger(root_logger.error)

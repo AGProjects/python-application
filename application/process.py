@@ -175,8 +175,8 @@ class Process(object):
         if self._pidfile:
             try:
                 os.unlink(self._pidfile)
-            except OSError, why:
-                log.warn("unable to delete pidfile %s: %s" % (self._pidfile, str(why)))
+            except OSError as e:
+                log.warning('unable to delete pidfile %s: %s' % (self._pidfile, e))
 
     def daemonize(self, pidfile=None):
         """Detach from terminal and run in the background"""
