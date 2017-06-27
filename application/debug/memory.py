@@ -25,7 +25,7 @@ import types
 from collections import deque
 
 
-__all__ = ['memory_dump']
+__all__ = 'memory_dump',
 
 
 class Node(object):

@@ -8,7 +8,7 @@ import socket
 from application.python.types import Singleton
 
 
-__all__ = ['host', 'makedirs', 'openfile', 'unlink', 'FileExistsError']
+__all__ = 'host', 'makedirs', 'openfile', 'unlink', 'FileExistsError'
 
 
 # System properties and attributes
@@ -127,8 +127,8 @@ def openfile(path, mode='r', permissions=0666):
 
 def unlink(path):
     """Remove a file ignoring errors"""
+    # noinspection PyBroadException
     try:
         os.unlink(path)
     except:
         pass
-

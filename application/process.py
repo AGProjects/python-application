@@ -12,10 +12,11 @@ from application import log
 from application.python.types import Singleton
 
 
-__all__ = ['Process', 'ProcessError', 'Signals', 'process']
+__all__ = 'Process', 'ProcessError', 'Signals', 'process'
 
 
-class ProcessError(Exception): pass
+class ProcessError(Exception):
+    pass
 
 
 class Process(object):
@@ -55,8 +56,8 @@ class Process(object):
         if not os.path.isdir(path):
             try:
                 os.makedirs(path)
-            except OSError, e:
-                raise ProcessError("cannot set runtime directory to %s: %s" % (path, e.args[1]))
+            except OSError as e:
+                raise ProcessError('cannot set runtime directory to %s: %s' % (path, e.strerror))
         if not os.access(path, os.X_OK | os.W_OK):
             raise ProcessError("runtime directory %s is not writable" % path)
         self._runtime_directory = path
@@ -70,14 +71,14 @@ class Process(object):
             return
         try:
             pf = open(pidfile, 'rb')
-        except IOError, why:
-            raise ProcessError("unable to open pidfile %s: %s" % (pidfile, str(why)))
+        except IOError as e:
+            raise ProcessError('unable to open pidfile %s: %s' % (pidfile, e))
         else:
             try:
                 try:
                     pid = int(pf.readline().strip())
-                except IOError, why:
-                    raise ProcessError("unable to read pidfile %s: %s" % (pidfile, str(why)))
+                except IOError as e:
+                    raise ProcessError('unable to read pidfile %s: %s' % (pidfile, e))
                 except ValueError:
                     pass
                 else:
@@ -85,15 +86,16 @@ class Process(object):
                     # Send the process a signal of zero (0)
                     try:
                         os.kill(pid, 0)
-                    except OSError, why:
-                        if why[0] in (errno.EPERM, errno.EACCES):
-                            raise ProcessError("already running with pid %d" % pid)
+                    except OSError as e:
+                        if e.errno in (errno.EPERM, errno.EACCES):
+                            raise ProcessError('already running with pid %d' % pid)
                     else:
-                        raise ProcessError("already running with pid %d" % pid)
+                        raise ProcessError('already running with pid %d' % pid)
             finally:
                 pf.close()
 
-    def _do_fork(self):
+    @staticmethod
+    def _do_fork():
         """Perform the Unix double fork"""
         # First fork.
         # This will return control to the command line/shell that invoked us and
@@ -104,8 +106,8 @@ class Process(object):
             if pid > 0:
                 sys.exit(0)  # exit parent
                 # os._exit(0)
-        except OSError, e:
-            raise ProcessError("fork #1 failed: %d: %s" % (e.errno, e.strerror))
+        except OSError as e:
+            raise ProcessError('fork #1 failed: %d: %s' % (e.errno, e.strerror))
         
         # Decouple from the controlling terminal.
         # Calling setsid() we become a process group and session group leader.
@@ -123,14 +125,14 @@ class Process(object):
             if pid > 0:
                 sys.exit(0)  # exit 1st child too
                 # os._exit(0)
-        except OSError, e:
-            raise ProcessError("fork #2 failed: %d: %s" % (e.errno, e.strerror))
+        except OSError as e:
+            raise ProcessError('fork #2 failed: %d: %s' % (e.errno, e.strerror))
         
         # Setup our environment.
         # Change working directory to / so we do not keep any directory in use
         # preventing them from being unmounted. Also set file creation mask.
         os.chdir("/")
-        os.umask(022)
+        os.umask(0o022)
 
     def _make_pidfile(self):
         """Create the pidfile if defined"""
@@ -142,10 +144,11 @@ class Process(object):
                 pf.write("%s\n" % os.getpid())
             finally:
                 pf.close()
-        except IOError, e:
-            raise ProcessError("unable to write pidfile %s: %s" % (self._pidfile, str(e)))
+        except IOError as e:
+            raise ProcessError('unable to write pidfile %s: %s' % (self._pidfile, e))
 
-    def _redirect_stdio(self):
+    @staticmethod
+    def _redirect_stdio():
         """Redirect standard input, standard output and standard error to /dev/null"""
         sys.stdout.flush()
         sys.stderr.flush()
@@ -256,4 +259,3 @@ class Signals(object):
 
 
 process = Process()
-

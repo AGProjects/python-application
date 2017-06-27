@@ -4,29 +4,30 @@
 import re
 
 
-__all__ = ['Version']
+__all__ = 'Version',
 
 
 class Version(str):
     """A major.minor.micro[extraversion] version string that is comparable"""
 
+    # noinspection PyArgumentList
     def __new__(cls, major, minor, micro, extraversion=None):
         if major is minor is micro is extraversion is None:
-            instance = str.__new__(cls, "undefined")
+            instance = str.__new__(cls, 'undefined')
             instance._version_info = (None, None, None, None, None)
             return instance
         try:
             major, minor, micro = int(major), int(minor), int(micro)
         except (TypeError, ValueError):
-            raise TypeError("major, minor and micro must be integer numbers")
+            raise TypeError('major, minor and micro must be integer numbers')
         if extraversion is None:
-            instance = str.__new__(cls, "%d.%d.%d" % (major, minor, micro))
+            instance = str.__new__(cls, '%d.%d.%d' % (major, minor, micro))
             weight = 0
         elif isinstance(extraversion, (int, long)):
-            instance = str.__new__(cls, "%d.%d.%d-%d" % (major, minor, micro, extraversion))
+            instance = str.__new__(cls, '%d.%d.%d-%d' % (major, minor, micro, extraversion))
             weight = 0
         elif isinstance(extraversion, basestring):
-            instance = str.__new__(cls, "%d.%d.%d%s" % (major, minor, micro, extraversion))
+            instance = str.__new__(cls, '%d.%d.%d%s' % (major, minor, micro, extraversion))
             match = re.match(r'^[-.]?(?P<name>(pre|rc|alpha|beta|))(?P<number>\d+)$', extraversion)
             if match:
                 weight_map = {'alpha': -40, 'beta': -30, 'pre': -20, 'rc': -10, '': 0}
@@ -53,7 +54,7 @@ class Version(str):
             return cls(None, None, None)
         match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)
         if not match:
-            raise ValueError("not a recognized version string")
+            raise ValueError('not a recognized version string')
         return cls(**match.groupdict(0))
 
     @property
@@ -76,8 +77,8 @@ class Version(str):
         major, minor, micro, weight, extraversion = self._version_info
         if weight is not None and weight < 0:
             weight_map = {-10: 'rc', -20: 'pre', -30: 'beta', -40: 'alpha'}
-            extraversion = "%s%d" % (weight_map[weight], extraversion)
-        return "%s(major=%r, minor=%r, micro=%r, extraversion=%r)" % (self.__class__.__name__, major, minor, micro, extraversion)
+            extraversion = '%s%d' % (weight_map[weight], extraversion)
+        return '%s(major=%r, minor=%r, micro=%r, extraversion=%r)' % (self.__class__.__name__, major, minor, micro, extraversion)
 
     def __cmp__(self, other):
         if isinstance(other, Version):

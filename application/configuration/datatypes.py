@@ -9,11 +9,10 @@ from application import log
 from application.python import limit
 
 
-__all__ = ['Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList',
-           'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress']
+__all__ = 'Boolean', 'LogLevel', 'StringList', 'IPAddress', 'Hostname', 'HostnameList', 'NetworkRange', 'NetworkRangeList', 'NetworkAddress', 'EndpointAddress'
 
 
-class Boolean(int):
+class Boolean(object):
     """A boolean validator that handles multiple boolean input keywords: yes/no, true/false, on/off, 1/0"""
 
     __valuemap__ = {'1': True,  'yes': True, 'true': True,   'on': True,
@@ -23,14 +22,14 @@ class Boolean(int):
         if isinstance(value, (int, long, float)):
             return bool(value)
         elif not hasattr(value, 'lower'):
-            raise TypeError("value must be a string, number or boolean")
+            raise TypeError('value must be a string, number or boolean')
         try:
             return cls.__valuemap__[value.lower()]
         except KeyError:
             raise ValueError('not a boolean value: %r' % value)
 
 
-class LogLevel(int):
+class LogLevel(object):
     """A log level indicated by a non-negative integer or one of the named attributes of log.level"""
 
     def __new__(cls, value):
@@ -44,10 +43,10 @@ class LogLevel(int):
         try:
             return log.NamedLevel(limit(int(value), min=log.level.NOTSET))
         except ValueError:
-            raise ValueError("invalid log level: %s" % value)
+            raise ValueError('invalid log level: %s' % value)
 
 
-class StringList(list):
+class StringList(object):
     """A list of strings separated by commas"""
 
     def __new__(cls, value):
@@ -58,7 +57,7 @@ class StringList(list):
                 return []
             return re.split(r'\s*,\s*', value)
         else:
-            raise TypeError("value must be a string, list or tuple")
+            raise TypeError('value must be a string, list or tuple')
 
 
 class IPAddress(str):
@@ -68,9 +67,9 @@ class IPAddress(str):
         try:
             socket.inet_aton(value)
         except socket.error:
-            raise ValueError("invalid IP address: %r" % value)
+            raise ValueError('invalid IP address: %r' % value)
         except TypeError:
-            raise TypeError("value must be a string")
+            raise TypeError('value must be a string')
         return str(value)
 
 
@@ -79,13 +78,13 @@ class Hostname(str):
 
     def __new__(cls, value):
         if not isinstance(value, basestring):
-            raise TypeError("value must be a string")
+            raise TypeError('value must be a string')
         if value.lower() == 'any':
             return '0.0.0.0'
         return str(value)
 
 
-class HostnameList(list):
+class HostnameList(object):
     """A list of hostnames separated by commas"""
 
     def __new__(cls, description):
@@ -107,7 +106,7 @@ class HostnameList(list):
         return hosts
 
 
-class NetworkRange(tuple):
+class NetworkRange(object):
     """
     Describes a network address range in the form of a base_address and a
     network_mask which together define the network range in question.
@@ -147,10 +146,10 @@ class NetworkRange(tuple):
             try:
                 ip_address = socket.gethostbyname(description)  # if not a network/mask it may be a host or ip
             except socket.gaierror:
-                raise NameError("invalid hostname or IP address: '%s'" % description)
+                raise NameError('invalid hostname or IP address: %r' % description)
             mask_bits = 32
         if not 0 <= mask_bits <= 32:
-            raise ValueError("invalid network mask in address: '%s' (should be between 0 and 32)" % description)
+            raise ValueError('invalid network mask in address: %r (should be between 0 and 32)' % description)
         try:
             network_address = socket.inet_aton(ip_address)
         except Exception:
@@ -160,7 +159,7 @@ class NetworkRange(tuple):
         return base_address, network_mask
 
 
-class NetworkRangeList(list):
+class NetworkRangeList(object):
     """A list of NetworkRange objects separated by commas"""
 
     def __new__(cls, description):
@@ -169,24 +168,24 @@ class NetworkRangeList(list):
         elif isinstance(description, (list, tuple)):
             return [NetworkRange(x) for x in description] or None
         elif not isinstance(description, basestring):
-            raise TypeError("value must be a string, list, tuple or None")
+            raise TypeError('value must be a string, list, tuple or None')
         if description.lower() == 'none':
             return None
         lst = re.split(r'\s*,\s*', description)
         ranges = []
         for x in lst:
             try:
-                range = NetworkRange(x)
+                network_range = NetworkRange(x)
             except NameError:
                 log.warning('Could not resolve hostname: %r (ignored)' % x)
             except ValueError:
                 log.warning('Invalid network specification: %r (ignored)' % x)
             else:
-                ranges.append(range)
+                ranges.append(network_range)
         return ranges or None
 
 
-class NetworkAddress(tuple):
+class NetworkAddress(object):
     """
     A TCP/IP host[:port] network address.
     Host may be a hostname, an IP address or the keyword `any' which stands
@@ -253,5 +252,3 @@ class EndpointAddress(NetworkAddress):
         elif address[0] == '0.0.0.0' or address[1] == 0:
             raise ValueError("invalid %s: %s:%s" % (cls.name, address[0], address[1]))
         return address
-
-

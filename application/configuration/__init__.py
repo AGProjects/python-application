@@ -14,7 +14,7 @@ from application.python.descriptor import isdescriptor
 from application.configuration import datatypes
 
 
-__all__ = ['ConfigFile', 'ConfigSection', 'ConfigSetting', 'SaveState', 'AtomicUpdate', 'datatypes']
+__all__ = 'ConfigFile', 'ConfigSection', 'ConfigSetting', 'SaveState', 'AtomicUpdate', 'datatypes'
 
 
 class ConfigFile(object):
@@ -254,5 +254,3 @@ class ConfigSection(object):
 
     def __new__(cls, *args, **kw):
         raise TypeError("cannot instantiate ConfigSection class")
-
-

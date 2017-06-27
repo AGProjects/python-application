@@ -5,7 +5,7 @@ from __builtin__ import min as minimum, max as maximum
 from application.python.types import NullType
 
 
-__all__ = ['Null', 'limit']
+__all__ = 'Null', 'limit'
 
 
 Null = NullType()
@@ -18,7 +18,7 @@ except ValueError:
     positive_infinite = 1e300000
 
 
+# noinspection PyShadowingBuiltins
 def limit(value, min=negative_infinite, max=positive_infinite):
     """Limit a numeric value to the specified range"""
     return maximum(min, minimum(value, max))
-

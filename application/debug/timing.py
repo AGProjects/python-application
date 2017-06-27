@@ -34,7 +34,7 @@ from application.python.decorator import decorator, preserve_signature
 from application.python.types import MarkerType
 
 
-__all__ = ["Timer", "TimeProbe", "timer", "time_probe", "measure_time"]
+__all__ = 'Timer', 'TimeProbe', 'timer', 'time_probe', 'measure_time'
 
 
 class Automatic(object):
@@ -54,9 +54,9 @@ Autodetect = Autodetect()
 class Timer(object):
     def __init__(self, description=None, loops=Autodetect, repeat=3, time_function=Automatic):
         if not isinstance(loops, int):
-            raise TypeError("loops should be an integer number")
+            raise TypeError('loops should be an integer number')
         if not callable(time_function):
-            raise TypeError("time_function should be a callable")
+            raise TypeError('time_function should be a callable')
         self.description = description
         self.loops = loops
         self.repeat = repeat
@@ -69,7 +69,7 @@ class Timer(object):
         parent = inspect.currentframe().f_back
         try:
             if parent.f_code.co_flags & inspect.CO_NEWLOCALS:
-                raise RuntimeError("timers only work when invoked at the module/script level")
+                raise RuntimeError('timers only work when invoked at the module/script level')
             self._with_start = parent.f_lasti
         finally:
             del parent
@@ -121,9 +121,9 @@ class Timer(object):
                     normalized_time, time_unit = normalize_time(statement_time)
 
                     if self.description is not None:
-                        format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec); {description}"
+                        format_string = u'{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec); {description}'
                     else:
-                        format_string = u"{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec)"
+                        format_string = u'{} loops, best of {}: {:.{precision}g} {} per loop ({:.{rate_precision}f} operations/sec)'
                     rate_precision = 2 if statement_rate < 10 else 1 if statement_rate < 100 else 0
                     print format_string.format(loops, self.repeat, normalized_time, time_unit, statement_rate, description=self.description, precision=3, rate_precision=rate_precision)
                 finally:
@@ -278,7 +278,7 @@ timer = Timer
 class TimeProbe(object):
     def __init__(self, description=None, time_function=Automatic):
         if not callable(time_function):
-            raise TypeError("time_function should be a callable")
+            raise TypeError('time_function should be a callable')
         self.description = description
         if time_function is Automatic:
             self.time_function = clock if sys.platform == 'win32' else time
@@ -307,14 +307,14 @@ class TimeProbe(object):
             if error >= 0.1:
                 precision = 2 if error < 10 else 1 if error < 100 else 0
                 # error_string = " (measurement error: {:.{precision}f}%)".format(error, precision=precision)
-                error_string = " (uncertainty {:.{precision}f}%)".format(error, precision=precision)
+                error_string = ' (uncertainty {:.{precision}f}%)'.format(error, precision=precision)
             else:
-                error_string = ""
+                error_string = ''
             if self.description is not None:
                 # format_string = u"{:.{precision}g} {}{}; {description}"
-                format_string = u"{description}: {:.{precision}g} {}{}"
+                format_string = u'{description}: {:.{precision}g} {}{}'
             else:
-                format_string = u"{:.{precision}g} {}{}"
+                format_string = u'{:.{precision}g} {}{}'
             print format_string.format(normalized_time, time_unit, error_string, description=self.description, precision=3)
         del self._start_time
 
@@ -333,7 +333,7 @@ def measure_time(func):
 class _MeasurementProbe(object):
     def __init__(self, time_function=Automatic):
         if not callable(time_function):
-            raise TypeError("time_function should be a callable")
+            raise TypeError('time_function should be a callable')
         if time_function is Automatic:
             self.time_function = clock if sys.platform == 'win32' else time
         else:
@@ -380,5 +380,3 @@ def normalize_time(run_time):
         normalized_time *= 1000
     else:
         return run_time * 1e9, 'ns'
-
-

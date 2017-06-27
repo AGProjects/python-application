@@ -8,11 +8,11 @@ from copy import deepcopy
 from threading import local
 
 
-__all__ = ["weakobjectmap", "defaultweakobjectmap"]
+__all__ = 'weakobjectmap', 'defaultweakobjectmap'
 
 
 class objectref(weakref.ref):
-    __slots__ = "id"
+    __slots__ = 'id'
 
     def __init__(self, object, discard_callback):
         super(objectref, self).__init__(object, discard_callback)
@@ -89,9 +89,9 @@ class weakobjectmap(MutableMapping):
     def __repr__(self):
         with _ReprGuard(self) as guard:
             if guard.successive_run:
-                return "%s({...})" % self.__class__.__name__
+                return '%s({...})' % self.__class__.__name__
             else:
-                return "%s({%s})" % (self.__class__.__name__, ', '.join(('%r: %r' % (key, value) for key, value in self.iteritems())))
+                return '%s({%s})' % (self.__class__.__name__, ', '.join(('%r: %r' % (key, value) for key, value in self.iteritems())))
 
     @classmethod
     def fromkeys(cls, iterable, value=None):
@@ -180,4 +180,3 @@ class _ReprGuard(object):
             return self.__local__.active_instances
         except AttributeError:
             return self.__local__.__dict__.setdefault('active_instances', deque())
-

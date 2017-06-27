@@ -10,12 +10,13 @@ from application.python import limit
 from application.python.decorator import decorator, preserve_signature
 
 
-__all__ = ['ThreadPool', 'run_in_threadpool']
+__all__ = 'ThreadPool', 'run_in_threadpool'
 
 
 class CallFunctionEvent(object):
     __slots__ = 'function', 'args', 'kw'
 
+    # noinspection PyShadowingBuiltins
     def __init__(self, function, args, kw):
         self.function = function
         self.args = args
@@ -26,7 +27,7 @@ class ThreadPool(object):
     StopWorker = object()
 
     def __init__(self, name=None, min_threads=1, max_threads=10):
-        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
+        assert 0 <= min_threads <= max_threads > 0, 'invalid bounds'
         self.name = name
         self._lock = Lock()
         self._queue = Queue()
@@ -77,7 +78,7 @@ class ThreadPool(object):
             self._thread_id = None
 
     def resize(self, min_threads=1, max_threads=10):
-        assert 0 <= min_threads <= max_threads > 0, "invalid bounds"
+        assert 0 <= min_threads <= max_threads > 0, 'invalid bounds'
         with self._lock:
             self.__dict__['min_threads'] = min_threads
             self.__dict__['max_threads'] = max_threads
@@ -104,7 +105,7 @@ class ThreadPool(object):
     def _start_worker(self):
         # Must be called with the lock held
         self.__dict__['workers'] += 1
-        name = "%sThread-%s-%s" % (self.__class__.__name__, self.name or id(self), next(self._thread_id))
+        name = '%sThread-%s-%s' % (self.__class__.__name__, self.name or id(self), next(self._thread_id))
         thread = Thread(target=self._worker, name=name)
         self._threads.append(thread)
         thread.daemon = True
@@ -121,6 +122,7 @@ class ThreadPool(object):
             task = self._queue.get()
             if task is self.StopWorker:
                 break
+            # noinspection PyBroadException
             try:
                 task.function(*task.args, **task.kw)
             except:
@@ -140,4 +142,3 @@ def run_in_threadpool(pool):
             pool.run(func, *args, **kw)
         return wrapper
     return thread_decorator
-

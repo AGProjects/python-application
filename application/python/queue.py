@@ -8,7 +8,7 @@ from application import log
 from application.python.types import MarkerType
 
 
-__all__ = ['EventQueue', 'CumulativeEventQueue']
+__all__ = 'EventQueue', 'CumulativeEventQueue'
 
 
 # Special events that control the queue operation (for internal use)
@@ -23,7 +23,7 @@ class EventQueue(Thread):
 
     def __init__(self, handler, name=None, preload=()):
         if not callable(handler):
-            raise TypeError("handler should be a callable")
+            raise TypeError('handler should be a callable')
         Thread.__init__(self, name=name or self.__class__.__name__)
         self.setDaemon(True)
         self._exit = Event()
@@ -121,7 +121,7 @@ class EventQueue(Thread):
     def get_unhandled(self):
         """Get unhandled events after the queue is stopped (events are removed from queue)"""
         if self.isAlive():
-            raise RuntimeError("Queue is still running")
+            raise RuntimeError('Queue is still running')
         unhandled = []
         try:
             while True:
@@ -132,8 +132,9 @@ class EventQueue(Thread):
             pass
         return unhandled
 
-    def handle(self, event):
-        raise RuntimeError("unhandled event")
+    @staticmethod
+    def handle(event):
+        raise RuntimeError('unhandled event')
 
 
 class CumulativeEventQueue(EventQueue):
@@ -156,7 +157,7 @@ class CumulativeEventQueue(EventQueue):
                     try:
                         unhandled = self.handle(self._waiting)
                         if not isinstance(unhandled, (list, type(None))):
-                            raise ValueError("%s handler must return a list of unhandled events or None" % self.__class__.__name__)
+                            raise ValueError('%s handler must return a list of unhandled events or None' % self.__class__.__name__)
                         if unhandled is not None:
                             preserved = unhandled  # preserve the unhandled events that the handler returned
                     except Exception:
@@ -190,5 +191,3 @@ class CumulativeEventQueue(EventQueue):
         unhandled = self._waiting + EventQueue.get_unhandled(self)
         self._waiting = []
         return [e for e in unhandled if e is not ProcessEvents]
-
-

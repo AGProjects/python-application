@@ -7,7 +7,7 @@ from threading import RLock
 from application.python.weakref import weakobjectmap
 
 
-__all__ = ['decorator', 'preserve_signature', 'execute_once']
+__all__ = 'decorator', 'preserve_signature', 'execute_once'
 
 
 def decorator(func):
@@ -35,6 +35,7 @@ def preserve_signature(func):
 def execute_once(func):
     """Execute function/method once per function/instance"""
 
+    # noinspection PyUnusedLocal
     @preserve_signature(func)
     def check_arguments(*args, **kw):
         pass
@@ -93,6 +94,7 @@ def execute_once(func):
     class ExecuteOnceFunctionWrapper(object):
         __slots__ = '__weakref__', '__func__', '__callmap__', 'called', 'lock'
 
+        # noinspection PyShadowingNames
         def __init__(self, func):
             self.__func__ = func
             self.__callmap__ = weakobjectmap()

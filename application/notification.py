@@ -14,7 +14,7 @@ from application.python.types import Singleton, MarkerType
 from application.python.weakref import weakobjectmap
 
 
-__all__ = ['Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter', 'ObserverWeakrefProxy']
+__all__ = 'Any', 'UnknownSender', 'IObserver', 'NotificationData', 'Notification', 'NotificationCenter', 'ObserverWeakrefProxy'
 
 
 class Any(object):
@@ -30,6 +30,7 @@ class UnknownSender(object):
 class IObserver(Interface):
     """Interface describing a Notification Observer"""
 
+    # noinspection PyMethodMayBeStatic
     def handle_notification(self, notification):
         """Function used to handle a posted Notification"""
 
@@ -57,6 +58,7 @@ class ObserverWeakrefProxy(object):
             cls.observer_map[observer] = instance
             return instance
 
+    # noinspection PyUnusedLocal
     def cleanup(self, ref):
         # remove all observer's remaining registrations (the ones that the observer didn't remove itself)
         for notification_center in NotificationCenter.__instances__.itervalues():
@@ -192,6 +194,7 @@ class NotificationCenter(object):
         notification.center = self
         queue = self.queue
         queue.append(notification)
+        # noinspection PyTypeChecker
         if len(queue) > 1:  # This is true if we post a notification from inside a notification handler
             return
 
@@ -209,5 +212,3 @@ class NotificationCenter(object):
                 except Exception:
                     log.exception("Unhandled exception in notification observer %r while handling notification %r" % (observer, notification.name))
             queue.popleft()
-
-
