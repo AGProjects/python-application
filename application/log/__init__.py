@@ -154,6 +154,8 @@ class ContextualLogger(object):
     def warning(self, message, *args, **kw):
         self.logger.warning(self.apply_context(message), *args, **kw)
 
+    warn = warning
+
     def error(self, message, *args, **kw):
         self.logger.error(self.apply_context(message), *args, **kw)
 
@@ -163,6 +165,8 @@ class ContextualLogger(object):
 
     def critical(self, message, *args, **kw):
         self.logger.critical(self.apply_context(message), *args, **kw)
+
+    fatal = critical
 
     # noinspection PyShadowingNames
     def log(self, level, message, *args, **kw):
