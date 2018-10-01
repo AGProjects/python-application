@@ -1,3 +1,50 @@
+python-application (2.5.0) unstable; urgency=medium
+
+  * Added subclasses function in application.python
+  * Refactored logging system
+    - Aligned log function signatures with those from the logging module.
+      Context can no longer be provided as keyword arguments to the functions,
+      it has to be provided through the extra keyword argument.
+    - Provide a better exception logging function, that can be called without
+      a message to just log the traceback and which also accepts the exc_info
+      argument containing an exception info tuple to log a given traceback.
+      This enhanced version of the exception function is also made available
+      on the logging.Logger class and is fully backwards compatible.
+    - Deprecated log.msg and log.err in favor of log.info and log.exception
+    - Replaced log.Formatter with an enhanced version which can be customized
+      to obtain a desired logging format without the need to replace it. In
+      addition a mechanism to set the default formatter is provided in case
+      the Formatter customization level is not enough for the application.
+    - Provide the ability to capture and log python warnings. The feature is
+      turned on by default but can be disabled with capture_warnings(False).
+    - Provide a ContextualLogger abstract class that can be subclassed to
+      implement loggers that can modify the logged messages using additional
+      context that is specific to that particular logger, without the need to
+      modify the formatter.
+    - Rewrote LoggingFile using io.IOBase and renamed it to StandardIOLogger
+    - Simplified NamedLevel and improved it to allow its name to be modified.
+    - Renamed LevelClass to LevelHandler and improved it to allow defining
+      new named levels by simply attaching a new NamedLevel attribute to
+      log.level: log.level.FOOBAR = NamedLevel(number) which will define a
+      new level named 'FOOBAR' associated with number and register it with
+      the logging module. Attaching an existing level won't rename it, it
+      will only create an aliased attribute on log.level
+    - Added a new 'named_levels' property to log.level which will return a
+      set with all the registered named levels knows to the logging system.
+    - Renamed prefix to name in SyslogHandler and start_syslog arguments
+  * Fixed twisted logger and modified it to use the new twisted logger API
+  * Allow a log level to format as a string
+  * Improved performance for limit, making it 4 times faster
+  * Fixed bug in execute_once with instances that evaluate to boolean False
+  * Avoid reading a configuration file twice in certain circumstances
+  * Modernize code and improve PEP-8 compliance
+  * Removed obsolete pycompat/pyversions files
+  * Removed unnecessary .PHONY targets in debian/rules
+  * Increased debian standards version to 3.9.8
+  * Increased debian compatibility level to 9
+
+ -- Dan Pascu <dan@ag-projects.com>  Mon, 01 Oct 2018 17:56:44 +0300
+
 python-application (2.1.0) unstable; urgency=medium
 
   * Compacted error logging statements
