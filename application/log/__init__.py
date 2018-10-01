@@ -73,6 +73,7 @@ def info(message, *args, **kw):
 def warning(message, *args, **kw):
     root_logger.warning(message, *args, **kw)
 
+
 warn = warning
 
 
@@ -87,6 +88,7 @@ def exception(message='', *args, **kw):
 
 def critical(message, *args, **kw):
     root_logger.critical(message, *args, **kw)
+
 
 fatal = critical
 
@@ -110,6 +112,7 @@ def _showwarning(message, category, filename, lineno, file=None, line=None):
     else:
         _warning_logger.warning(warnings.formatwarning(message, category, filename, lineno, line).rstrip('\n'))
 
+
 _warnings_showwarning = warnings.showwarning
 _warning_logger = logging.getLogger('python')
 warnings.showwarning = _showwarning  # By default we capture and log python warnings through the logging system
@@ -128,6 +131,7 @@ class Logger(logging.Logger):
     def exception(self, message='', *args, **kw):
         exc_info = kw.pop('exc_info', None) or True
         self.error(message, *args, exc_info=exc_info, **kw)
+
 
 # logging.setLoggerClass(Logger)
 logging.Logger.exception = Logger.exception.__func__
@@ -235,6 +239,7 @@ class LevelHandler(object):
             value.name = name
         super(LevelHandler, self).__setattr__(name, value)
 
+
 level = LevelHandler()
 
 
@@ -329,6 +334,7 @@ class IfNotInteractive(object):
 
     def __repr__(self):
         return self.__class__.__name__
+
 
 IfNotInteractive = IfNotInteractive()
 
