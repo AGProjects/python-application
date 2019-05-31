@@ -3,6 +3,7 @@
 
 import sys
 import os
+import time
 import errno
 import signal
 import atexit
@@ -10,6 +11,7 @@ import __main__
 
 from application import log
 from application.python.types import Singleton
+from application.system import host
 
 
 __all__ = 'Process', 'ProcessError', 'Signals', 'process'
@@ -217,6 +219,25 @@ class Process(object):
             return os.path.realpath(os.path.join(self.runtime_directory, name))
         else:
             return os.path.realpath(name)
+
+    @staticmethod
+    def wait_for_network(wait_time=10, wait_message=None, test_ip='1.2.3.4'):
+        """
+        Make sure the network is available and can be reached. The function
+        will return as soon as the network is reachable or it will raise
+        RuntimeError if network is still unreachable after wait_time. The
+        default value for test_ip checks if internet is reachable. Optionally
+        it can log wait_message at INFO level if the function needs to wait.
+        """
+        for step in range(wait_time):
+            local_ip = host.outgoing_ip_for(test_ip)
+            if local_ip is not None:
+                break
+            elif step == 0 and wait_message is not None:
+                log.info(wait_message)
+            time.sleep(1)
+        else:
+            raise RuntimeError('Network is not available after waiting for {} seconds'.format(wait_time))
 
 
 class Signals(object):
