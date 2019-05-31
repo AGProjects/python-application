@@ -32,26 +32,28 @@ class Process(object):
         self._system_config_directory = '/etc'
         self._local_config_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
 
-    def _get_local_config_directory(self):
+    @property
+    def local_config_directory(self):
         return self._local_config_directory
 
-    def _set_local_config_directory(self, path):
+    @local_config_directory.setter
+    def local_config_directory(self, path):
         self._local_config_directory = os.path.realpath(path)
 
-    local_config_directory = property(_get_local_config_directory, _set_local_config_directory)
-
-    def _get_system_config_directory(self):
+    @property
+    def system_config_directory(self):
         return self._system_config_directory
 
-    def _set_system_config_directory(self, path):
+    @system_config_directory.setter
+    def system_config_directory(self, path):
         self._system_config_directory = os.path.realpath(path)
 
-    system_config_directory = property(_get_system_config_directory, _set_system_config_directory)
-
-    def _get_runtime_directory(self):
+    @property
+    def runtime_directory(self):
         return self._runtime_directory
 
-    def _set_runtime_directory(self, path):
+    @runtime_directory.setter
+    def runtime_directory(self, path):
         path = os.path.realpath(path)
         if not os.path.isdir(path):
             try:
@@ -61,8 +63,6 @@ class Process(object):
         if not os.access(path, os.X_OK | os.W_OK):
             raise ProcessError("runtime directory %s is not writable" % path)
         self._runtime_directory = path
-
-    runtime_directory = property(_get_runtime_directory, _set_runtime_directory)
 
     def _check_if_running(self):
         """Check if the process is already running"""
