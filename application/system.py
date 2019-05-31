@@ -57,6 +57,7 @@ class HostProperties(object):
             aliases.remove(hostname)
         return aliases
 
+
 host = HostProperties()
 
 
@@ -130,5 +131,5 @@ def unlink(path):
     # noinspection PyBroadException
     try:
         os.unlink(path)
-    except:
+    except Exception:
         pass
