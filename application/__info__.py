@@ -5,7 +5,7 @@ __project__ = "python-application"
 __summary__ = "Basic building blocks for python applications"
 __webpage__ = "https://github.com/AGProjects/python-application"
 
-__version__ = "2.5.0"
+__version__ = "2.6.0"
 
 __author__ = "Dan Pascu"
 __email__ = "dan@ag-projects.com"

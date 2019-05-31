@@ -1,3 +1,11 @@
+Changes in version 2.6.0
+------------------------
+
+  * Allow process to wait for network to become available before starting
+  * Use getter/setter syntax for defining properties
+  * Fixed some PEP-8 violations
+  * Updated license and copyright years
+
 Changes in version 2.5.0
 ------------------------
 
