@@ -3,7 +3,6 @@
 
 from __builtin__ import min as minimum, max as maximum
 from application.python.types import NullType
-from collections import deque
 
 
 __all__ = 'Null', 'limit', 'subclasses'
@@ -27,8 +26,9 @@ def limit(value, min=negative_infinite, max=positive_infinite):
 
 def subclasses(cls):
     """Recursively find all the subclasses of a given class"""
-    classes = deque(cls.__subclasses__())
-    while classes:
-        subclass = classes.popleft()
-        classes.extend(subclass.__subclasses__())
-        yield subclass
+    classes = cls.__subclasses__()
+    for subclass in classes:
+        for sub_subclass in subclass.__subclasses__():
+            if sub_subclass not in classes:
+                classes.append(sub_subclass)
+    return classes
