@@ -1,3 +1,12 @@
+python-application (2.7.0) unstable; urgency=medium
+
+  * Refactored subclasses function in application.python
+    - Changed it from a generator to a function that returns a list
+    - Fixed issue with duplicated items in output
+    - Significantly improved speed
+
+ -- Dan Pascu <dan@ag-projects.com>  Sat, 01 Jun 2019 11:38:20 +0300
+
 python-application (2.6.0) unstable; urgency=medium
 
   * Allow process to wait for network to become available before starting

@@ -1,3 +1,11 @@
+Changes in version 2.7.0
+------------------------
+
+  * Refactored subclasses function in application.python
+    - Changed it from a generator to a function that returns a list
+    - Fixed issue with duplicated items in output
+    - Significantly improved speed
+
 Changes in version 2.6.0
 ------------------------
 
