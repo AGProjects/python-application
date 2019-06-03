@@ -262,12 +262,16 @@ class SyslogHandler(logging.Handler):
         logging.Handler.close(self)
 
     def emit(self, record):
-        priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
-        message = self.format(record)
-        if isinstance(message, unicode):
-            message = message.encode('UTF-8')
-        for line in message.rstrip().replace('\0', '#000').split('\n'):  # syslog.syslog() raises TypeError if null bytes are present in the message
-            syslog.syslog(priority, line)
+        # noinspection PyBroadException
+        try:
+            priority = self.priority_map.get(record.levelno, syslog.LOG_INFO)
+            message = self.format(record)
+            if isinstance(message, unicode):
+                message = message.encode('UTF-8')
+            for line in message.rstrip().replace('\0', '#000').split('\n'):  # syslog.syslog() raises TypeError if null bytes are present in the message
+                syslog.syslog(priority, line)
+        except Exception:
+            self.handleError(record)
 
 
 # noinspection PyMethodMayBeStatic
