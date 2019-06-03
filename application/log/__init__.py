@@ -266,7 +266,7 @@ class SyslogHandler(logging.Handler):
         message = self.format(record)
         if isinstance(message, unicode):
             message = message.encode('UTF-8')
-        for line in message.rstrip().split('\n'):
+        for line in message.rstrip().replace('\0', '#000').split('\n'):  # syslog.syslog() raises TypeError if null bytes are present in the message
             syslog.syslog(priority, line)
 
 
