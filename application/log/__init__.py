@@ -17,7 +17,7 @@ except ImportError:
 
 
 __all__ = ('ContextualLogger', 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal',
-           'get_logger', 'set_default_formatter', 'set_handler', 'capture_warnings', 'capture_output', 'start_syslog')
+           'get_logger', 'set_default_formatter', 'set_handler', 'capture_warnings', 'capture_output', 'use_syslog')
 
 
 class Formatter(logging.Formatter):
@@ -344,20 +344,6 @@ class IfNotInteractive(object):
 IfNotInteractive = IfNotInteractive()
 
 
-def start_syslog(name='python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
-    if syslog is Null:
-        raise RuntimeError("syslog is not available on this platform")
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
-    handler = SyslogHandler(name, facility)
-    handler.setFormatter(_default_formatter)
-    root_logger.addHandler(handler)
-    if capture_stdout:
-        sys.stdout = StandardIOLogger(root_logger.info)
-    if capture_stderr:
-        sys.stderr = StandardIOLogger(root_logger.error)
-
-
 def capture_output(capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
     sys.stdout = StandardIOLogger(root_logger.info) if capture_stdout else sys.__stdout__
     sys.stderr = StandardIOLogger(root_logger.error) if capture_stderr else sys.__stderr__
@@ -368,3 +354,18 @@ def set_handler(handler):
         root_logger.removeHandler(old_handler)
     handler.setFormatter(_default_formatter)
     root_logger.addHandler(handler)
+
+
+def use_syslog(name=sys.argv[0] or 'python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+    if syslog is Null:
+        raise RuntimeError("syslog is not available on this platform")
+    set_handler(SyslogHandler(name, facility))
+    capture_output(capture_stdout, capture_stderr)
+
+
+def start_syslog(*args, **kw):
+    try:
+        use_syslog(*args, **kw)
+    finally:
+        # emit the warning after setting up syslog, else the warning will most likely go to /dev/null, considering that start_syslog is usually called after forking
+        warnings.warn('start_syslog is deprecated and should be replaced with use_syslog', category=DeprecationWarning, stacklevel=2)
