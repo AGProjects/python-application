@@ -16,7 +16,8 @@ except ImportError:
     syslog = Null
 
 
-__all__ = 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal', 'get_logger', 'set_default_formatter', 'capture_warnings', 'start_syslog', 'ContextualLogger'
+__all__ = ('ContextualLogger', 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal',
+           'get_logger', 'set_default_formatter', 'set_handler', 'capture_warnings', 'capture_output', 'start_syslog')
 
 
 class Formatter(logging.Formatter):
@@ -355,3 +356,15 @@ def start_syslog(name='python-app', facility=syslog.LOG_DAEMON, capture_stdout=I
         sys.stdout = StandardIOLogger(root_logger.info)
     if capture_stderr:
         sys.stderr = StandardIOLogger(root_logger.error)
+
+
+def capture_output(capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+    sys.stdout = StandardIOLogger(root_logger.info) if capture_stdout else sys.__stdout__
+    sys.stderr = StandardIOLogger(root_logger.error) if capture_stderr else sys.__stderr__
+
+
+def set_handler(handler):
+    for old_handler in root_logger.handlers[:]:
+        root_logger.removeHandler(old_handler)
+    handler.setFormatter(_default_formatter)
+    root_logger.addHandler(handler)
