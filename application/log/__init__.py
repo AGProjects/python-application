@@ -332,7 +332,7 @@ class StandardIOLogger(io.IOBase):
             self._logger(line)
 
 
-class IfNotInteractive(object):
+class WhenNotInteractive(object):
     """True when running under a non-interactive interpreter and False otherwise"""
 
     def __nonzero__(self):
@@ -342,10 +342,10 @@ class IfNotInteractive(object):
         return self.__class__.__name__
 
 
-IfNotInteractive = IfNotInteractive()
+WhenNotInteractive = WhenNotInteractive()
 
 
-def capture_output(capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+def capture_output(capture_stdout=WhenNotInteractive, capture_stderr=WhenNotInteractive):
     sys.stdout = StandardIOLogger(root_logger.info) if capture_stdout else sys.__stdout__
     sys.stderr = StandardIOLogger(root_logger.error) if capture_stderr else sys.__stderr__
 
@@ -357,7 +357,7 @@ def set_handler(handler):
     root_logger.addHandler(handler)
 
 
-def use_syslog(name=sys.argv[0] or 'python-app', facility=syslog.LOG_DAEMON, capture_stdout=IfNotInteractive, capture_stderr=IfNotInteractive):
+def use_syslog(name=sys.argv[0] or 'python-app', facility=syslog.LOG_DAEMON, capture_stdout=WhenNotInteractive, capture_stderr=WhenNotInteractive):
     if syslog is Null:
         raise RuntimeError("syslog is not available on this platform")
     set_handler(SyslogHandler(name, facility))
