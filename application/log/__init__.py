@@ -6,6 +6,7 @@ import io
 import sys
 import logging
 import warnings
+import __main__
 
 from application.log.extensions import twisted
 from application.python import Null
@@ -335,7 +336,7 @@ class IfNotInteractive(object):
     """True when running under a non-interactive interpreter and False otherwise"""
 
     def __nonzero__(self):
-        return sys.argv[0] is not ''
+        return hasattr(__main__, '__file__') or getattr(sys, 'frozen', False)
 
     def __repr__(self):
         return self.__class__.__name__
