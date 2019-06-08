@@ -30,8 +30,8 @@ class Process(object):
         self._daemon = False
         self._pidfile = None
         self.signals = Signals()
-        self._runtime_directory = '/var/run'
-        self._system_config_directory = '/etc'
+        self._runtime_directory = os.path.realpath('/var/run')
+        self._system_config_directory = os.path.realpath('/etc')
         self._local_config_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
 
     @property
