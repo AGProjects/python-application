@@ -35,6 +35,10 @@ class Process(object):
         self._local_config_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
 
     @property
+    def daemon(self):
+        return self._daemon
+
+    @property
     def local_config_directory(self):
         return self._local_config_directory
 
