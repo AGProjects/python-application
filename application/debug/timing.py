@@ -81,7 +81,7 @@ class Timer(object):
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         try:
-            if exc_value is None:
+            if exc_type is None:
                 duration = self.time_function() - self._start_time
 
                 loops = self.loops or self._estimate_loop_count(duration, 1)
@@ -291,7 +291,7 @@ class TimeProbe(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_value is None:
+        if exc_type is None:
             duration = self.time_function() - self._start_time
 
             probe = _MeasurementProbe(self.time_function)
@@ -344,7 +344,7 @@ class _MeasurementProbe(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_value is None:
+        if exc_type is None:
             self.duration = self.time_function() - self._start_time
         del self._start_time
 

@@ -129,7 +129,7 @@ class AtomicUpdate(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_value is not None:
+        if exc_type is not None:
             self.config_section.reset(state=self._saved_state)
         del self._saved_state
         return False
