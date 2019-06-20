@@ -17,7 +17,7 @@ except ImportError:
     syslog = Null
 
 
-__all__ = ('ContextualLogger', 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal',
+__all__ = ('ContextualLogger', 'level', 'debug', 'info', 'warning', 'warn', 'error', 'exception', 'critical', 'fatal', 'log',
            'get_logger', 'set_default_formatter', 'set_handler', 'capture_warnings', 'capture_output', 'use_syslog')
 
 
@@ -93,6 +93,11 @@ def critical(message, *args, **kw):
 
 
 fatal = critical
+
+
+# noinspection PyShadowingNames
+def log(level, message, *args, **kw):
+    root_logger.log(level, message, *args, **kw)
 
 
 # The following two functions are deprecated and will be removed in the future
