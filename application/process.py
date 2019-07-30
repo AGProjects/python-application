@@ -145,11 +145,8 @@ class Process(object):
         if not self._pidfile:
             return
         try:
-            pf = open(self._pidfile, "wb")
-            try:
+            with open(self._pidfile, "wb") as pf:
                 pf.write("%s\n" % os.getpid())
-            finally:
-                pf.close()
         except IOError as e:
             raise ProcessError('unable to write pidfile %s: %s' % (self._pidfile, e))
 
