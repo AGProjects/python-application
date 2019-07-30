@@ -56,33 +56,24 @@ class EventQueue(Thread):
             self._exit.set()
         self.queue.put(StopProcessing)
         # resume processing in case it is paused
-        self._pause_lock.acquire()
-        try:
+        with self._pause_lock:
             self._pause_counter = 0
             self._active.set()
-        finally:
-            self._pause_lock.release()
 
     def pause(self):
         """Pause processing events"""
-        self._pause_lock.acquire()
-        try:
+        with self._pause_lock:
             self._pause_counter += 1
             self._active.clear()
-        finally:
-            self._pause_lock.release()
 
     def unpause(self):
         """Resume processing events"""
-        self._pause_lock.acquire()
-        try:
+        with self._pause_lock:
             if self._pause_counter == 0:
                 return  # already active
             self._pause_counter -= 1
             if self._pause_counter == 0:
                 self._active.set()
-        finally:
-            self._pause_lock.release()
 
     def resume(self, events=()):
         """Add events on the queue and resume processing (will unpause and enable accepting events)."""
