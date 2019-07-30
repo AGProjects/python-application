@@ -37,7 +37,7 @@ class Version(str):
                 weight = 0
                 extraversion = extraversion or None
         else:
-            raise TypeError("extraversion must be a string, integer, long or None")
+            raise TypeError('extraversion must be a string, integer, long or None')
         instance._version_info = (major, minor, micro, weight, extraversion)
         return instance
 
@@ -49,7 +49,7 @@ class Version(str):
         if isinstance(value, Version):
             return value
         elif not isinstance(value, basestring):
-            raise TypeError("value should be a string")
+            raise TypeError('value should be a string')
         if value == 'undefined':
             return cls(None, None, None)
         match = re.match(r'^(?P<major>\d+)(\.(?P<minor>\d+))?(\.(?P<micro>\d+))?(?P<extraversion>.*)$', value)

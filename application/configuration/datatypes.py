@@ -36,7 +36,7 @@ class LogLevel(object):
         if isinstance(value, basestring):
             value = value.upper()
         elif not isinstance(value, (int, long)):
-            raise TypeError("value must be a string or number")
+            raise TypeError('value must be a string or number')
         named_levels = {level.name: level for level in log.level.named_levels}
         if value in named_levels:
             return named_levels[value]
@@ -91,7 +91,7 @@ class HostnameList(object):
         if isinstance(description, (list, tuple)):
             return [Hostname(x) for x in description]
         elif not isinstance(description, basestring):
-            raise TypeError("value must be a string, list or tuple")
+            raise TypeError('value must be a string, list or tuple')
         if description.lower() == 'none':
             return []
         lst = re.split(r'\s*,\s*', description)
@@ -133,7 +133,7 @@ class NetworkRange(object):
         if isinstance(description, tuple) and len(description) == 2 and all(isinstance(item, (int, long)) and 0 <= item < 2**32 for item in description):
             return description
         elif not isinstance(description, basestring):
-            raise TypeError("value must be a string, or a tuple with 2 32-bit unsigned integers")
+            raise TypeError('value must be a string, or a tuple with 2 32-bit unsigned integers')
         if not description or description.lower() == 'none':
             return 0L, 0xFFFFFFFFL
         if description.lower() == 'any':
@@ -153,7 +153,7 @@ class NetworkRange(object):
         try:
             network_address = socket.inet_aton(ip_address)
         except Exception:
-            raise ValueError("invalid IP address: '%s'" % ip_address)
+            raise ValueError('invalid IP address: %r' % ip_address)
         network_mask = (0xFFFFFFFFL << 32-mask_bits) & 0xFFFFFFFFL
         base_address = struct.unpack('!L', network_address)[0] & network_mask
         return base_address, network_mask
@@ -209,7 +209,7 @@ class NetworkAddress(object):
         elif isinstance(value, tuple) and len(value) == 2 and isinstance(value[1], (int, long)):
             return Hostname(value[0]), value[1]
         elif not isinstance(value, basestring):
-            raise TypeError("value must be a string, a (host, port) tuple or None")
+            raise TypeError('value must be a string, a (host, port) tuple or None')
         if value.lower() == 'none':
             return None
         if value.lower() == 'default':
@@ -224,7 +224,7 @@ class NetworkAddress(object):
         try:
             address = Hostname(address)
         except ValueError:
-            raise ValueError("invalid network address: %r" % value)
+            raise ValueError('invalid network address: %r' % value)
         return address, port
 
 
@@ -248,7 +248,7 @@ class EndpointAddress(NetworkAddress):
     def __new__(cls, value):
         address = NetworkAddress.__new__(cls, value)
         if address is None:
-            raise ValueError("invalid %s: %s" % (cls.name, value))
+            raise ValueError('invalid %s: %s' % (cls.name, value))
         elif address[0] == '0.0.0.0' or address[1] == 0:
-            raise ValueError("invalid %s: %s:%s" % (cls.name, address[0], address[1]))
+            raise ValueError('invalid %s: %s:%s' % (cls.name, address[0], address[1]))
         return address

@@ -67,7 +67,7 @@ class Process(object):
             except OSError as e:
                 raise ProcessError('cannot set runtime directory to %s: %s' % (path, e.strerror))
         if not os.access(path, os.X_OK | os.W_OK):
-            raise ProcessError("runtime directory %s is not writable" % path)
+            raise ProcessError('runtime directory %s is not writable' % path)
         self._runtime_directory = path
 
     def _check_if_running(self):
@@ -137,7 +137,7 @@ class Process(object):
         # Setup our environment.
         # Change working directory to / so we do not keep any directory in use
         # preventing them from being unmounted. Also set file creation mask.
-        os.chdir("/")
+        os.chdir('/')
         os.umask(0o022)
 
     def _make_pidfile(self):
@@ -145,8 +145,8 @@ class Process(object):
         if not self._pidfile:
             return
         try:
-            with open(self._pidfile, "wb") as pf:
-                pf.write("%s\n" % os.getpid())
+            with open(self._pidfile, 'wb') as pf:
+                pf.write('%s\n' % os.getpid())
         except IOError as e:
             raise ProcessError('unable to write pidfile %s: %s' % (self._pidfile, e))
 
@@ -257,7 +257,7 @@ class Signals(object):
     def add_handler(self, signum, handler):
         """Add handler to handler list for signal"""
         if not callable(handler):
-            raise RuntimeError("signal handler needs to be a callable")
+            raise RuntimeError('signal handler needs to be a callable')
         self._handlers.setdefault(signum, set()).add(handler)
         if signal.getsignal(signum) != self.__dispatcher:
             self._original_signal(signum, self.__dispatcher)

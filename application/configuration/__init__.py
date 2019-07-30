@@ -95,12 +95,12 @@ class ConfigSetting(object):
 class SaveState(object):
     def __init__(self, owner):
         if not isclass(owner) or not isinstance(owner, ConfigSectionType):
-            raise TypeError("owner should be a ConfigSection subclass")
+            raise TypeError('owner should be a ConfigSection subclass')
         self.__owner__ = owner
         self.__state__ = dict(owner)
 
     def __repr__(self):
-        return "<{0.__owner__.__name__} state: {0.__state__!r}>".format(self)
+        return '<{0.__owner__.__name__} state: {0.__state__!r}>'.format(self)
 
     def __getitem__(self, item):
         return self.__state__[item]
@@ -171,7 +171,7 @@ class ConfigSectionType(type):
             cls.read()
 
     def __str__(cls):
-        return "%s:\n%s" % (cls.__name__, '\n'.join("  %s = %r" % (name, value) for name, value in cls) or "  pass")
+        return '%s:\n%s' % (cls.__name__, '\n'.join('  %s = %r' % (name, value) for name, value in cls) or '  pass')
 
     def __iter__(cls):
         return ((name, descriptor.__get__(cls, cls.__class__)) for name, descriptor in cls.__settings__.iteritems())
@@ -184,7 +184,7 @@ class ConfigSectionType(type):
 
     def __delattr__(cls, name):
         if name == '__settings__' or name in cls.__settings__:
-            raise AttributeError("'%s' attribute '%s' cannot be deleted" % (cls.__name__, name))
+            raise AttributeError('%r attribute %r cannot be deleted' % (cls.__name__, name))
         else:
             super(ConfigSectionType, cls).__delattr__(name)
 
@@ -193,7 +193,7 @@ class ConfigSectionType(type):
         cfgfile = cfgfile or cls.__cfgfile__
         section = section or cls.__section__
         if None in (cfgfile, section):
-            raise ValueError("A config file and section are required for reading settings")
+            raise ValueError('A config file and section are required for reading settings')
         if isinstance(cfgfile, ConfigFile):
             config_file = cfgfile
         else:
@@ -212,7 +212,7 @@ class ConfigSectionType(type):
     def set(cls, **kw):
         """Atomically set multiple settings at once"""
         if not set(kw).issubset(cls.__settings__):
-            raise TypeError("Got unexpected keyword argument '%s'" % set(kw).difference(cls.__settings__).pop())
+            raise TypeError('Got unexpected keyword argument %r' % set(kw).difference(cls.__settings__).pop())
         with AtomicUpdate(cls):
             for name, value in kw.iteritems():
                 setattr(cls, name, value)
@@ -221,9 +221,9 @@ class ConfigSectionType(type):
         """Reset settings to the provided save state or to the default values from the class definition if state is None"""
         state = state or cls.__defaults__
         if not isinstance(state, SaveState):
-            raise TypeError("state should be a SaveState instance")
+            raise TypeError('state should be a SaveState instance')
         if state.__owner__ is not cls:
-            raise ValueError("save state does not belong to this config section")
+            raise ValueError('save state does not belong to this config section')
         for name, descriptor in cls.__settings__.iteritems():
             descriptor.__set__(cls, state[name], convert=False)
 
@@ -253,4 +253,4 @@ class ConfigSection(object):
     __section__ = None
 
     def __new__(cls, *args, **kw):
-        raise TypeError("cannot instantiate ConfigSection class")
+        raise TypeError('cannot instantiate ConfigSection class')

@@ -306,12 +306,12 @@ class TimeProbe(object):
             error = samples.sampling_unit / duration * 100
             if error >= 0.1:
                 precision = 2 if error < 10 else 1 if error < 100 else 0
-                # error_string = " (measurement error: {:.{precision}f}%)".format(error, precision=precision)
+                # error_string = ' (measurement error: {:.{precision}f}%)'.format(error, precision=precision)
                 error_string = ' (uncertainty {:.{precision}f}%)'.format(error, precision=precision)
             else:
                 error_string = ''
             if self.description is not None:
-                # format_string = u"{:.{precision}g} {}{}; {description}"
+                # format_string = u'{:.{precision}g} {}{}; {description}'
                 format_string = u'{description}: {:.{precision}g} {}{}'
             else:
                 format_string = u'{:.{precision}g} {}{}'
@@ -325,7 +325,7 @@ time_probe = TimeProbe
 def measure_time(func):
     @preserve_signature(func)
     def func_wrapper(*args, **kw):
-        with time_probe("executing {}".format(func.__name__)):
+        with time_probe('executing {}'.format(func.__name__)):
             return func(*args, **kw)
     return func_wrapper
 

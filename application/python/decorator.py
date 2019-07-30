@@ -19,8 +19,8 @@ def preserve_signature(func):
     """Preserve the original function signature and attributes in decorator wrappers."""
     def fix_signature(wrapper):
         exec_scope = {}
-        parameters = formatargspec(*getargspec(func), formatvalue=lambda value: "")
-        exec "def {0}{1}: return wrapper{1}".format(func.__name__, parameters) in {'wrapper': wrapper}, exec_scope  # can't use tuple form here (see https://bugs.python.org/issue21591)
+        parameters = formatargspec(*getargspec(func), formatvalue=lambda value: '')
+        exec 'def {0}{1}: return wrapper{1}'.format(func.__name__, parameters) in {'wrapper': wrapper}, exec_scope  # can't use tuple form here (see https://bugs.python.org/issue21591)
         new_wrapper = exec_scope.pop(func.__name__)
         new_wrapper.__name__ = func.__name__
         new_wrapper.__doc__ = func.__doc__
@@ -148,9 +148,9 @@ from application.python.decorator import decorator, preserve_signature
 @decorator
 def print_args(func):
     @preserve_signature(func)
-    def wrapper(*args, **kwargs):
-        print "arguments:", args, kwargs
-        return func(*args, **kwargs)
+    def wrapper(*args, **kw):
+        print('arguments: args={}, kw={}'.format(args, kw)
+        return func(*args, **kw)
     return wrapper
 
 @print_args

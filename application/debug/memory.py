@@ -96,7 +96,7 @@ class Cycle(tuple):
 
 
 def memory_dump(show_cycles=True, show_objects=False):
-    print "\nGARBAGE:"
+    print '\nGARBAGE:'
     gc.collect()
     garbage = gc.garbage[:]
 
@@ -126,11 +126,11 @@ def memory_dump(show_cycles=True, show_objects=False):
         for node in nodes.itervalues():
             node.successors = node.visitable_successors = None
 
-        print "\nCOLLECTABLE CYCLES:"
+        print '\nCOLLECTABLE CYCLES:'
         for cycle in (c for c in cycles if c.collectable):
             print cycle
 
-        print "\nUNCOLLECTABLE CYCLES:"
+        print '\nUNCOLLECTABLE CYCLES:'
         for cycle in (c for c in cycles if not c.collectable):
             print cycle
 
@@ -141,12 +141,12 @@ def memory_dump(show_cycles=True, show_objects=False):
         except Exception:
             console_width = 80
 
-        print "\nGARBAGE OBJECTS:"
+        print '\nGARBAGE OBJECTS:'
         for x in garbage:
             s = str(x)
             if len(s) > console_width-2:
                 s = s[:console_width-5] + '...'
-            print "%s\n  %s" % (type(x), s)
+            print '%s\n  %s' % (type(x), s)
 
 
 gc.enable()

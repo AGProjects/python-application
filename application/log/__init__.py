@@ -364,7 +364,7 @@ def set_handler(handler):
 
 def use_syslog(name=sys.argv[0] or 'python-app', facility=syslog.LOG_DAEMON, capture_stdout=WhenNotInteractive, capture_stderr=WhenNotInteractive):
     if syslog is Null:
-        raise RuntimeError("syslog is not available on this platform")
+        raise RuntimeError('syslog is not available on this platform')
     set_handler(SyslogHandler(name, facility))
     capture_output(capture_stdout, capture_stderr)
 

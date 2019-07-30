@@ -83,9 +83,9 @@ def openfile(path, mode='r', permissions=0666):
     if not set(mode).issubset('rwxabt+'):
         raise ValueError('Invalid mode: {!r}'.format(mode))
     if len(set(mode).intersection('rwxa')) != 1 or mode.count('+') > 1:
-        raise ValueError("Must have exactly one of create/read/write/append mode and at most one plus")
+        raise ValueError('Must have exactly one of create/read/write/append mode and at most one plus')
     if 'b' in mode and 't' in mode:
-        raise ValueError("Cannot have both text and binary modes specified at the same time")
+        raise ValueError('Cannot have both text and binary modes specified at the same time')
 
     write = append = False
 

@@ -49,7 +49,7 @@ class ObserverWeakrefProxy(object):
 
     def __new__(cls, observer):
         if not IObserver.providedBy(observer):
-            raise TypeError("observer must implement the IObserver interface")
+            raise TypeError('observer must implement the IObserver interface')
         with cls.lock:
             if observer in cls.observer_map:
                 return cls.observer_map[observer]
@@ -85,7 +85,7 @@ class Notification(object):
 
     def __init__(self, name, sender=UnknownSender, data=NotificationData()):
         if name is Any or sender is Any:
-            raise ValueError("name and/or sender must not be the special object Any")
+            raise ValueError('name and/or sender must not be the special object Any')
         self.name = name
         self.sender = sender
         self.data = data
@@ -135,7 +135,7 @@ class NotificationCenter(object):
         UnknownSender, the observer will only receive anonymous notifications.
         """
         if not IObserver.providedBy(observer):
-            raise TypeError("observer must implement the IObserver interface")
+            raise TypeError('observer must implement the IObserver interface')
         with self.lock:
             self.observers.setdefault((name, sender), set()).add(observer)
 
@@ -154,7 +154,7 @@ class NotificationCenter(object):
                 observer_set = self.observers[(name, sender)]
                 observer_set.remove(observer)
             except KeyError:
-                raise KeyError("observer %r not registered for %r events from %r" % (observer, name, sender))
+                raise KeyError('observer %r not registered for %r events from %r' % (observer, name, sender))
             if not observer_set:
                 del self.observers[(name, sender)]
 
@@ -210,5 +210,5 @@ class NotificationCenter(object):
                 try:
                     observer.handle_notification(notification)
                 except Exception:
-                    log.exception("Unhandled exception in notification observer %r while handling notification %r" % (observer, notification.name))
+                    log.exception('Unhandled exception in notification observer %r while handling notification %r' % (observer, notification.name))
             queue.popleft()
