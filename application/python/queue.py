@@ -43,6 +43,7 @@ class EventQueue(Thread):
             event = self.queue.get()
             if event is StopProcessing:
                 break
+            # noinspection PyBroadException
             try:
                 self.handle(event)
             except Exception:
@@ -145,6 +146,7 @@ class CumulativeEventQueue(EventQueue):
             elif event is ProcessEvents:
                 if self._waiting:
                     preserved = []
+                    # noinspection PyBroadException
                     try:
                         unhandled = self.handle(self._waiting)
                         if not isinstance(unhandled, (list, type(None))):
@@ -158,6 +160,7 @@ class CumulativeEventQueue(EventQueue):
                 self._waiting = []
             else:
                 if getattr(event, 'high_priority', False):
+                    # noinspection PyBroadException
                     try:
                         self.handle([event])
                     except Exception:
