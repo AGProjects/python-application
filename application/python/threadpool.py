@@ -125,7 +125,7 @@ class ThreadPool(object):
             # noinspection PyBroadException
             try:
                 task.function(*task.args, **task.kw)
-            except:
+            except Exception:
                 log.exception('Unhandled exception while calling %r in the %r thread' % (task.function, thread.name))
             finally:
                 with self._lock:
