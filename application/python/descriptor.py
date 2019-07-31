@@ -27,19 +27,19 @@ class ThreadLocal(object):
         self.args = args
         self.kw = kw
 
-    def __get__(self, obj, owner):
-        if obj is None:
+    def __get__(self, instance, owner):
+        if instance is None:
             return self
         try:
-            return self.thread_local.__dict__[id(obj)]
+            return self.thread_local.__dict__[id(instance)]
         except KeyError:
-            self.thread_local.__dict__[weakobjectid(obj, discarder(self.thread_local.__dict__))] = instance = self.type(*self.args, **self.kw)
+            self.thread_local.__dict__[weakobjectid(instance, discarder(self.thread_local.__dict__))] = instance = self.type(*self.args, **self.kw)
             return instance
 
-    def __set__(self, obj, value):
-        self.thread_local.__dict__[weakobjectid(obj, discarder(self.thread_local.__dict__))] = value
+    def __set__(self, instance, value):
+        self.thread_local.__dict__[weakobjectid(instance, discarder(self.thread_local.__dict__))] = value
 
-    def __delete__(self, obj):
+    def __delete__(self, instance):
         raise AttributeError('attribute cannot be deleted')
 
 
@@ -68,7 +68,7 @@ class WriteOnceAttribute(object):
             raise AttributeError('attribute is read-only')
         self.values[instance] = value
 
-    def __delete__(self, obj):
+    def __delete__(self, instance):
         raise AttributeError('attribute cannot be deleted')
 
 
@@ -81,7 +81,7 @@ def classproperty(func):
         def __set__(self, instance, value):
             raise AttributeError('read-only attribute cannot be set')
 
-        def __delete__(self, obj):
+        def __delete__(self, instance):
             raise AttributeError('read-only attribute cannot be deleted')
     return Descriptor()
 
