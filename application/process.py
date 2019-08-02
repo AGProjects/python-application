@@ -1,13 +1,13 @@
 
 """UNIX process and signal management"""
 
-import sys
-import os
-import time
-import errno
-import signal
-import atexit
 import __main__
+import atexit
+import errno
+import os
+import signal
+import sys
+import time
 
 from application import log
 from application.python.types import Singleton
