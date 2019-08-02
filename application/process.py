@@ -71,7 +71,6 @@ class Process(object):
         self._runtime_directory = path
 
     def _check_if_running(self):
-        """Check if the process is already running"""
         pidfile = self._pidfile
         if pidfile is None or not os.path.isfile(pidfile):
             return
@@ -102,7 +101,8 @@ class Process(object):
 
     @staticmethod
     def _do_fork():
-        """Perform the Unix double fork"""
+        # Perform the Unix double fork
+
         # First fork.
         # This will return control to the command line/shell that invoked us and
         # will guarantee that the forked child will not be a process group leader
@@ -141,7 +141,6 @@ class Process(object):
         os.umask(0o022)
 
     def _make_pidfile(self):
-        """Create the pidfile if defined"""
         if not self._pidfile:
             return
         try:
@@ -152,7 +151,7 @@ class Process(object):
 
     @staticmethod
     def _redirect_stdio():
-        """Redirect standard input, standard output and standard error to /dev/null"""
+        # Redirect standard input, standard output and standard error to /dev/null
         sys.stdout.flush()
         sys.stderr.flush()
         null = os.open('/dev/null', os.O_RDWR)
@@ -162,7 +161,6 @@ class Process(object):
         os.close(null)
 
     def _setup_signal_handlers(self):
-        """Setup the signal handlers for daemon mode"""
         signals = self.signals
         # Ignore Terminal I/O Signals
         if hasattr(signal, 'SIGTTOU'):
