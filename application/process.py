@@ -183,7 +183,7 @@ class Process(object):
                 log.warning('unable to delete pidfile %s: %s' % (self._pidfile, e))
 
     def daemonize(self, pidfile=None):
-        """Detach from terminal and run in the background"""
+        """Detach from the terminal and run in the background"""
         if self._daemon:
             raise ProcessError('already in daemon mode')
         self._daemon = True
