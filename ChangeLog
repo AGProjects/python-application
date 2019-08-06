@@ -20,6 +20,7 @@ Changes in version 2.8.0
   * Normalize names for descriptor method arguments
   * Removed docstrings from internal functions
   * Refactored configuration and runtime settings on Process
+  * Make the local_root undefined when running from system binary paths
 
 Changes in version 2.7.0
 ------------------------
