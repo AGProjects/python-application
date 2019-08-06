@@ -69,6 +69,16 @@ New in version 2.8.0
    subdirectory within the corresponding roots for the configuration and
    runtime locations.
 
+   There is one exception to this rule where the configuration local directory
+   doesn't use the subdirectory part because of different semantics compared
+   to system and user configuration directories.
+   This is because the local configuration directory is meant to be used when
+   running an application from its source directory where the configuration
+   files are either kept in the project root or some directory that is not
+   named after the application like with system or user configurations.
+   For this reason when the configuration local_directory is not set it will
+   simply mirror local_root.
+
    The default value for the subdirectory attribute is None which means it
    will not be used and files will go directly to the corresponding roots.
 

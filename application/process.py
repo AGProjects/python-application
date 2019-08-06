@@ -24,6 +24,7 @@ class ProcessError(Exception):
 # noinspection PyProtectedMember
 class DirectoryAttribute(object):
     def __init__(self, type_name=None):
+        self.type = type_name
         self.name = '_'.join(part for part in (type_name, 'directory') if part)
         self.root = '_'.join(part for part in (type_name, 'root') if part)
 
@@ -38,6 +39,8 @@ class DirectoryAttribute(object):
             root_directory = getattr(instance, self.root)
             if root_directory is None:
                 directory = None
+            elif self.type == 'local':
+                directory = root_directory  # the local directory doesn't use the subdirectory
             else:
                 directory = os.path.realpath(os.path.join(root_directory, instance.subdirectory or ''))
             return instance._cache.setdefault(self.name, directory)
