@@ -24,6 +24,9 @@ def signal_handler2(*args):
     log.info("second handler received signal %s" % args[0])
 
 
+# Setup logging format (prefix log lines with the log level)
+log.Formatter.prefix_format = '{record.levelname:<8s} '
+
 # The application name.
 name = 'process-example'
 
