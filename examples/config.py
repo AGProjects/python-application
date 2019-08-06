@@ -2,7 +2,7 @@
 
 """Example of reading application settings from a configuration file"""
 
-from application.configuration import *
+from application.configuration import ConfigFile, ConfigSection, ConfigSetting, datatypes
 from application.system import host
 
 
@@ -144,4 +144,3 @@ configuration = ConfigFile('config.ini')
 
 dburi = configuration.get_setting('Storage', 'dburi', type=str, default='undefined')
 print "\nGot dburi directly from Storage section as `%s'\n" % dburi
-
