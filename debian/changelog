@@ -14,8 +14,15 @@ python-application (2.8.0) unstable; urgency=medium
   * Added daemon property on Process to check if it's in daemon mode or not
   * Check exc_type instead of exc_value in the context manager's __exit__
   * Added module level log function to the log module similar to logging.log
+  * Use the with statement instead of try/finally
+  * Fixed broad exception statement
+  * Normalize names for descriptor method arguments
+  * Removed docstrings from internal functions
+  * Refactored configuration and runtime settings on Process
+  * Do not compress the examples in the debian package
+  * Added debian docs file
 
- -- Dan Pascu <dan@ag-projects.com>  Thu, 20 Jun 2019 17:24:18 +0300
+ -- Dan Pascu <dan@ag-projects.com>  Tue, 06 Aug 2019 12:40:47 +0300
 
 python-application (2.7.0) unstable; urgency=medium
 
