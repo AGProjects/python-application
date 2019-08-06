@@ -1,3 +1,154 @@
+New in version 2.8.0
+--------------------
+
+1. Added some utility functions for setting up the log system
+   A. Added set_handler function to set the main handler used by logging
+      (it will replace all existing handlers on the root logger)
+   B. Added capture_output function to capture and divert standard output
+      and standard error to the logging system
+
+2. Replaced start_syslog with use_syslog and deprecated the former
+
+3. Renamed IfNotInteractive to WhenNotInteractive
+
+4. Added daemon property on Process to check if it's in daemon mode or not
+
+5. Added module level log function to the log module similar to logging.log
+
+6. Refactored how the configuration and runtime settings are specified for
+   the process. Along with this, a new configuration directory was introduced.
+   While previously there was a system and a local configuration directory,
+   now we have system, user and local configuration directories. As for the
+   precedence, a local configuration file will override a user configuration
+   file which in turn will override a system configuration file.
+
+   The existing attributes, properties and methods that dealt with the
+   configuration and runtime settings were organized under two new
+   attributes on the process instance:
+
+     process.configuration and process.runtime
+
+   The configuration attribute is an object with the following attributes:
+     process.configuration.system_root
+     process.configuration.user_root
+     process.configuration.local_root
+     process.configuration.subdirectory
+
+   these properties:
+     process.configuration.system_directory
+     process.configuration.user_directory
+     process.configuration.local_directory
+     process.configuration.directories
+
+   and this method:
+     process.configuration.file(name)
+
+   The runtime attribute is an object with the following attributes:
+     process.runtime.root
+     process.runtime.subdirectory
+
+   this property:
+     process.runtime.directory
+
+   and these methods:
+     process.runtime.file(name)
+     process.runtime.create_directory()
+
+   The directory properties mentioned above if not explicitly set, will
+   default to a value that is calculated by combining the corresponding
+   root attribute with the subdirectory attribute.
+
+   For example the configuration system_directory if not explicitly set
+   will default to the value that results from combining the configuration
+   system_root with the configuration subdirectory, while the runtime
+   directory if not explicitly set will default to a value that results
+   from combining the runtime root with the runtime subdirectory.
+
+   The purpose of the subdirectory attribute of both the configuration and
+   runtime settings is to indicate that the application wants to use a
+   subdirectory within the corresponding roots for the configuration and
+   runtime locations.
+
+   The default value for the subdirectory attribute is None which means it
+   will not be used and files will go directly to the corresponding roots.
+
+   The default values for the system, user and local configuration roots
+   are respectively /etc, ~/.config and the application directory.
+
+   The default value for the runtime root is /run or /var/run depending
+   on the system.
+
+   The recommended way of setting up the configuration and runtime directories
+   is to specify the corresponding subdirectory attribute in case the
+   application uses a subdirectory. If a particular directory needs to be
+   at some different location, the recommended way is to set that specific
+   directory property. The root attributes should only be modified if they
+   are in a different location on the system where the application runs, or
+   if the root needs to be moved temporarily for testing purposes (like for
+   example moving the runtime root from /run to /tmp for testing).
+
+   If a particular configuration directory is not used by the application
+   it should be set to None. For example a server application that doesn't
+   need user configuration should set
+
+     process.configuration.user_directory = None
+
+   This refactoring introduced a backward incompatible change. In the previous
+   version, the runtime directory was created whenever the runtime_directory
+   property was set. In the new version this is no longer the case and one has
+   to explicitly do it by calling process.runtime.create_directory() after
+   setting up the runtime directory. This was done to avoid unexpected hidden
+   behaviours when setting the runtime directory.
+
+   The only exception to this rule is if the only file the application writes
+   to the runtime directory is the pid file, then it does not need to call
+   process.runtime.create_directory() explicitly, because process.daemonize()
+   will call it before creating the pid file. For all the other cases where
+   the application creates other files in the runtime directory and the runtime
+   directory is not guaranteed to exists when the application starts, it has
+   to explicitly call process.runtime.create_directory(), either after setting
+   up the runtime directory or before writing the runtime files, whichever is
+   more appropriate for the application.
+
+   Calling the create_directory function if the directory already exists has
+   no ill effects as it only creates the directory if it doesn't exist. In
+   addition to creating the directory, it will also check if the application
+   has permissions to use the runtime directory, and this check is done
+   regardless if the directory was created or not. If the directory cannot be
+   created of the application doesn't have permissions to access it it will
+   raise ProcessError.
+
+   Because of this incompatible change, it was decided not to keep the old
+   properties and functions in a deprecated form for backward compatibility
+   and have a partially compatible / partially incompatible change.
+
+   This means that before it can work with the new version, in addition to
+   explicitly creating the runtime directory, code needs to apply the
+   following translations:
+
+     process.runtime_directory        -> process.runtime.directory
+     process.runtime_file(name)       -> process.runtime.file(name)
+
+     process.system_config_directory  -> process.configuration.system_directory
+     process.local_config_directory   -> process.configuration.local_directory
+     process.get_config_directories() -> process.configuration.directories
+     process.config_file(name)        -> process.configuration.file(name)
+
+
+New in version 2.7.0
+--------------------
+
+Changed the subclasses generator in application.python into a function that
+returns a list. This significantly improved speed and also fixed duplicate
+entries in the output that happened in certain cases with the old version.
+
+
+New in version 2.6.0
+--------------------
+
+Allow process to wait for network to become available before starting
+
+
 New in version 2.5.0
 --------------------
 
