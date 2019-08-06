@@ -25,7 +25,7 @@ class ConfigFile(object):
     def __new__(cls, filename):
         files = []
         timestamp = 0
-        for path in process.get_config_directories():
+        for path in process.configuration.directories:
             config_file = os.path.realpath(os.path.join(path, filename))
             if config_file not in files and os.access(config_file, os.R_OK):
                 try:

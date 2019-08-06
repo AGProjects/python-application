@@ -60,17 +60,21 @@ print
 # and a section name (or an iterable that returns multiple section names
 # in which case they will be read in the order that the iterable returns
 # them). Internally the ConfigSection will create a ConfigFile instance
-# using the provided filename. The file is searched in both the system
-# and the local config directories and the files which are present will be
+# using the provided filename. The file is searched in the system, user and
+# local configuration directories and the files which are present will be
 # loaded in this order. This means that a local config file will overwrite
-# settings from the system config file if both are present.
-# The config directories are configurable on the process instance available
-# from application.process.process, as process.system_config_directory and
-# process.local_config_directory. By default the system config directory
-# defaults to /etc and the local config directory defaults to the path from
-# where the script is run, thus allowing applications to run from inside a
-# directory without any other dependencies. In this example the config file
-# will be read from ./config.ini which is in the local config directory.
+# settings from the user config file which will override settings from the
+# system config file.
+#
+# The configuration directories are exposed on the process instance available
+# from application.process.process, as .configuration.system_directory,
+# .configuration.user_directory and .configuration.local_directory.
+#
+# The default values for the system, user and local directories are
+# respectively /etc, ~/.config and the path from where the script is run,
+# thus allowing applications to run from inside a directory without any other
+# dependencies. In this example the config file will be read from ./config.ini
+# which is in the local config directory.
 #
 # While reading the section, only settings that are defined on the config
 # class wil be considered. Those present in the section that do not have a

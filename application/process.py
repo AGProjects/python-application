@@ -21,6 +21,105 @@ class ProcessError(Exception):
     pass
 
 
+# noinspection PyProtectedMember
+class DirectoryAttribute(object):
+    def __init__(self, type_name=None):
+        self.name = '_'.join(part for part in (type_name, 'directory') if part)
+        self.root = '_'.join(part for part in (type_name, 'root') if part)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        if self.name in instance.__dict__:
+            return instance.__dict__[self.name]
+        try:
+            return instance._cache[self.name]
+        except KeyError:
+            root_directory = getattr(instance, self.root)
+            if root_directory is None:
+                directory = None
+            else:
+                directory = os.path.realpath(os.path.join(root_directory, instance.subdirectory or ''))
+            return instance._cache.setdefault(self.name, directory)
+
+    def __set__(self, instance, value):
+        instance.__dict__[self.name] = os.path.realpath(value) if value is not None else None
+
+    def __delete__(self, instance):
+        try:
+            del instance.__dict__[self.name]
+        except KeyError:
+            raise AttributeError(self.name)
+
+
+class ConfigurationSettings(object):
+    _cache_affecting_attributes = {'system_root', 'user_root', 'local_root', 'subdirectory'}
+
+    system_directory = DirectoryAttribute('system')  # type: str
+    user_directory = DirectoryAttribute('user')      # type: str
+    local_directory = DirectoryAttribute('local')    # type: str
+
+    def __init__(self):
+        self._cache = {}
+        self.system_root = os.path.realpath('/etc')
+        self.user_root = os.path.realpath(os.path.expanduser('~/.config'))
+        self.local_root = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
+        self.subdirectory = None
+
+    def __setattr__(self, name, value):
+        super(ConfigurationSettings, self).__setattr__(name, value)
+        if name in self._cache_affecting_attributes:
+            self._cache.clear()
+
+    @property
+    def directories(self):
+        return [directory for directory in (self.system_directory, self.user_directory, self.local_directory) if directory is not None]
+
+    def file(self, name):
+        for directory in reversed(self.directories):
+            path = os.path.realpath(os.path.join(directory, name))
+            if os.path.isfile(path) and os.access(path, os.R_OK):
+                return path
+        return None
+
+
+class RuntimeSettings(object):
+    _cache_affecting_attributes = {'root', 'subdirectory'}
+
+    directory = DirectoryAttribute()  # type: str
+
+    def __init__(self):
+        self._cache = {}
+        self.root = os.path.realpath('/var/run')
+        self.subdirectory = None
+
+    def __setattr__(self, name, value):
+        super(RuntimeSettings, self).__setattr__(name, value)
+        if name in self._cache_affecting_attributes:
+            self._cache.clear()
+
+    def file(self, name):
+        if self.directory is not None:
+            return os.path.realpath(os.path.join(self.directory, name))
+        else:
+            return None
+
+    def create_directory(self):
+        directory = self.directory
+        if directory is None:
+            raise ProcessError('runtime directory is not defined')
+        if not os.path.exists(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise ProcessError('cannot create runtime directory at %s: %s' % (directory, e.strerror))
+        if not os.path.isdir(directory):
+            raise ProcessError('the path at %s is not a directory' % directory)
+        if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
+            raise ProcessError('lacking permissions to access runtime directory at %s' % directory)
+
+
 class Process(object):
     """Control how the current process runs and interacts with the operating system"""
 
@@ -29,46 +128,13 @@ class Process(object):
     def __init__(self):
         self._daemon = False
         self._pidfile = None
+        self.configuration = ConfigurationSettings()
+        self.runtime = RuntimeSettings()
         self.signals = Signals()
-        self._runtime_directory = os.path.realpath('/var/run')
-        self._system_config_directory = os.path.realpath('/etc')
-        self._local_config_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
 
     @property
     def daemon(self):
         return self._daemon
-
-    @property
-    def local_config_directory(self):
-        return self._local_config_directory
-
-    @local_config_directory.setter
-    def local_config_directory(self, path):
-        self._local_config_directory = os.path.realpath(path)
-
-    @property
-    def system_config_directory(self):
-        return self._system_config_directory
-
-    @system_config_directory.setter
-    def system_config_directory(self, path):
-        self._system_config_directory = os.path.realpath(path)
-
-    @property
-    def runtime_directory(self):
-        return self._runtime_directory
-
-    @runtime_directory.setter
-    def runtime_directory(self, path):
-        path = os.path.realpath(path)
-        if not os.path.isdir(path):
-            try:
-                os.makedirs(path)
-            except OSError as e:
-                raise ProcessError('cannot set runtime directory to %s: %s' % (path, e.strerror))
-        if not os.access(path, os.X_OK | os.W_OK):
-            raise ProcessError('runtime directory %s is not writable' % path)
-        self._runtime_directory = path
 
     def _check_if_running(self):
         pidfile = self._pidfile
@@ -143,6 +209,8 @@ class Process(object):
     def _make_pidfile(self):
         if not self._pidfile:
             return
+        if os.path.dirname(self._pidfile) == self.runtime.directory:
+            self.runtime.create_directory()
         try:
             with open(self._pidfile, 'wb') as pf:
                 pf.write('%s\n' % os.getpid())
@@ -188,36 +256,13 @@ class Process(object):
             raise ProcessError('already in daemon mode')
         self._daemon = True
         if pidfile:
-            self._pidfile = self.runtime_file(pidfile)
+            self._pidfile = self.runtime.file(pidfile)
         self._check_if_running()
         self._do_fork()
         self._make_pidfile()
         self._redirect_stdio()
         self._setup_signal_handlers()
         atexit.register(self.__on_exit)
-
-    def get_config_directories(self):
-        """Return a tuple containing the system and local config directories."""
-        return self._system_config_directory, self._local_config_directory
-
-    def config_file(self, name):
-        """Return a config file name. Lookup order: name if absolute, local_dir/name, system_dir/name, None if none found"""
-        path = os.path.realpath(os.path.join(self._local_config_directory, name))
-        if os.path.isfile(path) and os.access(path, os.R_OK):
-            return path
-        path = os.path.realpath(os.path.join(self._system_config_directory, name))
-        if os.path.isfile(path) and os.access(path, os.R_OK):
-            return path
-        return None
-
-    def runtime_file(self, name):
-        """Return a runtime file name (prepends runtime_directory if defined and name is not absolute, else name)."""
-        if name is None:
-            return None
-        if self.runtime_directory is not None:
-            return os.path.realpath(os.path.join(self.runtime_directory, name))
-        else:
-            return os.path.realpath(name)
 
     @staticmethod
     def wait_for_network(wait_time=10, wait_message=None, test_ip='1.2.3.4'):

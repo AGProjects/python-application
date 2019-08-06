@@ -33,17 +33,22 @@ name = 'process-example'
 # Set the process runtime directory. This is where the pid file and other
 # process runtime related files will be created. The default is /var/run
 # but in this example we use /tmp because we need a place where we have
-# write access even without running as root.
-process.runtime_directory = '/tmp'
+# write access even without running as root. Alternatively one can specify
+# process.runtime.root and process.runtime.subdirectory which are combined
+# to create process.runtime.directory when the latter is not explicitly set.
+process.runtime.directory = '/tmp'
 
 # These log lines will go to stdout.
 log.info("Starting %s. Check syslog to see what's going on next." % name)
-log.info("Use `watch -n .1 ls /tmp' to see how the pid file is created and deleted.")
+log.info("Use `watch -n .1 ls /tmp' to see how the pid file is created/deleted.")
 
 # Set the process to run in the background and create a pid file.
 # If daemonize is called without arguments or pidfile is None no pid file
-# will be created.
-pidfile = process.runtime_file('%s.pid' % name)
+# will be created. If a pid file is specified and it resides in the runtime
+# directory, the runtime directory will be created if necessary prior to
+# writing the pid file (using a relative pid file name will place it in
+# the runtime directory).
+pidfile = '{}.pid'.format(name)
 try:
     process.daemonize(pidfile)
 except ProcessError as e:
