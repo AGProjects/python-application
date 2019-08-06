@@ -54,16 +54,19 @@ class DirectoryAttribute(object):
 
 class ConfigurationSettings(object):
     _cache_affecting_attributes = {'system_root', 'user_root', 'local_root', 'subdirectory'}
+    _system_binary_directories = {'/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin'}
 
     system_directory = DirectoryAttribute('system')  # type: str
     user_directory = DirectoryAttribute('user')      # type: str
     local_directory = DirectoryAttribute('local')    # type: str
 
     def __init__(self):
+        # the script directory (the current directory when running in interactive mode)
+        script_directory = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
         self._cache = {}
         self.system_root = os.path.realpath('/etc')
         self.user_root = os.path.realpath(os.path.expanduser('~/.config'))
-        self.local_root = os.path.dirname(os.path.realpath(getattr(__main__, '__file__', sys.executable if hasattr(sys, 'frozen') else 'none')))
+        self.local_root = script_directory if script_directory not in self._system_binary_directories else None
         self.subdirectory = None
 
     def __setattr__(self, name, value):
