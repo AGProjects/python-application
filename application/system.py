@@ -127,9 +127,8 @@ def openfile(path, mode='r', permissions=0666):
 
 
 def unlink(path):
-    """Remove a file ignoring errors"""
-    # noinspection PyBroadException
+    """Remove a file ignoring OS errors"""
     try:
         os.unlink(path)
-    except Exception:
+    except OSError:
         pass
