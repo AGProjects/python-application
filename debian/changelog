@@ -20,10 +20,12 @@ python-application (2.8.0) unstable; urgency=medium
   * Removed docstrings from internal functions
   * Refactored configuration and runtime settings on Process
   * Make the local_root undefined when running from system binary paths
+  * Only ignore OSError in unlink wrapper
+  * Use the new octal notation for file modes
   * Do not compress the examples in the debian package
   * Added debian docs file
 
- -- Dan Pascu <dan@ag-projects.com>  Tue, 06 Aug 2019 17:51:34 +0300
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 14 Aug 2019 15:58:59 +0300
 
 python-application (2.7.0) unstable; urgency=medium
 
