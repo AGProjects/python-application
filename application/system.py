@@ -63,7 +63,7 @@ host = HostProperties()
 
 # Functions
 
-def makedirs(path, mode=0777):
+def makedirs(path, mode=0o777):
     """Create a directory recursively and ignore error if it already exists"""
     try:
         os.makedirs(path, mode)
@@ -77,7 +77,7 @@ class FileExistsError(IOError):
     pass
 
 
-def openfile(path, mode='r', permissions=0666):
+def openfile(path, mode='r', permissions=0o666):
     if not isinstance(mode, str):
         raise TypeError('Invalid mode: {!r}'.format(mode))
     if not set(mode).issubset('rwxabt+'):
