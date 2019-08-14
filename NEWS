@@ -15,7 +15,9 @@ New in version 2.8.0
 
 5. Added module level log function to the log module similar to logging.log
 
-6. Refactored how the configuration and runtime settings are specified for
+6. The unlink wrapper in application.system now only ignores OSError
+
+7. Refactored how the configuration and runtime settings are specified for
    the process. Along with this, a new configuration directory was introduced.
    While previously there was a system and a local configuration directory,
    now we have system, user and local configuration directories. As for the
