@@ -123,7 +123,7 @@ class RuntimeSettings(object):
         if not os.path.isdir(directory):
             raise ProcessError('the path at %s is not a directory' % directory)
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
-            raise ProcessError('lacking permissions to access runtime directory at %s' % directory)
+            raise ProcessError('lacking permissions to access the runtime directory at %s' % directory)
 
 
 class Process(object):
