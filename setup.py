@@ -2,8 +2,8 @@
 
 import os
 
-from distutils.core import setup, Distribution
 from application import __info__ as package_info
+from distutils.core import Distribution, setup
 
 Distribution.install_requires = None  # make distutils ignore this option that is used by setuptools when invoked from pip install
 
