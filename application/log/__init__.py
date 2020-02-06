@@ -36,7 +36,7 @@ class Formatter(logging.Formatter):
             message = record.message
         if self.prefix_format:
             prefix = self.prefix_format.format(record=record).ljust(self.prefix_length)
-            message = '\n'.join(prefix+l for l in message.split('\n'))
+            message = '\n'.join(prefix+line for line in message.split('\n'))
         return message
 
     def formatException(self, exc_info):
