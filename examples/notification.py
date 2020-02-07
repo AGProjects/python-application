@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 from time import time
 from zope.interface import implements
@@ -120,4 +120,3 @@ del volatile_observer
 print "\nSending notifications from AnonymousSender:"
 print "-------------------------------------------"
 anonymous.publish()
-

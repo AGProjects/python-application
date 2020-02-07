@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 """Example of using the debug facilities of python-application"""
 
@@ -72,4 +72,3 @@ del a, b
 
 print "\n\nThis will reveal an uncollectable circular reference (mem leak)"
 memory_dump()
-

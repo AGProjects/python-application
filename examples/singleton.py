@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 from application.python.types import Singleton
 
@@ -34,4 +34,3 @@ print "co3 is co4 (expect True):", co3 is co4
 print "co1 is co3 (expect False):", co1 is co3
 print "co4 is co5 (expect False):", co4 is co5
 print "co4 is co6 (expect False):", co4 is co6
-
