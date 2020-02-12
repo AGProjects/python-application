@@ -26,8 +26,12 @@ python-application (2.8.0) unstable; urgency=medium
   * Use pybuild for the debian build system
   * Do not compress the examples in the debian package
   * Added debian docs file
+  * Fixed spelling in exception message
+  * Ordered imports alphabetically
+  * Explicitly use python2 in shebang lines
+  * Increased debian standards version to 4.5.0
 
- -- Dan Pascu <dan@ag-projects.com>  Wed, 14 Aug 2019 16:10:51 +0300
+ -- Dan Pascu <dan@ag-projects.com>  Wed, 12 Feb 2020 16:17:28 +0200
 
 python-application (2.7.0) unstable; urgency=medium
 

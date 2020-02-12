@@ -23,6 +23,9 @@ Changes in version 2.8.0
   * Make the local_root undefined when running from system binary paths
   * Only ignore OSError in unlink wrapper
   * Use the new octal notation for file modes
+  * Fixed spelling in exception message
+  * Ordered imports alphabetically
+  * Explicitly use python2 in shebang lines
 
 Changes in version 2.7.0
 ------------------------
