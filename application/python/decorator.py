@@ -149,7 +149,7 @@ from application.python.decorator import decorator, preserve_signature
 def print_args(func):
     @preserve_signature(func)
     def wrapper(*args, **kw):
-        print('arguments: args={}, kw={}'.format(args, kw)
+        print('arguments: args={}, kw={}'.format(args, kw))
         return func(*args, **kw)
     return wrapper
 
